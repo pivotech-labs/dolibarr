@@ -34,12 +34,12 @@ class Propalmergepdfproduct extends CommonObject
 	/**
 	 * @var string ID to identify managed object
 	 */
-	public $element='propal_merge_pdf_product';			
-	
+	public $element='propal_merge_pdf_product';
+
 	/**
 	 * @var string Name of table without prefix where object is stored
 	 */
-	public $table_element='propal_merge_pdf_product';	
+	public $table_element='propal_merge_pdf_product';
 
 	var $fk_product;
 	var $file_name;
@@ -62,7 +62,6 @@ class Propalmergepdfproduct extends CommonObject
     function __construct($db)
     {
         $this->db = $db;
-        return 1;
     }
 
 
@@ -208,8 +207,6 @@ class Propalmergepdfproduct extends CommonObject
 				$this->datec = $this->db->jdate($obj->datec);
 				$this->tms = $this->db->jdate($obj->tms);
 				$this->import_key = $obj->import_key;
-
-
             }
             $this->db->free($resql);
 
@@ -223,6 +220,7 @@ class Propalmergepdfproduct extends CommonObject
         }
     }
 
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.NotCamelCaps
     /**
      *  Load object in memory from the database
      *
@@ -232,6 +230,7 @@ class Propalmergepdfproduct extends CommonObject
      */
     function fetch_by_product($product_id, $lang='')
     {
+        // phpcs:enable
     	global $langs,$conf;
 
     	$sql = "SELECT";
@@ -282,11 +281,7 @@ class Propalmergepdfproduct extends CommonObject
 	    			}else {
 	    				$this->lines[$obj->file_name]=$line;
 	    			}
-
-
     			}
-
-
     		}
     		$this->db->free($resql);
 
@@ -319,9 +314,6 @@ class Propalmergepdfproduct extends CommonObject
 		if (isset($this->file_name)) $this->file_name=trim($this->file_name);
 		if (isset($this->fk_user_mod)) $this->fk_user_mod=trim($this->fk_user_mod);
 		if (isset($this->lang)) $this->lang=trim($this->lang);
-
-
-
 
 		// Check parameters
 		// Put here code to add a control on parameters values
@@ -438,6 +430,7 @@ class Propalmergepdfproduct extends CommonObject
 		}
 	}
 
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.NotCamelCaps
 	/**
 	 *  Delete object in database
 	 *
@@ -449,6 +442,7 @@ class Propalmergepdfproduct extends CommonObject
 	 */
 	function delete_by_product($user, $product_id, $lang_id='',  $notrigger=0)
 	{
+        // phpcs:enable
 		global $conf, $langs;
 		$error=0;
 
@@ -502,6 +496,7 @@ class Propalmergepdfproduct extends CommonObject
 		}
 	}
 
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.NotCamelCaps
 	/**
 	 *  Delete object in database
 	 *
@@ -510,6 +505,7 @@ class Propalmergepdfproduct extends CommonObject
 	 */
 	function delete_by_file($user)
 	{
+        // phpcs:enable
 		global $conf, $langs;
 		$error=0;
 
@@ -632,10 +628,7 @@ class Propalmergepdfproduct extends CommonObject
 		$this->datec='';
 		$this->tms='';
 		$this->import_key='';
-
-
 	}
-
 }
 
 /**
@@ -648,15 +641,31 @@ class PropalmergepdfproductLine
 	 */
 	public $id;
 
-	var $fk_product;
-	var $file_name;
-	var $lang;
-	var $fk_user_author;
-	var $fk_user_mod;
-	var $datec='';
-	var $tms='';
-	var $import_key;
+	/**
+     * @var int ID
+     */
+	public $fk_product;
 
+	public $file_name;
+	public $lang;
+
+	/**
+     * @var int ID
+     */
+	public $fk_user_author;
+
+	/**
+     * @var int ID
+     */
+	public $fk_user_mod;
+
+	public $datec='';
+	public $tms='';
+	public $import_key;
+
+    /**
+     *  Constructor
+     */
     function __construct()
     {
         return 1;

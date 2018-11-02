@@ -76,7 +76,6 @@ function fichinter_prepare_head($object)
 				foreach($resources as $resource_obj)
 				{
 					$linked_resources = $object->getElementResources('fichinter',$object->id,$resource_obj);
-
 				}
 			}
 		}
@@ -163,6 +162,12 @@ function fichinter_admin_prepare_head()
 		return $head;
 }
 
+/**
+ * Prepare array with list of tabs
+ *
+ * @param   Object  $object     Object related to tabs
+ * @return  array               Array of tabs to show
+ */
 function fichinter_rec_prepare_head($object)
 {
 	global $langs, $conf; //, $user;

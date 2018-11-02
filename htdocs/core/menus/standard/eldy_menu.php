@@ -315,8 +315,6 @@ class MenuManager
 	        				}
 	        				print '</li>'."\n";
        					}
-
-
        				}
         			//var_dump($submenu);
         			print '</ul>';
@@ -335,6 +333,5 @@ class MenuManager
         //print 'xx'.$mode;
         return 0;
     }
-
 }
 

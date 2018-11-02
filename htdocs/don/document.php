@@ -40,9 +40,8 @@ if (! empty($conf->projet->enabled))
     require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
 }
 
-$langs->load("other");
-$langs->load("donations");
-$langs->load("companies");
+// Load translation files required by the page
+$langs->loadLangs(array("companies","other","donations"));
 
 $id = GETPOST('id','int');
 $ref = GETPOST('ref', 'alpha');
@@ -185,7 +184,6 @@ if ($object->id)
     $permtoedit = $user->rights->don->creer;
     $param = '&id=' . $object->id;
     include_once DOL_DOCUMENT_ROOT . '/core/tpl/document_actions_post_headers.tpl.php';
-
 }
 else
 {

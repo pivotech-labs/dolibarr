@@ -13,6 +13,7 @@
  * Copyright (C) 2014		Cédric GROSS					<c.gross@kreiz-it.fr>
  * Copyright (C) 2014-2015	Marcos García				<marcosgdf@gmail.com>
  * Copyright (C) 2015		Jean-François Ferry			<jfefe@aternatik.fr>
+ * Copyright (C) 2018       Frédéric France             <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,16 +115,16 @@ function getDoliDBInstance($type, $host, $user, $pass, $name, $port)
  *									'c_paiement', 'c_payment_term', ...
  * 	@param	int		$shared			0=Return id of current entity only,
  * 									1=Return id of current entity + shared entities (default)
- *  @param	int		$forceentity	Entity id
+ *  @param	object	$currentobject	Current object if needed
  * 	@return	mixed				Entity id(s) to use
  */
-function getEntity($element, $shared=1, $forceentity=null)
+function getEntity($element, $shared=1, $currentobject=null)
 {
 	global $conf, $mc;
 
 	if (is_object($mc))
 	{
-		return $mc->getEntity($element, $shared, $forceentity);
+		return $mc->getEntity($element, $shared, $currentobject);
 	}
 	else
 	{
@@ -430,7 +431,7 @@ function GETPOST($paramname, $check='none', $method=0, $filter=null, $options=nu
 						}
 						elseif (isset($user->default_values[$relativepathstring]['filters']))
 						{
-							foreach($user->default_values[$relativepathstring]['filters'] as $defkey => $defval)
+							foreach($user->default_values[$relativepathstring]['filters'] as $defkey => $defval)	// $defkey is a querystring like 'a=b&c=d', $defval is key of user
 							{
 								$qualified = 0;
 								if ($defkey != '_noquery_')
@@ -586,7 +587,6 @@ function GETPOST($paramname, $check='none', $method=0, $filter=null, $options=nu
 	// Save data into session if key start with 'search_' or is 'smonth', 'syear', 'month', 'year'
 	if (empty($method) || $method == 3 || $method == 4)
 	{
-		//if (preg_match('/^search_/', $paramname) || in_array($paramname, array('sortorder', 'sortfield", 'smonth', 'syear', 'month', 'year')))
 		if (preg_match('/^search_/', $paramname) || in_array($paramname, array('sortorder','sortfield')))
 		{
 			//var_dump($paramname.' - '.$out.' '.$user->default_values[$relativepathstring]['filters'][$paramname]);
@@ -595,8 +595,7 @@ function GETPOST($paramname, $check='none', $method=0, $filter=null, $options=nu
 			// - posted value not empty, or
 			// - if posted value is empty and a default value exists that is not empty (it means we did a filter to an empty value when default was not).
 
-			//if (! empty($out) || ! empty($user->default_values[$relativepathstring]['filters'][$paramname]))
-			if ($out != '')		// $out = '0' like 'abc' is a search criteria to keep
+			if ($out != '')		// $out = '0' or 'abc', it is a search criteria to keep
 			{
 				$user->lastsearch_values_tmp[$relativepathstring][$paramname]=$out;
 			}
@@ -607,19 +606,19 @@ function GETPOST($paramname, $check='none', $method=0, $filter=null, $options=nu
 }
 
 
-/**
- *  Return a prefix to use for this Dolibarr instance, for session/cookie names or email id.
- *  This prefix is valid in a web context only and is unique for instance and avoid conflict
- *  between multi-instances, even when having two instances with one root dir or two instances
- *  in virtual servers.
- *
- *  @param  string  $mode       			'' (prefix for session name) or 'email' (prefix for email id)
- *  @return	string      					A calculated prefix
- */
 if (! function_exists('dol_getprefix'))
 {
-	function dol_getprefix($mode='')
-	{
+    /**
+     *  Return a prefix to use for this Dolibarr instance, for session/cookie names or email id.
+     *  This prefix is valid in a web context only and is unique for instance and avoid conflict
+     *  between multi-instances, even when having two instances with one root dir or two instances
+     *  in virtual servers.
+     *
+     *  @param  string  $mode                   '' (prefix for session name) or 'email' (prefix for email id)
+     *  @return	string                          A calculated prefix
+     */
+    function dol_getprefix($mode='')
+    {
 		global $conf;
 
 		// If MAIL_PREFIX_FOR_EMAIL_ID is set and prefix is for email
@@ -1224,7 +1223,6 @@ function dol_get_fiche_head($links=array(), $active='', $title='', $notab=0, $pi
 					$outmore.='<a class="tabimage'.($morecss?' '.$morecss:'').'" href="'.$links[$i][0].'">'.$links[$i][1].'</a>'."\n";
 				else
 					$outmore.='<span class="tabspan">'.$links[$i][1].'</span>'."\n";
-
 			}
 			else if (! empty($links[$i][1]))
 			{
@@ -1353,7 +1351,7 @@ function dol_banner_tab($object, $paramid, $morehtml='', $shownav=1, $fieldid='r
 		$width=80; $cssclass='photoref';
 		$showimage=$object->is_photo_available($conf->product->multidir_output[$entity]);
 		$maxvisiblephotos=(isset($conf->global->PRODUCT_MAX_VISIBLE_PHOTO)?$conf->global->PRODUCT_MAX_VISIBLE_PHOTO:5);
-		if ($conf->browser->phone) $maxvisiblephotos=1;
+		if ($conf->browser->layout == 'phone') $maxvisiblephotos=1;
 		if ($showimage) $morehtmlleft.='<div class="floatleft inline-block valignmiddle divphotoref">'.$object->show_photos('product', $conf->product->multidir_output[$entity],'small',$maxvisiblephotos,0,0,0,$width,0).'</div>';
 		else
 		{
@@ -1372,7 +1370,7 @@ function dol_banner_tab($object, $paramid, $morehtml='', $shownav=1, $fieldid='r
 		$width=80; $cssclass='photoref';
 		$showimage=$object->is_photo_available($conf->ticket->multidir_output[$entity].'/'.$object->track_id);
 		$maxvisiblephotos=(isset($conf->global->TICKETSUP_MAX_VISIBLE_PHOTO)?$conf->global->TICKETSUP_MAX_VISIBLE_PHOTO:2);
-		if ($conf->browser->phone) $maxvisiblephotos=1;
+		if ($conf->browser->layout == 'phone') $maxvisiblephotos=1;
 		if ($showimage) $morehtmlleft.='<div class="floatleft inline-block valignmiddle divphotoref">'.$object->show_photos('ticket', $conf->ticket->multidir_output[$entity],'small',$maxvisiblephotos,0,0,0,$width,0).'</div>';
 		else
 		{
@@ -2191,50 +2189,52 @@ function dol_print_email($email,$cid=0,$socid=0,$addlink=0,$max=64,$showinvalid=
 }
 
 /**
- * Show Skype link
+ * Show social network link
  *
- * @param	string		$skype			Skype to show (only skype, without 'Name of recipient' before)
+ * @param	string		$value			Skype to show (only skype, without 'Name of recipient' before)
  * @param	int 		$cid 			Id of contact if known
  * @param	int 		$socid 			Id of third party if known
- * @param	int 		$addlink		0=no link to create action
- * @param	int			$max			Max number of characters to show
+ * @param	string 		$type			'skype','facebook',...
  * @return	string						HTML Link
  */
-function dol_print_skype($skype,$cid=0,$socid=0,$addlink=0,$max=64)
+function dol_print_socialnetworks($value,$cid,$socid,$type)
 {
 	global $conf,$user,$langs;
 
-	$newskype=$skype;
+	$newskype=$value;
 
-	if (empty($skype)) return '&nbsp;';
+	if (empty($value)) return '&nbsp;';
 
-	if (! empty($addlink))
+	if (! empty($type))
 	{
-		$newskype =img_picto($langs->trans("Skype"), 'object_skype.png');
-		$newskype.= '&nbsp;';
-		$newskype.=dol_trunc($skype,$max);
-		$newskype.= '&nbsp;';
-		$newskype.='<a href="skype:';
-		$newskype.=dol_trunc($skype,$max);
-		$newskype.='?call" alt="'.$langs->trans("Call").'&nbsp;'.$skype.'" title="'.$langs->trans("Call").'&nbsp;'.$skype.'">';
-		$newskype.='<img src="'.DOL_URL_ROOT.'/theme/common/skype_callbutton.png" border="0">';
-		$newskype.='</a>&nbsp;&nbsp;&nbsp;<a href="skype:';
-		$newskype.=dol_trunc($skype,$max);
-		$newskype.='?chat" alt="'.$langs->trans("Chat").'&nbsp;'.$skype.'" title="'.$langs->trans("Chat").'&nbsp;'.$skype.'">';
-		$newskype.='<img src="'.DOL_URL_ROOT.'/theme/common/skype_chatbutton.png" border="0">';
-		$newskype.='</a>';
-
-		if (($cid || $socid) && ! empty($conf->agenda->enabled) && $user->rights->agenda->myactions->create)
+		$newskype ='<div class="divsocialnetwork inline-block valignmiddle">';
+		$newskype.=img_picto($langs->trans(strtoupper($type)), $type.'.png', '', false, 0, 0, '', 'paddingright');
+		$newskype.=$value;
+		if ($type == 'skype')
 		{
-			$type='AC_SKYPE'; $link='';
-			if (! empty($conf->global->AGENDA_ADDACTIONFORSKYPE)) $link='<a href="'.DOL_URL_ROOT.'/comm/action/card.php?action=create&amp;backtopage=1&amp;actioncode='.$type.'&amp;contactid='.$cid.'&amp;socid='.$socid.'">'.img_object($langs->trans("AddAction"),"calendar").'</a>';
-			$newskype='<div class="divskype nowrap">'.$newskype.($link?' '.$link:'').'</div>';
+			$newskype.= '&nbsp;';
+			$newskype.='<a href="skype:';
+			$newskype.=$value;
+			$newskype.='?call" alt="'.$langs->trans("Call").'&nbsp;'.$value.'" title="'.$langs->trans("Call").'&nbsp;'.$value.'">';
+			$newskype.='<img src="'.DOL_URL_ROOT.'/theme/common/skype_callbutton.png" border="0">';
+			$newskype.='</a><a href="skype:';
+			$newskype.=$value;
+			$newskype.='?chat" alt="'.$langs->trans("Chat").'&nbsp;'.$value.'" title="'.$langs->trans("Chat").'&nbsp;'.$value.'">';
+			$newskype.='<img class="paddingleft" src="'.DOL_URL_ROOT.'/theme/common/skype_chatbutton.png" border="0">';
+			$newskype.='</a>';
 		}
+		if (($cid || $socid) && ! empty($conf->agenda->enabled) && $user->rights->agenda->myactions->create && $type=='skype')
+		{
+			$addlink='AC_SKYPE'; $link='';
+			if (! empty($conf->global->AGENDA_ADDACTIONFORSKYPE)) $link='<a href="'.DOL_URL_ROOT.'/comm/action/card.php?action=create&amp;backtopage=1&amp;actioncode='.$addlink.'&amp;contactid='.$cid.'&amp;socid='.$socid.'">'.img_object($langs->trans("AddAction"),"calendar").'</a>';
+			$newskype.=($link?' '.$link:'');
+		}
+		$newskype.='</div>';
 	}
 	else
 	{
 		$langs->load("errors");
-		$newskype.=img_warning($langs->trans("ErrorBadSkype",$skype));
+		$newskype.=img_warning($langs->trans("ErrorBadSocialNetworkValue",$value));
 	}
 	return $newskype;
 }
@@ -2549,7 +2549,7 @@ function dol_print_phone($phone,$countrycode='',$cid=0,$socid=0,$addlink='',$sep
 	}
 	if (! empty($addlink))	// Link on phone number (+ link to add action if conf->global->AGENDA_ADDACTIONFORPHONE set)
 	{
-		if (! empty($conf->browser->phone) || (! empty($conf->clicktodial->enabled) && ! empty($conf->global->CLICKTODIAL_USE_TEL_LINK_ON_PHONE_NUMBERS)))	// If phone or option for, we use link of phone
+		if ($conf->browser->layout == 'phone' || (! empty($conf->clicktodial->enabled) && ! empty($conf->global->CLICKTODIAL_USE_TEL_LINK_ON_PHONE_NUMBERS)))	// If phone or option for, we use link of phone
 		{
 			$newphone ='<a href="tel:'.$phone.'"';
 			$newphone.='>'.$phone.'</a>';
@@ -3152,12 +3152,14 @@ function img_picto($titlealt, $picto, $moreatt = '', $pictoisfullpath = false, $
 
 		//if (in_array($picto, array('switch_off', 'switch_on', 'off', 'on')))
 		if (empty($srconly) && in_array($pictowithoutext, array(
-				'bank', 'close_title', 'delete', 'edit', 'ellipsis-h', 'filter', 'grip', 'grip_title', 'off', 'on', 'play', 'playdisabled', 'printer', 'resize',
-				'switch_off', 'switch_on', 'unlink', 'uparrow')
-			)) {
+				'bank', 'close_title', 'delete', 'edit', 'ellipsis-h', 'filter', 'grip', 'grip_title', 'list', 'listlight', 'off', 'on', 'play', 'playdisabled', 'printer', 'resize',
+				'note','switch_off', 'switch_on', 'unlink', 'uparrow', '1downarrow', '1uparrow',
+				'skype','twitter','facebook'
+			)
+		)) {
 			$fakey = $pictowithoutext;
-			$facolor = '';
-			$fasize = '';
+			$facolor = ''; $fasize = '';
+			$marginleftonlyshort = 2;
 			if ($pictowithoutext == 'switch_off') {
 				$fakey = 'fa-toggle-off';
 				$facolor = '#999';
@@ -3197,6 +3199,11 @@ function img_picto($titlealt, $picto, $moreatt = '', $pictoisfullpath = false, $
 			elseif ($pictowithoutext == 'grip_title' || $pictowithoutext == 'grip') {
 				$fakey = 'fa-arrows';
 			}
+			elseif ($pictowithoutext == 'listlight') {
+				$fakey = 'fa-download';
+				$facolor = '#999';
+				$marginleftonlyshort=1;
+			}
 			elseif ($pictowithoutext == 'printer') {
 				$fakey = 'fa-print';
 				$fasize = '1.2em';
@@ -3206,9 +3213,22 @@ function img_picto($titlealt, $picto, $moreatt = '', $pictoisfullpath = false, $
 				$fakey = 'fa-crop';
 				$facolor = '#444';
 			}
+			elseif ($pictowithoutext == 'note') {
+				$fakey = 'fa-sticky-note-o';
+				$facolor = '#999';
+				$marginleftonlyshort=1;
+			}
 			elseif ($pictowithoutext == 'uparrow') {
 				$fakey = 'fa-mail-forward';
 				$facolor = '#555';
+			}
+			elseif ($pictowithoutext == '1uparrow') {
+				$fakey = 'fa-caret-up';
+				$marginleftonlyshort = 1;
+			}
+			elseif ($pictowithoutext == '1downarrow') {
+				$fakey = 'fa-caret-down';
+				$marginleftonlyshort = 1;
 			}
 			elseif ($pictowithoutext == 'unlink')     {
 				$fakey = 'fa-chain-broken';
@@ -3217,16 +3237,20 @@ function img_picto($titlealt, $picto, $moreatt = '', $pictoisfullpath = false, $
 			elseif ($pictowithoutext == 'playdisabled') {
 				$fakey = 'fa-play';
 				$facolor = '#ccc';
+			} elseif ($pictowithoutext == 'play') {
+				$fakey = 'fa-play';
+				$facolor = '#444';
 			}
 			else {
 				$fakey = 'fa-'.$pictowithoutext;
 				$facolor = '#444';
+				$marginleftonlyshort=0;
 			}
 
 			if (preg_match('/class="([^"]+)"/', $moreatt, $reg)) {
 				$morecss.= ($morecss?' ':'').$reg[1];
 			}
-			$enabledisablehtml = '<span class="fa '.$fakey.' marginleftonly valignmiddle'.($morecss?' '.$morecss:'').'" style="'.($fasize?('font-size: '.$fasize.';'):'').($facolor?(' color: '.$facolor.';'):'').'" alt="'.dol_escape_htmltag($titlealt).'" title="'.dol_escape_htmltag($titlealt).'"'.($moreatt?' '.$moreatt:'').'>';
+			$enabledisablehtml = '<span class="fa '.$fakey.' '.($marginleftonlyshort?($marginleftonlyshort==1?'marginleftonlyshort':'marginleftonly'):'').' valignmiddle'.($morecss?' '.$morecss:'').'" style="'.($fasize?('font-size: '.$fasize.';'):'').($facolor?(' color: '.$facolor.';'):'').'" alt="'.dol_escape_htmltag($titlealt).'"'.(($notitle || empty($title))?'':' title="'.dol_escape_htmltag($title).'"').($moreatt?' '.$moreatt:'').'>';
 			if (! empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER)) {
 				$enabledisablehtml.= $titlealt;
 			}
@@ -3275,15 +3299,8 @@ function img_picto($titlealt, $picto, $moreatt = '', $pictoisfullpath = false, $
 	if ($srconly) {
 		return $fullpathpicto;
 	}
-	else {
 		// tag title is used for tooltip on <a>, tag alt can be used with very simple text on image for bind people
-		//$tmparray=array(0=>$titlealt);
-		//if (empty($notitle) && preg_match('/:[^\s0-9]/',$titlealt)) $tmparray=explode(':',$titlealt);		// We explode if we have TextA:TextB. Not if we have TextA: TextB
-		//$title=$tmparray[0];
-		//$alt=empty($tmparray[1])?'':$tmparray[1];
-		$title = $titlealt;
-		return '<img src="'.$fullpathpicto.'" alt="'.dol_escape_htmltag($alt).'"'.(($notitle || empty($title))?'':' title="'.dol_escape_htmltag($title).'"').($moreatt?' '.$moreatt:' class="inline-block'.($morecss?' '.$morecss:'').'"').'>';	// Alt is used for accessibility, title for popup
-	}
+    return '<img src="'.$fullpathpicto.'" alt="'.dol_escape_htmltag($alt).'"'.(($notitle || empty($titlealt))?'':' title="'.dol_escape_htmltag($titlealt).'"').($moreatt?' '.$moreatt:' class="inline-block'.($morecss?' '.$morecss:'').'"').'>';	// Alt is used for accessibility, title for popup
 }
 
 /**
@@ -3857,8 +3874,8 @@ function dol_print_error($db='',$error='',$errors=null)
 		$langs = new Translate('', $conf);
 		$langs->load("main");
 	}
-	$langs->load("main");
-	$langs->load("errors");
+	// Load translation files required by the page
+    $langs->loadLangs(array('main', 'errors'));
 
 	if ($_SERVER['DOCUMENT_ROOT'])    // Mode web
 	{
@@ -3910,7 +3927,6 @@ function dol_print_error($db='',$error='',$errors=null)
 			$out.='> '.$langs->transnoentities("RequestLastAccessInError").":\n".($db->lastqueryerror()?$db->lastqueryerror():$langs->transnoentities("ErrorNoRequestInError"))."\n";
 			$out.='> '.$langs->transnoentities("ReturnCodeLastAccessInError").":\n".($db->lasterrno()?$db->lasterrno():$langs->transnoentities("ErrorNoRequestInError"))."\n";
 			$out.='> '.$langs->transnoentities("InformationLastAccessInError").":\n".($db->lasterror()?$db->lasterror():$langs->transnoentities("ErrorNoRequestInError"))."\n";
-
 		}
 		$syslog.=", sql=".$db->lastquery();
 		$syslog.=", db_error=".$db->lasterror();
@@ -4167,13 +4183,13 @@ function print_fiche_titre($title, $mesg='', $picto='title_generic.png', $pictoi
  *	@param	string	$morehtmlright		Added message to show on right
  *	@param	string	$picto				Icon to use before title (should be a 32x32 transparent png file)
  *	@param	int		$pictoisfullpath	1=Icon name is a full absolute url of image
- * 	@param	int		$id					To force an id on html objects
+ * 	@param	string	$id					To force an id on html objects
  *  @param  string  $morecssontable     More css on table
  *	@param	string	$morehtmlcenter		Added message to show on center
  * 	@return	string
  *  @see print_barre_liste
  */
-function load_fiche_titre($titre, $morehtmlright='', $picto='title_generic.png', $pictoisfullpath=0, $id=0, $morecssontable='', $morehtmlcenter='')
+function load_fiche_titre($titre, $morehtmlright='', $picto='title_generic.png', $pictoisfullpath=0, $id='', $morecssontable='', $morehtmlcenter='')
 {
 	global $conf;
 
@@ -4183,7 +4199,7 @@ function load_fiche_titre($titre, $morehtmlright='', $picto='title_generic.png',
 
 	$return.= "\n";
 	$return.= '<table '.($id?'id="'.$id.'" ':'').'summary="" class="centpercent notopnoleftnoright'.($morecssontable?' '.$morecssontable:'').'" style="margin-bottom: 2px;"><tr>';
-	if ($picto) $return.= '<td class="nobordernopadding widthpictotitle opacityhigh" valign="middle">'.img_picto('',$picto, 'class="valignmiddle widthpictotitle" id="pictotitle"', $pictoisfullpath).'</td>';
+	if ($picto) $return.= '<td class="nobordernopadding widthpictotitle opacityhigh" valign="middle">'.img_picto('',$picto, 'class="valignmiddle widthpictotitle pictotitle"', $pictoisfullpath).'</td>';
 	$return.= '<td class="nobordernopadding" valign="middle">';
 	$return.= '<div class="titre">'.$titre.'</div>';
 	$return.= '</td>';
@@ -4249,7 +4265,7 @@ function print_barre_liste($titre, $page, $file, $options='', $sortfield='', $so
 	// Left
 	//if ($picto && $titre) print '<td class="nobordernopadding hideonsmartphone" width="40" align="left" valign="middle">'.img_picto('', $picto, 'id="pictotitle"', $pictoisfullpath).'</td>';
 	print '<td class="nobordernopadding valignmiddle">';
-	if ($picto && $titre) print img_picto('', $picto, 'class="hideonsmartphone valignmiddle opacityhigh widthpictotitle" id="pictotitle"', $pictoisfullpath);
+	if ($picto && $titre) print img_picto('', $picto, 'class="hideonsmartphone valignmiddle opacityhigh pictotitle widthpictotitle"', $pictoisfullpath);
 	print '<div class="titre inline-block">'.$titre;
 	if (!empty($titre) && $savtotalnboflines >= 0 && (string) $savtotalnboflines != '') print ' ('.$totalnboflines.')';
 	print '</div></td>';
@@ -4549,6 +4565,7 @@ function price($amount, $form=0, $outlangs='', $trunc=1, $rounding=-1, $forcerou
  * 									'MU'=Round to Max unit price (MAIN_MAX_DECIMALS_UNIT)
  *									'MT'=Round to Max for totals with Tax (MAIN_MAX_DECIMALS_TOT)
  *									'MS'=Round to Max for stock quantity (MAIN_MAX_DECIMALS_STOCK)
+ *									Numeric = Nb of digits for rounding
  * 	@param	int		$alreadysqlnb	Put 1 if you know that content is already universal format number
  *	@return	string					Amount with universal numeric format (Example: '99.99999') or unchanged text if conversion fails. If amount is null or '', it returns ''.
  *
@@ -4599,7 +4616,7 @@ function price2num($amount,$rounding='',$alreadysqlnb=0)
 		if ($rounding == 'MU')     $nbofdectoround=$conf->global->MAIN_MAX_DECIMALS_UNIT;
 		elseif ($rounding == 'MT') $nbofdectoround=$conf->global->MAIN_MAX_DECIMALS_TOT;
 		elseif ($rounding == 'MS') $nbofdectoround=empty($conf->global->MAIN_MAX_DECIMALS_STOCK)?5:$conf->global->MAIN_MAX_DECIMALS_STOCK;
-		elseif (is_numeric($rounding))  $nbofdectoround=$rounding; 	// For admin info page
+		elseif (is_numeric($rounding))  $nbofdectoround=$rounding;
 		//print "RR".$amount.' - '.$nbofdectoround.'<br>';
 		if (dol_strlen($nbofdectoround)) $amount = round($amount,$nbofdectoround);	// $nbofdectoround can be 0.
 		else return 'ErrorBadParameterProvidedToFunction';
@@ -4859,7 +4876,6 @@ function get_localtax_by_third($local)
 	}
 
 	return 0;
-
 }
 
 
@@ -4972,7 +4988,6 @@ function getLocalTaxesFromRate($vatrate, $local, $buyer, $seller, $firstparamisi
 		else
 		{
 			return array($obj->localtax1_type, get_localtax($vatrate, 1, $buyer, $seller), $obj->localtax2_type, get_localtax($vatrate, 2, $buyer, $seller), $obj->accountancy_code_sell,$obj->accountancy_code_buy);
-
 		}
 	}
 
@@ -4985,7 +5000,7 @@ function getLocalTaxesFromRate($vatrate, $local, $buyer, $seller, $firstparamisi
  *
  *  @param	int			$idprod          	Id of product or 0 if not a predefined product
  *  @param  Societe		$thirdparty_seller  Thirdparty with a ->country_code defined (FR, US, IT, ...)
- *	@param	int			$idprodfournprice	Id product_fournisseur_price (for "supplier" order/invoice)
+ *	@param	int			$idprodfournprice	Id product_fournisseur_price (for "supplier" proposal/order/invoice)
  *  @return float|string   				    Vat rate to use with format 5.0 or '5.0 (XXX)'
  *  @see get_product_localtax_for_country
  */
@@ -5006,7 +5021,7 @@ function get_product_vat_for_country($idprod, $thirdparty_seller, $idprodfournpr
 
 		if ($mysoc->country_code == $thirdparty_seller->country_code) // If selling country is ours
 		{
-			if ($idprodfournprice > 0)     // We want vat for product for a "supplier" order or invoice
+			if ($idprodfournprice > 0)     // We want vat for product for a "supplier" object
 			{
 				$product->get_buyprice($idprodfournprice,0,0,0);
 				$ret=$product->vatrate_supplier;
@@ -5031,7 +5046,7 @@ function get_product_vat_for_country($idprod, $thirdparty_seller, $idprodfournpr
 		if (empty($conf->global->MAIN_VAT_DEFAULT_IF_AUTODETECT_FAILS))
 		{
 			// If vat of product for the country not found or not defined, we return the first higher vat of country.
-			$sql = "SELECT taux as vat_rate";
+			$sql = "SELECT t.taux as vat_rate, t.code as default_vat_code";
 			$sql.= " FROM ".MAIN_DB_PREFIX."c_tva as t, ".MAIN_DB_PREFIX."c_country as c";
 			$sql.= " WHERE t.active=1 AND t.fk_pays = c.rowid AND c.code='".$thirdparty_seller->country_code."'";
 			$sql.= " ORDER BY t.taux DESC, t.code ASC, t.recuperableonly ASC";
@@ -5044,6 +5059,7 @@ function get_product_vat_for_country($idprod, $thirdparty_seller, $idprodfournpr
 				if ($obj)
 				{
 					$ret=$obj->vat_rate;
+					if ($obj->default_vat_code) $ret.=' ('.$obj->default_vat_code.')';
 				}
 				$db->free($sql);
 			}
@@ -5093,8 +5109,6 @@ function get_product_localtax_for_country($idprod, $local, $thirdparty_seller)
 		else
 		{
 			// TODO Read default product vat according to countrycode and product
-
-
 		}
 	}
 
@@ -5203,6 +5217,11 @@ function get_default_tva(Societe $thirdparty_seller, Societe $thirdparty_buyer, 
 			//print 'VATRULE 4';
 			return get_product_vat_for_country($idprod,$thirdparty_seller,$idprodfournprice);
 		}
+	}
+
+	// Si (vendeur en France et acheteur hors Communaute europeenne et acheteur particulier) alors TVA par defaut=TVA du produit vendu. Fin de regle
+	if (! empty($conf->global->MAIN_USE_VAT_OF_PRODUCT_FOR_INDIVIDUAL_CUSTOMER_OUT_OF_EEC) && empty($buyer_in_cee) && !$thirdparty_buyer->isACompany()) {
+		return get_product_vat_for_country($idprod,$thirdparty_seller,$idprodfournprice);
 	}
 
 	// Sinon la TVA proposee par defaut=0. Fin de regle.
@@ -5572,7 +5591,6 @@ function dolGetFirstLineOfText($text, $nboflines=1)
 		{
 			$firstline=preg_replace('/<br[^>]*>.*$/s','',$text);		// The s pattern modifier means the . can match newline characters
 			$firstline=preg_replace('/<div[^>]*>.*$/s','',$firstline);	// The s pattern modifier means the . can match newline characters
-
 		}
 		else
 		{
@@ -5944,7 +5962,8 @@ function getCommonSubstitutionArray($outputlangs, $onlykey=0, $exclude=null, $ob
 			'__MYCOMPANY_ZIP__'     => $mysoc->zip,
 			'__MYCOMPANY_TOWN__'    => $mysoc->town,
 			'__MYCOMPANY_COUNTRY__'    => $mysoc->country,
-			'__MYCOMPANY_COUNTRY_ID__' => $mysoc->country_id
+			'__MYCOMPANY_COUNTRY_ID__' => $mysoc->country_id,
+			'__MYCOMPANY_CURRENCY_CODE__' => $conf->currency
 		));
 	}
 
@@ -5960,6 +5979,7 @@ function getCommonSubstitutionArray($outputlangs, $onlykey=0, $exclude=null, $ob
 
 			$substitutionarray['__THIRDPARTY_ID__'] = '__THIRDPARTY_ID__';
 			$substitutionarray['__THIRDPARTY_NAME__'] = '__THIRDPARTY_NAME__';
+			$substitutionarray['__THIRDPARTY_NAME_ALIAS__'] = '__THIRDPARTY_NAME_ALIAS__';
 			$substitutionarray['__THIRDPARTY_EMAIL__'] = '__THIRDPARTY_EMAIL__';
 
 			if (is_object($object) && $object->element == 'member')
@@ -6022,6 +6042,12 @@ function getCommonSubstitutionArray($outputlangs, $onlykey=0, $exclude=null, $ob
 			$substitutionarray['__MEMBER_PHONE__']=$msgishtml?dol_htmlentitiesbr($object->phone):$object->phone;
 			$substitutionarray['__MEMBER_PHONEPRO__']=$msgishtml?dol_htmlentitiesbr($object->phone_perso):$object->phone_perso;
 			$substitutionarray['__MEMBER_PHONEMOBILE__']=$msgishtml?dol_htmlentitiesbr($object->phone_mobile):$object->phone_mobile;
+			$substitutionarray['__MEMBER_FIRST_SUBSCRIPTION_DATE__']       = dol_print_date($object->first_subscription_date, 'dayrfc');
+			$substitutionarray['__MEMBER_FIRST_SUBSCRIPTION_DATE_START__'] = dol_print_date($object->first_subscription_date_start, 'dayrfc');
+			$substitutionarray['__MEMBER_FIRST_SUBSCRIPTION_DATE_END__']   = dol_print_date($object->first_subscription_date_end, 'dayrfc');
+			$substitutionarray['__MEMBER_LAST_SUBSCRIPTION_DATE__']        = dol_print_date($object->last_subscription_date, 'dayrfc');
+			$substitutionarray['__MEMBER_LAST_SUBSCRIPTION_DATE_START__']  = dol_print_date($object->last_subscription_date_start, 'dayrfc');
+			$substitutionarray['__MEMBER_LAST_SUBSCRIPTION_DATE_END__']    = dol_print_date($object->last_subscription_date_end, 'dayrfc');
 
 			if (is_object($object) && $object->element == 'societe')
 			{
@@ -6093,7 +6119,7 @@ function getCommonSubstitutionArray($outputlangs, $onlykey=0, $exclude=null, $ob
 			{
 				// Set the online payment url link into __ONLINE_PAYMENT_URL__ key
 				require_once DOL_DOCUMENT_ROOT.'/core/lib/payments.lib.php';
-				$outputlangs->load('paypal');
+				$outputlangs->loadLangs(array('paypal','other'));
 				$typeforonlinepayment='free';
 				if (is_object($object) && $object->element == 'commande') $typeforonlinepayment='order';
 				if (is_object($object) && $object->element == 'facture')  $typeforonlinepayment='invoice';
@@ -6102,7 +6128,7 @@ function getCommonSubstitutionArray($outputlangs, $onlykey=0, $exclude=null, $ob
 				$paymenturl=$url;
 			}
 
-			$substitutionarray['__ONLINE_PAYMENT_TEXT_AND_URL__']=($paymenturl?$outputlangs->trans("PredefinedMailContentLink", $paymenturl):'');
+			$substitutionarray['__ONLINE_PAYMENT_TEXT_AND_URL__']=($paymenturl?str_replace('\n', "\n", $outputlangs->trans("PredefinedMailContentLink", $paymenturl)):'');
 			$substitutionarray['__ONLINE_PAYMENT_URL__']=$paymenturl;
 		}
 	}
@@ -6117,11 +6143,11 @@ function getCommonSubstitutionArray($outputlangs, $onlykey=0, $exclude=null, $ob
 		if ($onlykey != 2 || $mysoc->useLocalTax(1)) $substitutionarray['__AMOUNT_TAX2__']     = is_object($object)?$object->total_localtax1:'';
 		if ($onlykey != 2 || $mysoc->useLocalTax(2)) $substitutionarray['__AMOUNT_TAX3__']     = is_object($object)?$object->total_localtax2:'';
 
-		$substitutionarray['__AMOUNT_FORMATED__']          = is_object($object)?price($object->total_ttc, 0, $outputlangs, 0, 0, -1, $conf->currency_code):'';
-		$substitutionarray['__AMOUNT_EXCL_TAX_FORMATED__'] = is_object($object)?price($object->total_ht, 0, $outputlangs, 0, 0, -1, $conf->currency_code):'';
-		$substitutionarray['__AMOUNT_VAT_FORMATED__']      = is_object($object)?($object->total_vat?price($object->total_vat, 0, $outputlangs, 0, 0, -1, $conf->currency_code):price($object->total_tva, 0, $outputlangs, 0, 0, -1, $conf->currency_code)):'';
-		if ($onlykey != 2 || $mysoc->useLocalTax(1)) $substitutionarray['__AMOUNT_TAX2_FORMATED__']     = is_object($object)?price($object->total_localtax1, 0, $outputlangs, 0, 0, -1, $conf->currency_code):'';
-		if ($onlykey != 2 || $mysoc->useLocalTax(2)) $substitutionarray['__AMOUNT_TAX3_FORMATED__']     = is_object($object)?price($object->total_localtax2, 0, $outputlangs, 0, 0, -1, $conf->currency_code):'';
+		$substitutionarray['__AMOUNT_FORMATED__']          = is_object($object)?price($object->total_ttc, 0, $outputlangs, 0, 0, -1, $conf->currency):'';
+		$substitutionarray['__AMOUNT_EXCL_TAX_FORMATED__'] = is_object($object)?price($object->total_ht, 0, $outputlangs, 0, 0, -1, $conf->currency):'';
+		$substitutionarray['__AMOUNT_VAT_FORMATED__']      = is_object($object)?($object->total_vat?price($object->total_vat, 0, $outputlangs, 0, 0, -1, $conf->currency):price($object->total_tva, 0, $outputlangs, 0, 0, -1, $conf->currency)):'';
+		if ($onlykey != 2 || $mysoc->useLocalTax(1)) $substitutionarray['__AMOUNT_TAX2_FORMATED__']     = is_object($object)?price($object->total_localtax1, 0, $outputlangs, 0, 0, -1, $conf->currency):'';
+		if ($onlykey != 2 || $mysoc->useLocalTax(2)) $substitutionarray['__AMOUNT_TAX3_FORMATED__']     = is_object($object)?price($object->total_localtax2, 0, $outputlangs, 0, 0, -1, $conf->currency):'';
 
 		// TODO Add keys for foreign multicurrency
 
@@ -6134,6 +6160,7 @@ function getCommonSubstitutionArray($outputlangs, $onlykey=0, $exclude=null, $ob
 		}
 	}
 
+	//var_dump($substitutionarray['__AMOUNT_FORMATED__']);
 	if (empty($exclude) || ! in_array('date', $exclude))
 	{
 		include_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
@@ -6146,12 +6173,13 @@ function getCommonSubstitutionArray($outputlangs, $onlykey=0, $exclude=null, $ob
 
 		$substitutionarray=array_merge($substitutionarray, array(
 			'__DAY__' => (string) $tmp['mday'],
-			'__DAY_TEXT__' => $outputlangs->trans('Day'.$tmp['wday']),
-			'__DAY_TEXT_SHORT__' => $outputlangs->trans('Short'.$tmp['weekday']),
-			'__DAY_TEXT_MIN__' => $outputlangs->trans($tmp['weekday'].'Min'),
+			'__DAY_TEXT__' => $outputlangs->trans('Day'.$tmp['wday']),					// Monday
+			'__DAY_TEXT_SHORT__' => $outputlangs->trans($tmp['weekday'].'Min'),			// Mon
+			'__DAY_TEXT_MIN__' => $outputlangs->trans('Short'.$tmp['weekday']),			// M
 			'__MONTH__' => (string) $tmp['mon'],
-			'__MONTH_TEXT__' => $outputlangs->trans($tmp['month']),
-			'__MONTH_TEXT_MIN__' => $outputlangs->trans($tmp['month'].'Min'),
+			'__MONTH_TEXT__' => $outputlangs->trans('Month'.sprintf("%02d", $tmp['mon'])),
+			'__MONTH_TEXT_SHORT__' => $outputlangs->trans('MonthShort'.sprintf("%02d", $tmp['mon'])),
+			'__MONTH_TEXT_MIN__' => $outputlangs->trans('MonthVeryShort'.sprintf("%02d", $tmp['mon'])),
 			'__YEAR__' => (string) $tmp['year'],
 			'__PREVIOUS_DAY__' => (string) $tmp2['day'],
 			'__PREVIOUS_MONTH__' => (string) $tmp3['month'],
@@ -6188,7 +6216,7 @@ function getCommonSubstitutionArray($outputlangs, $onlykey=0, $exclude=null, $ob
  *  @param  array		$substitutionarray		Array with key->val to substitute. Example: array('__MYKEY__' => 'MyVal', ...)
  *  @param	Translate	$outputlangs			Output language
  * 	@return string  		    				Output string after substitutions
- *  @see	complete_substitutions_array
+ *  @see	complete_substitutions_array, getCommonSubstitutionArray
  */
 function make_substitutions($text, $substitutionarray, $outputlangs=null)
 {
@@ -6547,7 +6575,7 @@ function get_htmloutput_mesg($mesgstring='',$mesgarray='', $style='ok', $keepemb
 /**
  *  Get formated error messages to output (Used to show messages on html output).
  *
- *  @param	string	$mesgstring         Error message
+ *  @param  string	$mesgstring         Error message
  *  @param  array	$mesgarray          Error messages array
  *  @param  int		$keepembedded       Set to 1 in error message must be kept embedded into its html place (this disable jnotify)
  *  @return string                		Return html output
@@ -6555,7 +6583,7 @@ function get_htmloutput_mesg($mesgstring='',$mesgarray='', $style='ok', $keepemb
  *  @see    dol_print_error
  *  @see    dol_htmloutput_mesg
  */
-function get_htmloutput_errors($mesgstring='', $mesgarray='', $keepembedded=0)
+function get_htmloutput_errors($mesgstring='', $mesgarray=array(), $keepembedded=0)
 {
 	return get_htmloutput_mesg($mesgstring, $mesgarray,'error',$keepembedded);
 }
@@ -6565,15 +6593,15 @@ function get_htmloutput_errors($mesgstring='', $mesgarray='', $keepembedded=0)
  *
  *	@param	string		$mesgstring		Message string or message key
  *	@param	string[]	$mesgarray      Array of message strings or message keys
- *  @param  string      $style          Which style to use ('ok', 'warning', 'error')
- *  @param  int         $keepembedded   Set to 1 if message must be kept embedded into its html place (this disable jnotify)
- *  @return	void
+ *	@param  string      $style          Which style to use ('ok', 'warning', 'error')
+ *	@param  int         $keepembedded   Set to 1 if message must be kept embedded into its html place (this disable jnotify)
+ *	@return	void
  *
- *  @see    dol_print_error
- *  @see    dol_htmloutput_errors
- *  @see    setEventMessages
+ *	@see    dol_print_error
+ *	@see    dol_htmloutput_errors
+ *	@see    setEventMessages
  */
-function dol_htmloutput_mesg($mesgstring='',$mesgarray='', $style='ok', $keepembedded=0)
+function dol_htmloutput_mesg($mesgstring = '',$mesgarray = array(), $style = 'ok', $keepembedded=0)
 {
 	if (empty($mesgstring) && (! is_array($mesgarray) || count($mesgarray) == 0)) return;
 
@@ -6627,7 +6655,7 @@ function dol_htmloutput_mesg($mesgstring='',$mesgarray='', $style='ok', $keepemb
  *  @see    dol_print_error
  *  @see    dol_htmloutput_mesg
  */
-function dol_htmloutput_errors($mesgstring='', $mesgarray='', $keepembedded=0)
+function dol_htmloutput_errors($mesgstring='', $mesgarray=array(), $keepembedded=0)
 {
 	dol_htmloutput_mesg($mesgstring, $mesgarray, 'error', $keepembedded);
 }
@@ -6989,11 +7017,12 @@ function complete_head_from_modules($conf,$langs,$object,&$head,&$h,$type,$mode=
 	// No need to make a return $head. Var is modified as a reference
 	if (! empty($hookmanager))
 	{
-		$parameters=array('object' => $object, 'mode' => $mode, 'head'=>$head);
-		$reshook=$hookmanager->executeHooks('completeTabsHead',$parameters);
+		$parameters=array('object' => $object, 'mode' => $mode, 'head' => $head);
+		$reshook=$hookmanager->executeHooks('completeTabsHead', $parameters);
 		if ($reshook > 0)
 		{
 			$head = $hookmanager->resArray;
+            $h = count($head);
 		}
 	}
 }
@@ -7011,7 +7040,8 @@ function complete_head_from_modules($conf,$langs,$object,&$head,&$h,$type,$mode=
  */
 function printCommonFooter($zone='private')
 {
-	global $conf, $hookmanager;
+	global $conf, $hookmanager, $user;
+	global $action;
 	global $micro_start_time;
 
 	if ($zone == 'private') print "\n".'<!-- Common footer for private page -->'."\n";
@@ -7044,7 +7074,77 @@ function printCommonFooter($zone='private')
 				print '});'."\n";
 			}
 
-			// Google Analytics (need Google module)
+			// Management of focus and mandatory for fields
+			if ($action == 'create' || $action == 'edit')
+			{
+				print '/* Code js to manage focus and mandatory form fields */'."\n";
+				$relativepathstring = $_SERVER["PHP_SELF"];
+				// Clean $relativepathstring
+				if (constant('DOL_URL_ROOT')) $relativepathstring = preg_replace('/^'.preg_quote(constant('DOL_URL_ROOT'),'/').'/', '', $relativepathstring);
+				$relativepathstring = preg_replace('/^\//', '', $relativepathstring);
+				$relativepathstring = preg_replace('/^custom\//', '', $relativepathstring);
+				$tmpqueryarraywehave=explode('&', dol_string_nohtmltag($_SERVER['QUERY_STRING']));
+				if (!empty($user->default_values[$relativepathstring]['focus']))
+				{
+					foreach($user->default_values[$relativepathstring]['focus'] as $defkey => $defval)
+					{
+						$qualified = 0;
+						if ($defkey != '_noquery_')
+						{
+							$tmpqueryarraytohave=explode('&', $defkey);
+							$foundintru=0;
+							foreach($tmpqueryarraytohave as $tmpquerytohave)
+							{
+								if (! in_array($tmpquerytohave, $tmpqueryarraywehave)) $foundintru=1;
+							}
+							if (! $foundintru) $qualified=1;
+							//var_dump($defkey.'-'.$qualified);
+						}
+						else $qualified = 1;
+
+						if ($qualified)
+						{
+							foreach($defval as $paramkey => $paramval)
+							{
+								// Add property 'required' on input
+								print 'jQuery("input[name=\''.$paramkey.'\']").focus();'."\n";
+							}
+						}
+					}
+				}
+				if (!empty($user->default_values[$relativepathstring]['mandatory']))
+				{
+					foreach($user->default_values[$relativepathstring]['mandatory'] as $defkey => $defval)
+					{
+						$qualified = 0;
+						if ($defkey != '_noquery_')
+						{
+							$tmpqueryarraytohave=explode('&', $defkey);
+							$foundintru=0;
+							foreach($tmpqueryarraytohave as $tmpquerytohave)
+							{
+								if (! in_array($tmpquerytohave, $tmpqueryarraywehave)) $foundintru=1;
+							}
+							if (! $foundintru) $qualified=1;
+							//var_dump($defkey.'-'.$qualified);
+						}
+						else $qualified = 1;
+
+						if ($qualified)
+						{
+							foreach($defval as $paramkey => $paramval)
+							{
+								// Add property 'required' on input
+								print 'jQuery("input[name=\''.$paramkey.'\']").prop(\'required\',true);'."\n";
+								print 'jQuery("select[name=\''.$paramkey.'\']").prop(\'required\',true);'."\n";		// required on a select works only if key is "", this does not happen in Dolibarr
+							}
+						}
+					}
+				}
+			}
+
+			// Google Analytics
+			// TODO Add a hook here
 			if (! empty($conf->google->enabled) && ! empty($conf->global->MAIN_GOOGLE_AN_ID))
 			{
 				if (($conf->dol_use_jmobile != 4))
@@ -7585,7 +7685,7 @@ function getDictvalue($tablename, $field, $id, $checkentity=false, $rowidfield='
 	{
 		$dictvalues[$tablename] = array();
 		$sql = 'SELECT * FROM '.$tablename.' WHERE 1';
-		if ($checkentity) $sql.= ' AND entity IN (0,'.getEntity('').')';
+		if ($checkentity) $sql.= ' AND entity IN (0,'.getEntity($tablename).')';
 
 		$resql = $db->query($sql);
 		if ($resql)

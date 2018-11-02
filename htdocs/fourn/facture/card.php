@@ -9,6 +9,7 @@
  * Copyright (C) 2013		Florian Henry			<florian.henry@open-concept.pro>
  * Copyright (C) 2014-2016  Marcos García			<marcosgdf@gmail.com>
  * Copyright (C) 2016-2017	Alexandre Spangaro		<aspangaro@zendsi.com>
+ * Copyright (C) 2018       Frédéric France         <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,11 +73,6 @@ $hidedetails = (GETPOST('hidedetails','int') ? GETPOST('hidedetails','int') : (!
 $hidedesc 	 = (GETPOST('hidedesc','int') ? GETPOST('hidedesc','int') : (! empty($conf->global->MAIN_GENERATE_DOCUMENTS_HIDE_DESC) ?  1 : 0));
 $hideref 	 = (GETPOST('hideref','int') ? GETPOST('hideref','int') : (! empty($conf->global->MAIN_GENERATE_DOCUMENTS_HIDE_REF) ? 1 : 0));
 
-// Security check
-$socid='';
-if (! empty($user->societe_id)) $socid=$user->societe_id;
-$result = restrictedArea($user, 'fournisseur', $id, 'facture_fourn', 'facture');
-
 // Initialize technical object to manage hooks of page. Note that conf->hooks_modules contains array of hook context
 $hookmanager->initHooks(array('invoicesuppliercard','globalcard'));
 
@@ -94,6 +90,12 @@ if ($id > 0 || ! empty($ref))
 	$ret=$object->fetch_thirdparty();
 	if ($ret < 0) dol_print_error($db,$object->error);
 }
+
+// Security check
+$socid='';
+if (! empty($user->societe_id)) $socid=$user->societe_id;
+$isdraft = (($object->statut == FactureFournisseur::STATUS_DRAFT) ? 1 : 0);
+$result = restrictedArea($user, 'fournisseur', $id, 'facture_fourn', 'facture', 'fk_soc', 'rowid', $isdraft);
 
 $permissionnote=$user->rights->fournisseur->facture->creer;	// Used by the include of actions_setnotes.inc.php
 $permissiondellink=$user->rights->fournisseur->facture->creer;	// Used by the include of actions_dellink.inc.php
@@ -218,19 +220,26 @@ if (empty($reshook))
 		}
 	}
 
-	elseif ($action == 'confirm_delete' && $confirm == 'yes' && $user->rights->fournisseur->facture->supprimer)
+	elseif ($action == 'confirm_delete' && $confirm == 'yes')
 	{
 		$object->fetch($id);
 		$object->fetch_thirdparty();
-		$result=$object->delete($user);
-		if ($result > 0)
+
+		$isErasable=$object->is_erasable();
+
+		if (($user->rights->fournisseur->facture->supprimer && $isErasable > 0)
+			|| ($user->rights->fournisseur->facture->creer && $isErasable == 1))
 		{
-			header('Location: list.php?restore_lastsearch_values=1');
-			exit;
-		}
-		else
-		{
-			setEventMessages($object->error, $object->errors, 'errors');
+			$result=$object->delete($user);
+			if ($result > 0)
+			{
+				header('Location: list.php?restore_lastsearch_values=1');
+				exit;
+			}
+			else
+			{
+				setEventMessages($object->error, $object->errors, 'errors');
+			}
 		}
 	}
 
@@ -524,7 +533,6 @@ if (empty($reshook))
 				{
 					$error++;
 				}
-
 			}
 			if ($object->type == FactureFournisseur::TYPE_CREDIT_NOTE || $object->type == FactureFournisseur::TYPE_DEPOSIT)
 			{
@@ -542,7 +550,6 @@ if (empty($reshook))
 						break;
 					}
 				}
-
 			}
 
 			if (empty($error))
@@ -756,7 +763,6 @@ if (empty($reshook))
 
 						$object->update_price(1);
 					}
-
 				}
 
 				if(GETPOST('invoiceAvoirWithPaymentRestAmount', 'int')==1 && $id>0)
@@ -896,6 +902,9 @@ if (empty($reshook))
 								if ($lines[$i]->date_fin_reel) $date_end=$lines[$i]->date_fin_reel;
 								if ($lines[$i]->date_end) $date_end=$lines[$i]->date_end;
 
+								// FIXME Missing special_code  into addline and updateline methods
+								$object->special_code = $lines[$i]->special_code;
+								
 								// FIXME Missing $lines[$i]->ref_supplier and $lines[$i]->label into addline and updateline methods. They are filled when coming from order for example.
 								$result = $object->addline(
 									$desc,
@@ -1097,6 +1106,7 @@ if (empty($reshook))
 		$product_desc=(GETPOST('dp_desc')?GETPOST('dp_desc'):'');
 		$date_start=dol_mktime(GETPOST('date_start'.$predef.'hour'), GETPOST('date_start'.$predef.'min'), GETPOST('date_start' . $predef . 'sec'), GETPOST('date_start'.$predef.'month'), GETPOST('date_start'.$predef.'day'), GETPOST('date_start'.$predef.'year'));
 		$date_end=dol_mktime(GETPOST('date_end'.$predef.'hour'), GETPOST('date_end'.$predef.'min'), GETPOST('date_end' . $predef . 'sec'), GETPOST('date_end'.$predef.'month'), GETPOST('date_end'.$predef.'day'), GETPOST('date_end'.$predef.'year'));
+
 		$prod_entry_mode = GETPOST('prod_entry_mode');
 		if ($prod_entry_mode == 'free')
 		{
@@ -1211,7 +1221,7 @@ if (empty($reshook))
 				if(!empty($productsupplier->desc_supplier) && !empty($conf->global->PRODUIT_FOURN_TEXTS)) {
 				    $desc = $productsupplier->desc_supplier;
 				} else $desc = $productsupplier->description;
-				
+
 				if (trim($product_desc) != trim($desc)) $desc = dol_concatdesc($desc, $product_desc);
 
 				$type = $productsupplier->type;
@@ -1667,7 +1677,6 @@ if ($action == 'create')
 			// Replicate extrafields
 			$objectsrc->fetch_optionals($originid);
 			$object->array_options = $objectsrc->array_options;
-
 		}
 	}
 	else
@@ -1954,12 +1963,12 @@ if ($action == 'create')
 
 	// Date invoice
 	print '<tr><td class="fieldrequired">'.$langs->trans('DateInvoice').'</td><td>';
-	$form->select_date($dateinvoice,'','','','',"add",1,1);
+	print $form->selectDate($dateinvoice, '', '', '', '', "add", 1, 1);
 	print '</td></tr>';
 
 	// Due date
 	print '<tr><td>'.$langs->trans('DateMaxPayment').'</td><td>';
-	$form->select_date($datedue,'ech','','','',"add",1,1);
+	print $form->selectDate($datedue, 'ech', '', '', '', "add", 1, 1);
 	print '</td></tr>';
 
 	// Payment term
@@ -2255,7 +2264,6 @@ else
             }
 
 			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ValidateBill'), $text, 'confirm_valid', $formquestion, 1, 1);
-
         }
 
         // Confirmation edit (back to draft)
@@ -2291,27 +2299,23 @@ else
                 );
             }
             $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('UnvalidateBill'), $langs->trans('ConfirmUnvalidateBill', $object->ref), 'confirm_edit', $formquestion, 1, 1);
-
 		}
 
 		// Confirmation set paid
 		if ($action == 'paid')
 		{
 			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ClassifyPaid'), $langs->trans('ConfirmClassifyPaidBill', $object->ref), 'confirm_paid', '', 0, 1);
-
 		}
 
 		// Confirmation de la suppression de la facture fournisseur
 		if ($action == 'delete')
 		{
 			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('DeleteBill'), $langs->trans('ConfirmDeleteBill'), 'confirm_delete', '', 0, 1);
-
 		}
 		if ($action == 'deletepaiement')
 		{
 			$payment_id = GETPOST('paiement_id');
 			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id.'&paiement_id='.$payment_id, $langs->trans('DeletePayment'), $langs->trans('ConfirmDeletePayment'), 'confirm_delete_paiement', '', 0, 1);
-
 		}
 
 	   	// Confirmation to delete line
@@ -2341,7 +2345,7 @@ else
     	$morehtmlref.=$form->editfieldval("RefSupplier", 'ref_supplier', $object->ref_supplier, $object, $user->rights->fournisseur->facture->creer, 'string', '', null, null, '', 1);
     	// Thirdparty
     	$morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . $object->thirdparty->getNomUrl(1);
-		if (empty($conf->global->MAIN_DISABLE_OTHER_LINK) && $object->thirdparty->id > 0) $morehtmlref.=' (<a href="'.DOL_URL_ROOT.'/fourn/facture/list.php?socid='.$object->thirdparty->id.'">'.$langs->trans("OtherBills").'</a>)';
+    	if (empty($conf->global->MAIN_DISABLE_OTHER_LINK) && $object->thirdparty->id > 0) $morehtmlref.=' (<a href="'.DOL_URL_ROOT.'/fourn/facture/list.php?socid='.$object->thirdparty->id.'&search_company='.urlencode($object->thirdparty->name).'">'.$langs->trans("OtherBills").'</a>)';
     	// Project
     	if (! empty($conf->projet->enabled))
     	{
@@ -2427,7 +2431,7 @@ else
             $discount = new DiscountAbsolute($db);
             $result = $discount->fetch(0, 0, $object->id);
             if ($result > 0){
-                print '. '.$langs->trans("CreditNoteConvertedIntoDiscount", $object->getLibType(), $discount->getNomUrl(1, 'discount')).'<br>';
+                print '. '.$langs->trans("CreditNoteConvertedIntoDiscount", $object->getLibType(1), $discount->getNomUrl(1, 'discount')).'<br>';
             }
         }
         print '</td></tr>';
@@ -3121,9 +3125,9 @@ else
 				}
 
 	            // Delete
-	            if ($action != 'confirm_edit' && $user->rights->fournisseur->facture->supprimer)
+				$isErasable=$object->is_erasable();
+				if ($action != 'confirm_edit' && ($user->rights->fournisseur->facture->supprimer || ($user->rights->fournisseur->facture->creer && $isErasable == 1)))	// isErasable = 1 means draft with temporary ref (draft can always be deleted with no need of permissions)
 	            {
-	            	$isErasable=$object->is_erasable();
 	            	//var_dump($isErasable);
 	            	if ($isErasable == -4) {
 	            		print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="' . $langs->trans("DisabledBecausePayments") . '">' . $langs->trans('Delete') . '</a></div>';

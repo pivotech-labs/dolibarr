@@ -44,8 +44,9 @@ $action = GETPOST('action','alpha');
 $confirm = GETPOST('confirm','alpha');
 
 // Security check
+$socid = GETPOST("socid","int");
 if ($user->societe_id) $socid=$user->societe_id;
-$result = restrictedArea($user, 'salaries', $id, '');
+$result = restrictedArea($user, 'salaries', '', '', '');
 
 
 // Get parameters
@@ -126,7 +127,6 @@ if ($object->id)
 	$permission = $user->rights->salaries->write;
 	$param = '&id=' . $object->id;
 	include_once DOL_DOCUMENT_ROOT . '/core/tpl/document_actions_post_headers.tpl.php';
-
 }
 else
 {

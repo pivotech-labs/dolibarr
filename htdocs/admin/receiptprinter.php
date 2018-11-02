@@ -52,6 +52,12 @@ if (!$mode) $mode='config';
 
 // used in library escpos maybe useful if php doesn't support gzdecode
 if (!function_exists('gzdecode')) {
+    /**
+     * Gzdecode
+     *
+     * @param string    $data   data to deflate
+     * @return string           data deflated
+     */
     function gzdecode($data)
     {
         return gzinflate(substr($data,10,-8));
@@ -432,7 +438,6 @@ if ($mode == 'template' && $user->admin)
     print '</table>';
 
     dol_fiche_end();
-
 }
 
 // to remove after test
@@ -450,4 +455,3 @@ if ($mode == 'template' && $user->admin)
 // End of page
 llxFooter();
 $db->close();
-

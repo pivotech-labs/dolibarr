@@ -258,7 +258,6 @@ class box_graph_invoices_permonth extends ModeleBoxes
 			{
 				$this->info_box_contents[0][0] = array('tr'=>'class="oddeven nohover"', 'td' => 'align="left" class="nohover"', 'maxlength'=>500, 'text' => $mesg);
 			}
-
 		}
 		else {
 			$this->info_box_contents[0][0] = array(
@@ -280,6 +279,5 @@ class box_graph_invoices_permonth extends ModeleBoxes
     {
 		return parent::showBox($this->info_box_head, $this->info_box_contents, $nooutput);
 	}
-
 }
 

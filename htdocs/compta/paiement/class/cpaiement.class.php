@@ -135,15 +135,15 @@ class Cpaiement
 		if (!$error) {
 			$this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
 
-			if (!$notrigger) {
-				// Uncomment this and change MYOBJECT to your own tag if you
-				// want this action to call a trigger.
+			// Uncomment this and change MYOBJECT to your own tag if you
+			// want this action to call a trigger.
+			//if (!$notrigger) {
 
-				//// Call triggers
-				//$result=$this->call_trigger('MYOBJECT_CREATE',$user);
-				//if ($result < 0) $error++;
-				//// End call triggers
-			}
+			//  // Call triggers
+			//  $result=$this->call_trigger('MYOBJECT_CREATE',$user);
+			//  if ($result < 0) $error++;
+			//  // End call triggers
+			//}
 		}
 
 		// Commit or rollback
@@ -200,8 +200,6 @@ class Cpaiement
 				$this->active = $obj->active;
 				$this->accountancy_code = $obj->accountancy_code;
 				$this->module = $obj->module;
-
-
 			}
 			$this->db->free($resql);
 
@@ -278,15 +276,15 @@ class Cpaiement
 			dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
 		}
 
-		if (!$error && !$notrigger) {
-			// Uncomment this and change MYOBJECT to your own tag if you
-			// want this action calls a trigger.
+		// Uncomment this and change MYOBJECT to your own tag if you
+		// want this action calls a trigger.
+		//if (!$error && !$notrigger) {
 
-			//// Call triggers
-			//$result=$this->call_trigger('MYOBJECT_MODIFY',$user);
-			//if ($result < 0) { $error++; //Do also what you must do to rollback action if trigger fail}
-			//// End call triggers
-		}
+		//  // Call triggers
+		//  $result=$this->call_trigger('MYOBJECT_MODIFY',$user);
+		//  if ($result < 0) { $error++; //Do also what you must do to rollback action if trigger fail}
+		//  // End call triggers
+		//}
 
 		// Commit or rollback
 		if ($error) {
@@ -316,17 +314,15 @@ class Cpaiement
 
 		$this->db->begin();
 
-		if (!$error) {
-			if (!$notrigger) {
-				// Uncomment this and change MYOBJECT to your own tag if you
-				// want this action calls a trigger.
+		// Uncomment this and change MYOBJECT to your own tag if you
+		// want this action calls a trigger.
+		//if (!$error && !$notrigger) {
 
-				//// Call triggers
-				//$result=$this->call_trigger('MYOBJECT_DELETE',$user);
-				//if ($result < 0) { $error++; //Do also what you must do to rollback action if trigger fail}
-				//// End call triggers
-			}
-		}
+		//  // Call triggers
+		//  $result=$this->call_trigger('MYOBJECT_DELETE',$user);
+		//  if ($result < 0) { $error++; //Do also what you must do to rollback action if trigger fail}
+		//  // End call triggers
+		//}
 
 		if (!$error) {
 			$sql = 'DELETE FROM ' . MAIN_DB_PREFIX . $this->table_element;
@@ -369,8 +365,5 @@ class Cpaiement
 		$this->active = '';
 		$this->accountancy_code = '';
 		$this->module = '';
-
-
 	}
-
 }

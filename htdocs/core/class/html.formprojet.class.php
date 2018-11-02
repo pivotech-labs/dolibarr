@@ -33,7 +33,7 @@ class FormProjets
      * @var DoliDB Database handler.
      */
     public $db;
-	
+
 	/**
 	 * @var string Error code (or message)
 	 */
@@ -48,9 +48,9 @@ class FormProjets
 	function __construct($db)
 	{
 		$this->db = $db;
-		return 1;
 	}
 
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.NotCamelCaps
 	/**
 	 *	Output a combo list with projects qualified for a third party / user
 	 *
@@ -73,6 +73,7 @@ class FormProjets
 	 */
 	function select_projects($socid=-1, $selected='', $htmlname='projectid', $maxlength=16, $option_only=0, $show_empty=1, $discard_closed=0, $forcefocus=0, $disabled=0, $mode = 0, $filterkey = '', $nooutput=0, $forceaddid=0, $morecss='', $htmlid='')
 	{
+        // phpcs:enable
 		global $langs,$conf,$form;
 
 		$out='';
@@ -118,6 +119,7 @@ class FormProjets
 		else return $out;
 	}
 
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.NotCamelCaps
 	/**
 	 * Returns an array with projects qualified for a third party
 	 *
@@ -140,6 +142,7 @@ class FormProjets
 	 */
 	function select_projects_list($socid=-1, $selected='', $htmlname='projectid', $maxlength=24, $option_only=0, $show_empty=1, $discard_closed=0, $forcefocus=0, $disabled=0, $mode=0, $filterkey = '', $nooutput=0, $forceaddid=0, $htmlid='', $morecss='maxwidth500')
 	{
+        // phpcs:enable
 		global $user,$conf,$langs;
 
 		require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
@@ -232,7 +235,7 @@ class FormProjets
 						}
 						else if ($obj->fk_statut == 2)
 						{
-							if ($discard_close == 2) $disabled=1;
+							if ($discard_closed == 2) $disabled=1;
 							$labeltoshow.=' - '.$langs->trans("Closed");
 						}
 						else if ( empty($conf->global->PROJECT_ALLOW_TO_LINK_FROM_OTHER_COMPANY) &&  $socid > 0 && (! empty($obj->fk_soc) && $obj->fk_soc != $socid))
@@ -468,6 +471,7 @@ class FormProjets
 	}
 
 
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.NotCamelCaps
 	/**
 	 *    Build a HTML select list of element of same thirdparty to suggest to link them to project
 	 *
@@ -480,15 +484,16 @@ class FormProjets
 	 */
 	function select_element($table_element, $socid=0, $morecss='', $limitonstatus=-2,$projectkey="fk_projet")
 	{
+        // phpcs:enable
 		global $conf, $langs;
 
 		if ($table_element == 'projet_task') return '';		// Special cas of element we never link to a project (already always done)
 
 		$linkedtothirdparty=false;
-		if (! in_array($table_element, array('don','expensereport_det','expensereport','loan','stock_mouvement','chargesociales'))) $linkedtothirdparty=true;
+		if (! in_array($table_element, array('don','expensereport_det','expensereport','loan','stock_mouvement','payment_salary','payment_various','chargesociales'))) $linkedtothirdparty=true;
 
 		$sqlfilter='';
-		
+
 		//print $table_element;
 		switch ($table_element)
 		{
@@ -527,6 +532,9 @@ class FormProjets
 			case 'stock_mouvement':
 				$sql = 'SELECT t.rowid, t.label as ref';
 				$projectkey='fk_origin';
+				break;
+			case "payment_salary":
+				$sql = "SELECT t.rowid, t.num_payment as ref";	// TODO In a future fill and use real ref field
 				break;
 			case "payment_various":
 				$sql = "SELECT t.rowid, t.num_payment as ref";
@@ -621,10 +629,16 @@ class FormProjets
 			if ($num > 0)
 			{
 				$sellist = '<select class="flat oppstatus'.($morecss?' '.$morecss:'').'" id="'.$htmlname.'" name="'.$htmlname.'">';
-				if ($showempty) $sellist.= '<option value="-1">&nbsp;</option>';    // Without &nbsp, strange move of screen when switching value
-				if ($showallnone) $sellist.= '<option value="all"'.($preselected == 'all'?' selected="selected"':'').'>--'.$langs->trans("OnlyOpportunitiesShort").'--</option>';
-				if ($showallnone) $sellist.= '<option value="openedopp"'.($preselected == 'openedopp'?' selected="selected"':'').'>--'.$langs->trans("OpenedOpportunitiesShort").'--</option>';
-				if ($showallnone) $sellist.= '<option value="none"'.($preselected == 'none'?' selected="selected"':'').'>--'.$langs->trans("NotAnOpportunityShort").'--</option>';
+				if ($showempty) {
+                    // Without &nbsp, strange move of screen when switching value
+                    $sellist.= '<option value="-1">&nbsp;</option>';
+                }
+				if ($showallnone) {
+                    $sellist.= '<option value="all"'.($preselected == 'all'?' selected="selected"':'').'>-- '.$langs->trans("OnlyOpportunitiesShort").' --</option>';
+				    $sellist.= '<option value="openedopp"'.($preselected == 'openedopp'?' selected="selected"':'').'>-- '.$langs->trans("OpenedOpportunitiesShort").' --</option>';
+				    $sellist.= '<option value="notopenedopp"'.($preselected == 'notopenedopp'?' selected="selected"':'').'>-- '.$langs->trans("NotOpenedOpportunitiesShort").' --</option>';
+				    $sellist.= '<option value="none"'.($preselected == 'none'?' selected="selected"':'').'>-- '.$langs->trans("NotAnOpportunityShort").' --</option>';
+                }
 				while ($i < $num)
 				{
 					$obj = $this->db->fetch_object($resql);
@@ -665,5 +679,4 @@ class FormProjets
 			return -1;
 		}
 	}
-
 }

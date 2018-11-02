@@ -555,7 +555,7 @@ else
         if (count($notavailable_choices)) {
 
             print '<div id="AShowChoices">';
-            print '<img src="../theme/eldy/img/1downarrow.png"> <a href="#">'.$langs->trans('ShowNotAvailableOptions').'</a>';
+            print '<img src="../theme/eldy/img/1downarrow.png">';
             print '</div>';
 
             print '<div id="navail_choices" style="display:none">';
@@ -568,9 +568,7 @@ else
             print '</table>'."\n";
             print '</div>';
         }
-
 	}
-
 }
 
 print '<script type="text/javascript">

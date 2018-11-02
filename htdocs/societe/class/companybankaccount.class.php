@@ -184,7 +184,6 @@ class CompanyBankAccount extends Account
 		{
 			return 1;
 		}
-
 		}
 		else
 		{
@@ -415,6 +414,5 @@ class CompanyBankAccount extends Account
 
 		$this->socid = 0;
 	}
-
 }
 

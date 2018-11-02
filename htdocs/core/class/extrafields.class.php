@@ -95,7 +95,7 @@ class ExtraFields
 	 * @var string Error code (or message)
 	 */
 	public $error='';
-	
+
 	var $errno;
 
 
@@ -247,8 +247,8 @@ class ExtraFields
 				$typedb='varchar';
 				$lengthdb='255';
 			} elseif (($type=='select') || ($type=='sellist') || ($type=='radio') ||($type=='checkbox') ||($type=='chkbxlst')){
-				$typedb='text';
-				$lengthdb='';
+				$typedb='varchar';
+				$lengthdb='255';
 			} elseif ($type=='link') {
 				$typedb='int';
 				$lengthdb='11';
@@ -293,6 +293,7 @@ class ExtraFields
 		}
 	}
 
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *	Add description of a new optional attribute
 	 *
@@ -318,6 +319,7 @@ class ExtraFields
 	 */
 	private function create_label($attrname, $label='', $type='', $pos=0, $size=0, $elementtype='member', $unique=0, $required=0, $param='', $alwayseditable=0, $perms='', $list='-1', $help='', $default='', $computed='',$entity='', $langfile='', $enabled='1')
 	{
+        // phpcs:enable
 		global $conf,$user;
 
 		if ($elementtype == 'thirdparty') $elementtype='societe';
@@ -460,9 +462,9 @@ class ExtraFields
 		{
 			return 0;
 		}
-
 	}
 
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *	Delete description of an optional attribute
 	 *
@@ -472,6 +474,7 @@ class ExtraFields
 	 */
 	private function delete_label($attrname, $elementtype='member')
 	{
+        // phpcs:enable
 		global $conf;
 
 		if ($elementtype == 'thirdparty') $elementtype='societe';
@@ -500,7 +503,6 @@ class ExtraFields
 		{
 			return 0;
 		}
-
 	}
 
 	/**
@@ -553,8 +555,8 @@ class ExtraFields
 				$typedb='varchar';
 				$lengthdb='255';
 			} elseif (($type=='select') || ($type=='sellist') || ($type=='radio') || ($type=='checkbox') || ($type=='chkbxlst')) {
-				$typedb='text';
-				$lengthdb='';
+				$typedb='varchar';
+				$lengthdb='255';
 			} elseif ($type == 'html') {
 				$typedb='text';
 			} elseif ($type=='link') {
@@ -610,9 +612,9 @@ class ExtraFields
 		{
 			return 0;
 		}
-
 	}
 
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Modify description of personalized attribute
 	 *
@@ -639,6 +641,7 @@ class ExtraFields
 	 */
 	private function update_label($attrname,$label,$type,$size,$elementtype,$unique=0,$required=0,$pos=0,$param='',$alwayseditable=0,$perms='',$list='0',$help='',$default='',$computed='',$entity='',$langfile='',$enabled='1', $totalizable=0)
 	{
+        // phpcs:enable
 		global $conf, $user;
 		dol_syslog(get_class($this)."::update_label ".$attrname.", ".$label.", ".$type.", ".$size.", ".$elementtype.", ".$unique.", ".$required.", ".$pos.", ".$alwayseditable.", ".$perms.", ".$list.", ".$default.", ".$computed.", ".$entity.", ".$langfile.", ".$enabled.", ".$totalizable);
 
@@ -672,11 +675,22 @@ class ExtraFields
 				$params='';
 			}
 
-			$sql_del = "DELETE FROM ".MAIN_DB_PREFIX."extrafields";
-			$sql_del.= " WHERE name = '".$attrname."'";
-			$sql_del.= " AND entity = ".($entity===''?$conf->entity:$entity);
-			$sql_del.= " AND elementtype = '".$elementtype."'";
-
+			if ($entity === '' || $entity != '0')
+			{
+				// We dont want on all entities, we delete all and current
+				$sql_del = "DELETE FROM ".MAIN_DB_PREFIX."extrafields";
+				$sql_del.= " WHERE name = '".$attrname."'";
+				$sql_del.= " AND entity IN (0, ".($entity===''?$conf->entity:$entity).")";
+				$sql_del.= " AND elementtype = '".$elementtype."'";
+			}
+			else
+			{
+				// We want on all entities ($entities = '0'), we delete on all only (we keep setup specific to each entity)
+				$sql_del = "DELETE FROM ".MAIN_DB_PREFIX."extrafields";
+				$sql_del.= " WHERE name = '".$attrname."'";
+				$sql_del.= " AND entity = 0";
+				$sql_del.= " AND elementtype = '".$elementtype."'";
+			}
 			$resql1=$this->db->query($sql_del);
 
 			$sql = "INSERT INTO ".MAIN_DB_PREFIX."extrafields(";
@@ -748,6 +762,7 @@ class ExtraFields
 	}
 
 
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.NotCamelCaps
 	/**
 	 * 	Load array this->attributes, or old this->attribute_xxx like attribute_label, attribute_type, ...
 	 *
@@ -757,6 +772,7 @@ class ExtraFields
 	 */
 	function fetch_name_optionals_label($elementtype,$forceload=false)
 	{
+        // phpcs:enable
 		global $conf;
 
 		if (empty($elementtype)) return array();
@@ -981,11 +997,11 @@ class ExtraFields
 
 			$showtime = in_array($type,array('datetime')) ? 1 : 0;
 
-			// Do not show current date when field not required (see select_date() method)
+			// Do not show current date when field not required (see selectDate() method)
 			if (!$required && $value == '') $value = '-1';
 
 			// TODO Must also support $moreparam
-			$out = $form->select_date($value, $keyprefix.$key.$keysuffix, $showtime, $showtime, $required, '', 1, (($keyprefix != 'search_' && $keyprefix != 'search_options_') ? 1 : 0), 1, 0, 1);
+			$out = $form->selectDate($value, $keyprefix.$key.$keysuffix, $showtime, $showtime, $required, '', 1, (($keyprefix != 'search_' && $keyprefix != 'search_options_') ? 1 : 0), 0, 1);
 		}
 		elseif (in_array($type,array('int','integer')))
 		{
@@ -1376,7 +1392,6 @@ class ExtraFields
 							}
 
 							$data[$obj->rowid]=$labeltoshow;
-
 						} else {
 							if (! $notrans) {
 								$translabel = $langs->trans($obj->{$InfoFieldList[1]});
@@ -1405,7 +1420,6 @@ class ExtraFields
 					$this->db->free($resql);
 
 					$out=$form->multiselectarray($keyprefix.$key.$keysuffix, $data, $value_arr, '', 0, '', 0, '100%');
-
 				} else {
 					print 'Error in request ' . $sql . ' ' . $this->db->lasterror() . '. Check setup of extra parameters.<br>';
 				}
@@ -1699,7 +1713,6 @@ class ExtraFields
 					}
 				}
 				$value='<div class="select2-container-multi-dolibarr" style="width: 90%;"><ul class="select2-choices-dolibarr">'.implode(' ', $toprint).'</ul></div>';
-
 			} else {
 				dol_syslog(get_class($this) . '::showOutputField error ' . $this->db->lasterror(), LOG_WARNING);
 			}
@@ -1865,11 +1878,16 @@ class ExtraFields
 				if (empty($enabled)) continue;
 				if (empty($perms)) continue;
 
-				if ($this->attributes[$object->table_element]['required'][$key] && empty($_POST["options_".$key])) // Check if empty without GETPOST, value can be alpha, int, array, etc...
+				if ($this->attributes[$object->table_element]['required'][$key])	// Value is required
 				{
-					//print 'ccc'.$value.'-'.$this->attributes[$object->table_element]['required'][$key];
-					$nofillrequired++;
-					$error_field_required[] = $langs->transnoentitiesnoconv($value);
+					// Check if empty without using GETPOST, value can be alpha, int, array, etc...
+					if ((! is_array($_POST["options_".$key]) && empty($_POST["options_".$key]) && $_POST["options_".$key] != '0')
+						|| (is_array($_POST["options_".$key]) && empty($_POST["options_".$key])))
+					{
+						//print 'ccc'.$value.'-'.$this->attributes[$object->table_element]['required'][$key];
+						$nofillrequired++;
+						$error_field_required[] = $langs->transnoentitiesnoconv($value);
+					}
 				}
 
 				if (in_array($key_type,array('date')))

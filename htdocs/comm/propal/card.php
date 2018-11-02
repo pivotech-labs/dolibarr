@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2001-2007 Rodolphe Quiedeville  <rodolphe@quiedeville.org>
+/* Copyright (C) 2001-2007  Rodolphe Quiedeville    <rodolphe@quiedeville.org>
  * Copyright (C) 2004-2014 Laurent Destailleur   <eldy@users.sourceforge.net>
  * Copyright (C) 2004      Eric Seigne           <eric.seigne@ryxeo.com>
  * Copyright (C) 2005      Marc Barilley / Ocebo <marc@ocebo.com>
@@ -12,6 +12,7 @@
  * Copyright (C) 2013-2014 Florian Henry		 <florian.henry@open-concept.pro>
  * Copyright (C) 2014	   Ferran Marcet		 <fmarcet@2byte.es>
  * Copyright (C) 2016      Marcos García         <marcosgdf@gmail.com>
+ * Copyright (C) 2018       Frédéric France         <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -347,13 +348,13 @@ if (empty($reshook))
 			// If we select proposal to clone during creation (when option PROPAL_CLONE_ON_CREATE_PAGE is on)
 			if (GETPOST('createmode') == 'copy' && GETPOST('copie_propal'))
 			{
-				if ($object->fetch(GETPOST('copie_propal')) > 0) {
+				if ($object->fetch(GETPOST('copie_propal','int')) > 0) {
 					$object->ref = GETPOST('ref');
 					$object->datep = $datep;
 					$object->date_livraison = $date_delivery;
 					$object->availability_id = GETPOST('availability_id');
 					$object->demand_reason_id = GETPOST('demand_reason_id');
-					$object->fk_delivery_address = GETPOST('fk_address');
+					$object->fk_delivery_address = GETPOST('fk_address','int');
 					$object->shipping_method_id = GETPOST('shipping_method_id', 'int');
 					$object->duree_validite = $duration;
 					$object->cond_reglement_id = GETPOST('cond_reglement_id');
@@ -361,9 +362,9 @@ if (empty($reshook))
 					$object->fk_account = GETPOST('fk_account', 'int');
 					$object->remise_percent = GETPOST('remise_percent');
 					$object->remise_absolue = GETPOST('remise_absolue');
-					$object->socid = GETPOST('socid');
-					$object->contactid = GETPOST('contactid');
-					$object->fk_project = GETPOST('projectid');
+					$object->socid = GETPOST('socid','int');
+					$object->contactid = GETPOST('contactid','int');
+					$object->fk_project = GETPOST('projectid','int');
 					$object->modelpdf = GETPOST('model');
 					$object->author = $user->id; // deprecated
 					$object->note_private = GETPOST('note_private','none');
@@ -390,8 +391,8 @@ if (empty($reshook))
 				$object->cond_reglement_id = GETPOST('cond_reglement_id');
 				$object->mode_reglement_id = GETPOST('mode_reglement_id');
 				$object->fk_account = GETPOST('fk_account', 'int');
-				$object->contactid = GETPOST('contactid');
-				$object->fk_project = GETPOST('projectid');
+				$object->contactid = GETPOST('contactid','int');
+				$object->fk_project = GETPOST('projectid','int');
 				$object->modelpdf = GETPOST('model');
 				$object->author = $user->id; // deprecated
 				$object->note_private = GETPOST('note_private','none');
@@ -565,6 +566,16 @@ if (empty($reshook))
 						}
 					}
 
+					if (! empty($conf->global->PROPOSAL_AUTO_ADD_AUTHOR_AS_CONTACT))
+					{
+						$result = $object->add_contact($user->id, 'SALESREPFOLL', 'internal');
+						if ($result < 0)
+						{
+							$error++;
+							setEventMessages($langs->trans("ErrorFailedToAddUserAsContact"), null, 'errors');
+						}
+					}
+
 					if (! $error)
 					{
 						$db->commit();
@@ -609,11 +620,22 @@ if (empty($reshook))
 	// Classify billed
 	else if ($action == 'classifybilled' && $usercanclose)
 	{
+		$db->begin();
+
 		$result=$object->cloture($user, 4, '');
 		if ($result < 0)
 		{
 			setEventMessages($object->error, $object->errors, 'errors');
 			$error++;
+		}
+
+		if (! $error)
+		{
+			$db->commit();
+		}
+		else
+		{
+			$db->rollback();
 		}
 	}
 
@@ -627,11 +649,22 @@ if (empty($reshook))
 			// prevent browser refresh from closing proposal several times
 			if ($object->statut == Propal::STATUS_VALIDATED)
 			{
+				$db->begin();
+
 				$result=$object->cloture($user, GETPOST('statut','int'), GETPOST('note_private','none'));
 				if ($result < 0)
 				{
 					setEventMessages($object->error, $object->errors, 'errors');
 					$error++;
+				}
+
+				if (! $error)
+				{
+					$db->commit();
+				}
+				else
+				{
+					$db->rollback();
 				}
 			}
 		}
@@ -643,11 +676,22 @@ if (empty($reshook))
 		// prevent browser refresh from reopening proposal several times
 		if ($object->statut == Propal::STATUS_SIGNED || $object->statut == Propal::STATUS_NOTSIGNED || $object->statut == Propal::STATUS_BILLED)
 		{
+			$db->begin();
+
 			$result=$object->reopen($user, 1);
 			if ($result < 0)
 			{
 				setEventMessages($object->error, $object->errors, 'errors');
 				$error++;
+			}
+
+			if (! $error)
+			{
+				$db->commit();
+			}
+			else
+			{
+				$db->rollback();
 			}
 		}
 	}
@@ -931,6 +975,7 @@ if (empty($reshook))
 				// Add custom code and origin country into description
 				if (empty($conf->global->MAIN_PRODUCT_DISABLE_CUSTOMCOUNTRYCODE) && (! empty($prod->customcode) || ! empty($prod->country_code)))
 				{
+					$tmptxt = '(';
 					// Define output language
 					if (! empty($conf->global->MAIN_MULTILANGS) && ! empty($conf->global->PRODUIT_TEXTS_IN_THIRDPARTY_LANGUAGE)) {
 						$outputlangs = $langs;
@@ -992,7 +1037,7 @@ if (empty($reshook))
 			if ($tva_npr)
 				$info_bits |= 0x01;
 
-			if (! empty($price_min) && (price2num($pu_ht) * (1 - price2num($remise_percent) / 100) < price2num($price_min))) {
+			if (((!empty($conf->global->MAIN_USE_ADVANCED_PERMS) && empty($user->rights->produit->ignore_price_min_advance)) || empty($conf->global->MAIN_USE_ADVANCED_PERMS) ) && (! empty($price_min) && (price2num($pu_ht) * (1 - price2num($remise_percent) / 100) < price2num($price_min)))) {
 				$mesg = $langs->trans("CantBeLessThanMinPrice", price(price2num($price_min, 'MU'), 0, $langs, 0, 0, - 1, $conf->currency));
 				setEventMessages($mesg, null, 'errors');
 			} else {
@@ -1056,7 +1101,7 @@ if (empty($reshook))
 	}
 
 	// Update a line within proposal
-	else if ($action == 'updateligne' && $usercancreate && GETPOST('save'))
+	else if ($action == 'updateline' && $usercancreate && GETPOST('save'))
 	{
 		// Define info_bits
 		$info_bits = 0;
@@ -1111,8 +1156,7 @@ if (empty($reshook))
 				$price_min = $product->multiprices_min [$object->thirdparty->price_level];
 
 			$label = ((GETPOST('update_label') && GETPOST('product_label')) ? GETPOST('product_label') : '');
-
-			if ($price_min && (price2num($pu_ht) * (1 - price2num(GETPOST('remise_percent')) / 100) < price2num($price_min))) {
+			if (((!empty($conf->global->MAIN_USE_ADVANCED_PERMS) && empty($user->rights->produit->ignore_price_min_advance)) || empty($conf->global->MAIN_USE_ADVANCED_PERMS) )&& ($price_min && (price2num($pu_ht) * (1 - price2num(GETPOST('remise_percent')) / 100) < price2num($price_min)))) {
 				setEventMessages($langs->trans("CantBeLessThanMinPrice", price(price2num($price_min, 'MU'), 0, $langs, 0, 0, - 1, $conf->currency)), null, 'errors');
 				$error ++;
 			}
@@ -1193,7 +1237,7 @@ if (empty($reshook))
 		}
 	}
 
-	else if ($action == 'updateligne' && $usercancreate && GETPOST('cancel','alpha'))
+	else if ($action == 'updateline' && $usercancreate && GETPOST('cancel','alpha'))
 	{
 		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $object->id); // Pour reaffichage de la fiche en cours d'edition
 		exit();
@@ -1320,7 +1364,6 @@ if (empty($reshook))
 	$upload_dir = $conf->propal->multidir_output[$object->entity];
 	$permissioncreate=$usercancreate;
 	include DOL_DOCUMENT_ROOT.'/core/actions_builddoc.inc.php';
-
 }
 
 
@@ -1495,7 +1538,7 @@ if ($action == 'create')
 
 	// Date
 	print '<tr><td class="fieldrequired">' . $langs->trans('Date') . '</td><td>';
-	$form->select_date('', '', '', '', '', "addprop", 1, 1);
+	print $form->selectDate('', '', '', '', '', "addprop", 1, 1);
 	print '</td></tr>';
 
 	// Validaty duration
@@ -1514,7 +1557,7 @@ if ($action == 'create')
 	// Bank Account
 	if (! empty($conf->global->BANK_ASK_PAYMENT_BANK_DURING_PROPOSAL) && ! empty($conf->banque->enabled)) {
 		print '<tr><td>' . $langs->trans('BankAccount') . '</td><td>';
-		$form->select_comptes($fk_account, 'fk_account', 0, '', 1);
+		$form->select_comptes($soc->fk_account, 'fk_account', 0, '', 1);
 		print '</td></tr>';
 	}
 
@@ -1543,9 +1586,9 @@ if ($action == 'create')
 		$syear = date("Y", $tmpdte);
 		$smonth = date("m", $tmpdte);
 		$sday = date("d", $tmpdte);
-		$form->select_date($syear."-".$smonth."-".$sday, 'date_livraison', '', '', '', "addprop");
+		print $form->selectDate($syear."-".$smonth."-".$sday, 'date_livraison', '', '', '', "addprop");
 	} else {
-		$form->select_date(-1, 'date_livraison', '', '', '', "addprop", 1, 1);
+		print $form->selectDate(-1, 'date_livraison', '', '', '', "addprop", 1, 1);
 	}
 	print '</td></tr>';
 
@@ -1733,7 +1776,6 @@ if ($action == 'create')
 
 		print '</table>';
 	}
-
 } elseif ($object->id > 0) {
 	/*
 	 * Show object in view mode
@@ -1781,7 +1823,6 @@ if ($action == 'create')
 		}
 
 		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetAcceptedRefused'), $text, 'setstatut', $formquestion, '', 1, 250);
-
 	}
 
 	// Confirm delete
@@ -1827,12 +1868,11 @@ if ($action == 'create')
 			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('ValidateProp'), $text, 'confirm_validate', '', 0, 1);
 	}
 
-	if (! $formconfirm) {
-		$parameters = array('lineid' => $lineid);
-		$reshook = $hookmanager->executeHooks('formConfirm', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-		if (empty($reshook)) $formconfirm.=$hookmanager->resPrint;
-		elseif ($reshook > 0) $formconfirm=$hookmanager->resPrint;
-	}
+	// Call Hook formConfirm
+	$parameters = array('lineid' => $lineid);
+	$reshook = $hookmanager->executeHooks('formConfirm', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+	if (empty($reshook)) $formconfirm.=$hookmanager->resPrint;
+	elseif ($reshook > 0) $formconfirm=$hookmanager->resPrint;
 
 	// Print form confirm
 	print $formconfirm;
@@ -1848,7 +1888,7 @@ if ($action == 'create')
 	$morehtmlref.=$form->editfieldval("RefCustomer", 'ref_client', $object->ref_client, $object, $usercancreate, 'string', '', null, null, '', 1);
 	// Thirdparty
 	$morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . $object->thirdparty->getNomUrl(1,'customer');
-	if (empty($conf->global->MAIN_DISABLE_OTHER_LINK) && $object->thirdparty->id > 0) $morehtmlref.=' (<a href="'.DOL_URL_ROOT.'/comm/propal/list.php?socid='.$object->thirdparty->id.'">'.$langs->trans("OtherProposals").'</a>)';
+	if (empty($conf->global->MAIN_DISABLE_OTHER_LINK) && $object->thirdparty->id > 0) $morehtmlref.=' (<a href="'.DOL_URL_ROOT.'/comm/propal/list.php?socid='.$object->thirdparty->id.'&search_societe='.urlencode($object->thirdparty->name).'">'.$langs->trans("OtherProposals").'</a>)';
 	// Project
 	if (! empty($conf->projet->enabled))
 	{
@@ -1930,7 +1970,7 @@ if ($action == 'create')
 		print '<form name="editdate" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '" method="post">';
 		print '<input type="hidden" name="token" value="' . $_SESSION ['newtoken'] . '">';
 		print '<input type="hidden" name="action" value="setdate">';
-		$form->select_date($object->date, 're', '', '', 0, "editdate");
+		print $form->selectDate($object->date, 're', '', '', 0, "editdate");
 		print '<input type="submit" class="button" value="' . $langs->trans('Modify') . '">';
 		print '</form>';
 	} else {
@@ -1956,7 +1996,7 @@ if ($action == 'create')
 		print '<form name="editecheance" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '" method="post">';
 		print '<input type="hidden" name="token" value="' . $_SESSION ['newtoken'] . '">';
 		print '<input type="hidden" name="action" value="setecheance">';
-		$form->select_date($object->fin_validite, 'ech', '', '', '', "editecheance");
+		print $form->selectDate($object->fin_validite, 'ech', '', '', '', "editecheance");
 		print '<input type="submit" class="button" value="' . $langs->trans('Modify') . '">';
 		print '</form>';
 	} else {
@@ -2284,7 +2324,7 @@ if ($action == 'create')
 
 	print '	<form name="addproduct" id="addproduct" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . (($action != 'editline') ? '#addline' : '#line_' . GETPOST('lineid')) . '" method="POST">
 	<input type="hidden" name="token" value="' . $_SESSION ['newtoken'] . '">
-	<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateligne') . '">
+	<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline') . '">
 	<input type="hidden" name="mode" value="">
 	<input type="hidden" name="id" value="' . $object->id . '">
 	';

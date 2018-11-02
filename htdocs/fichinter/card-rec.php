@@ -8,6 +8,7 @@
  * Copyright (C) 2012	   Cedric Salvador		<csalvador@gpcsolutions.fr>
  * Copyright (C) 2015	   Alexandre Spangaro	<aspangaro.dolibarr@gmail.com>
  * Copyright (C) 2016-2018 Charlie Benke		<charlie@patas-monkey.com>
+ * Copyright (C) 2018       Frédéric France     <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,11 +46,8 @@ if (! empty($conf->contrat->enabled)) {
 	require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcontract.class.php';
 }
 
-
-$langs->load('bills');
-$langs->load('compta');
-$langs->load('admin');
-$langs->load("interventions");
+// Load translation files required by the page
+$langs->loadLangs(array("interventions","admin","compta","bills"));
 
 // Security check
 $id=(GETPOST('fichinterid', 'int')?GETPOST('fichinterid', 'int'):GETPOST('id', 'int'));
@@ -62,7 +60,7 @@ $result = restrictedArea($user, 'ficheinter', $id, $objecttype);
 if ($page == -1)
 	$page = 0 ;
 
-$limit = GETPOST('limit')?GETPOST('limit', 'int'):$conf->liste_limit;
+$limit = GETPOST('limit', 'int')?GETPOST('limit', 'int'):$conf->liste_limit;
 $offset = $limit * $page ;
 
 if ($sortorder == "")
@@ -357,7 +355,7 @@ if ($action == 'create') {
 			$date_next_execution = (GETPOST('remonth') ? dol_mktime(
 							12, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear')
 			) : -1);
-		print $form->select_date($date_next_execution, '', 1, 1, '', "add", 1, 1, 1);
+		print $form->selectDate($date_next_execution, '', 1, 1, '', "add", 1, 1);
 		print "</td></tr>";
 
 		// Number max of generation
@@ -422,7 +420,6 @@ if ($action == 'create') {
 				$i++;
 			}
 			$db->free($result);
-
 		} else
 			print $db->error();
 		print "</table>";
@@ -441,7 +438,6 @@ if ($action == 'create') {
 	}
 	else
 		dol_print_error('', "Error, no invoice ".$object->id);
-
 } elseif ($action == 'selsocforcreatefrommodel') {
 	print load_fiche_titre($langs->trans("CreateRepeatableIntervention"), '', 'title_commercial.png');
 	dol_fiche_head('');
@@ -576,11 +572,9 @@ if ($action == 'create') {
 						print $contratstatic->getNomUrl(0, '', 1);
 					} else
 						print "&nbsp;";
-
 				}
 				print '</td>';
 				print '</tr>';
-
 			}
 			print "</table>";
 			print '</div>';
@@ -777,7 +771,6 @@ if ($action == 'create') {
 			print '</div>';
 		} else
 			print $langs->trans("ErrorRecordNotFound");
-
 	} else {
 		/*
 		 *  List mode
@@ -873,7 +866,7 @@ if ($action == 'create') {
 			print "</tr>\n";
 
 
-// les filtres à faire ensuite
+			// les filtres à faire ensuite
 
 			if ($num > 0) {
 				while ($i < min($num, $limit)) {
@@ -900,8 +893,8 @@ if ($action == 'create') {
 					}
 					if (! empty($conf->projet->enabled)) {
 						print '<td>';
-						if ($objp->fk_project >0) {
-							$projectstatic->fecth($objp->fk_projet);
+						if ($objp->fk_project > 0) {
+							$projectstatic->fetch($objp->fk_projet);
 							print $projectstatic->getNomUrl(1);
 						}
 						print '</td>';
