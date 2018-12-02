@@ -4,7 +4,7 @@
  * Copyright (C) 2004       Benoit Mortier          <benoit.mortier@opensides.be>
  * Copyright (C) 2004       Sebastien Di Cintio     <sdicintio@ressource-toi.org>
  * Copyright (C) 2004       Eric Seigne             <eric.seigne@ryxeo.com>
- * Copyright (C) 2005-2017  Regis Houssin           <regis.houssin@capnetworks.com>
+ * Copyright (C) 2005-2017  Regis Houssin           <regis.houssin@inodbox.com>
  * Copyright (C) 2006       Andre Cianfarani        <acianfa@free.fr>
  * Copyright (C) 2006       Marc Barilley/Ocebo     <marc@ocebo.com>
  * Copyright (C) 2007       Franky Van Liedekerke   <franky.van.liedekerker@telenet.be>
@@ -18,6 +18,7 @@
  * Copyright (C) 2014       Alexandre Spangaro      <aspangaro.dolibarr@gmail.com>
  * Copyright (C) 2018       Ferran Marcet           <fmarcet@2byte.es>
  * Copyright (C) 2018       Frédéric France         <frederic.france@netlogic.fr>
+ * Copyright (C) 2018       Nicolas ZABOURI	        <info@inovea-conseil.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -6739,6 +6740,7 @@ class Form
 		}
 		else if ($object->element == 'member')
 		{
+			$ret.=$object->ref.'<br>';
 			$fullname=$object->getFullName($langs);
 			if ($object->morphy == 'mor' && $object->societe) {
 				$ret.= dol_htmlentities($object->societe) . ((! empty($fullname) && $object->societe != $fullname)?' ('.dol_htmlentities($fullname).')':'');
@@ -6859,10 +6861,10 @@ class Form
 			$dir=$conf->user->dir_output;
 			if (! empty($object->photo))
 			{
-				if ((string) $imagesize == 'mini') $file=get_exdir($id, 2, 0, 0, $object, 'user').getImageFileNameForSize($object->photo, '_mini');
-				else if ((string) $imagesize == 'small') $file=get_exdir($id, 2, 0, 0, $object, 'user').getImageFileNameForSize($object->photo, '_small');
-				else $file=get_exdir($id, 2, 0, 0, $object, 'user').$object->photo;
-				$originalfile=get_exdir($id, 2, 0, 0, $object, 'user').$object->photo;
+				if ((string) $imagesize == 'mini') $file=get_exdir(0, 0, 0, 0, $object, 'user').$object->id.'/'.getImageFileNameForSize($object->photo, '_mini');
+				else if ((string) $imagesize == 'small') $file=get_exdir(0, 0, 0, 0, $object, 'user').$object->id.'/'.getImageFileNameForSize($object->photo, '_small');
+				else $file=get_exdir(0, 0, 0, 0, $object, 'user').'/'.$object->id.'/'.$object->photo;
+				$originalfile=get_exdir(0, 0, 0, 0, $object, 'user').'/'.$object->id.'/'.$object->photo;
 			}
 			if (! empty($conf->global->MAIN_OLD_IMAGE_LINKS)) $altfile=$object->id.".jpg";	// For backward compatibility
 			$email=$object->email;

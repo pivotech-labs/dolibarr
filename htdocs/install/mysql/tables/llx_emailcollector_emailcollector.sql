@@ -22,13 +22,12 @@ CREATE TABLE llx_emailcollector_emailcollector(
         label varchar(255), 
         description text,
         host varchar(255), 
-        user varchar(128), 
+        login varchar(128), 
         password varchar(128),
-        source_directory varchar(255),
-        filter text,
-        actiontodo varchar(255),
+        source_directory varchar(255) NOT NULL,
         target_directory varchar(255),
         datelastresult datetime, 
+        codelastresult varchar(16), 
         lastresult varchar(255),
         note_public text, 
         note_private text, 
@@ -37,6 +36,6 @@ CREATE TABLE llx_emailcollector_emailcollector(
         fk_user_creat integer NOT NULL, 
         fk_user_modif integer, 
         import_key varchar(14), 
-        status integer NOT NULL, 
+        status integer NOT NULL
         -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
