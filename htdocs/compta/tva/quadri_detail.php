@@ -66,8 +66,8 @@ if (empty($date_start) || empty($date_end)) // We define date_start and date_end
 		{
 			$date_start=dol_get_first_day($year_start,empty($conf->global->SOCIETE_FISCAL_MONTH_START)?1:$conf->global->SOCIETE_FISCAL_MONTH_START,false);
 			if (empty($conf->global->MAIN_INFO_VAT_RETURN) || $conf->global->MAIN_INFO_VAT_RETURN == 2) $date_end=dol_time_plus_duree($date_start, 3, 'm') - 1;
-			else if ($conf->global->MAIN_INFO_VAT_RETURN == 3) $date_end=dol_time_plus_duree($date_start, 1, 'y') - 1;
-			else if ($conf->global->MAIN_INFO_VAT_RETURN == 1) $date_end=dol_time_plus_duree($date_start, 1, 'm') - 1;
+			elseif ($conf->global->MAIN_INFO_VAT_RETURN == 3) $date_end=dol_time_plus_duree($date_start, 1, 'y') - 1;
+			elseif ($conf->global->MAIN_INFO_VAT_RETURN == 1) $date_end=dol_time_plus_duree($date_start, 1, 'm') - 1;
 		}
 	}
 	else
@@ -209,7 +209,7 @@ if (! is_array($x_coll) || ! is_array($x_paye))
 	$langs->load("errors");
 	if ($x_coll == -1) {
 		print '<tr><td colspan="' . $columns . '">' . $langs->trans("ErrorNoAccountancyModuleLoaded") . '</td></tr>';
-	} else if ($x_coll == -2) {
+	} elseif ($x_coll == -2) {
 		print '<tr><td colspan="' . $columns . '">' . $langs->trans("FeatureNotYetAvailable") . '</td></tr>';
 	} else {
 		print '<tr><td colspan="' . $columns . '">' . $langs->trans("Error") . '</td></tr>';
@@ -336,12 +336,12 @@ if (! is_array($x_coll) || ! is_array($x_paye))
 
 	// Customers invoices
 	print '<tr class="liste_titre">';
-	print '<td align="left">'.$elementcust.'</td>';
-	print '<td align="left">'.$langs->trans("DateInvoice").'</td>';
-	if ($conf->global->TAX_MODE_SELL_PRODUCT == 'payment' || $conf->global->TAX_MODE_SELL_SERVICE == 'payment') print '<td align="left">'.$langs->trans("DatePayment").'</td>';
+	print '<td class="left">'.$elementcust.'</td>';
+	print '<td class="left">'.$langs->trans("DateInvoice").'</td>';
+	if ($conf->global->TAX_MODE_SELL_PRODUCT == 'payment' || $conf->global->TAX_MODE_SELL_SERVICE == 'payment') print '<td class="left">'.$langs->trans("DatePayment").'</td>';
 	else print '<td></td>';
-	print '<td align="left">'.$namecust.'</td>';
-	print '<td align="left">'.$productcust.'</td>';
+	print '<td class="left">'.$namecust.'</td>';
+	print '<td class="left">'.$productcust.'</td>';
 	if ($modetax != 1)
 	{
 		print '<td align="right">'.$amountcust.'</td>';
@@ -393,17 +393,17 @@ if (! is_array($x_coll) || ! is_array($x_paye))
 				print '<td class="nowrap" align="left">'.$fields['link'].'</td>';
 
 				// Invoice date
-				print '<td align="left">' . dol_print_date($fields['datef'], 'day') . '</td>';
+				print '<td class="left">' . dol_print_date($fields['datef'], 'day') . '</td>';
 
 				// Payment date
-				if ($conf->global->TAX_MODE_SELL_PRODUCT == 'payment' || $conf->global->TAX_MODE_SELL_SERVICE == 'payment') print '<td align="left">' . dol_print_date($fields['datep'], 'day') . '</td>';
+				if ($conf->global->TAX_MODE_SELL_PRODUCT == 'payment' || $conf->global->TAX_MODE_SELL_SERVICE == 'payment') print '<td class="left">' . dol_print_date($fields['datep'], 'day') . '</td>';
 				else print '<td></td>';
 
 				// Company name
-				print '<td align="left">' . $fields['company_link'] . '</td>';
+				print '<td class="left">' . $fields['company_link'] . '</td>';
 
 				// Description
-				print '<td align="left">';
+				print '<td class="left">';
 				if ($fields['pid'])
 				{
 					$product_static->id=$fields['pid'];
@@ -529,12 +529,12 @@ if (! is_array($x_coll) || ! is_array($x_paye))
 
 	// Print table headers for this quadri - expenses now
 	print '<tr class="liste_titre liste_titre_topborder">';
-	print '<td align="left">'.$elementsup.'</td>';
-	print '<td align="left">'.$langs->trans("DateInvoice").'</td>';
-	if ($conf->global->TAX_MODE_BUY_PRODUCT == 'payment' || $conf->global->TAX_MODE_BUY_SERVICE == 'payment') print '<td align="left">'.$langs->trans("DatePayment").'</td>';
+	print '<td class="left">'.$elementsup.'</td>';
+	print '<td class="left">'.$langs->trans("DateInvoice").'</td>';
+	if ($conf->global->TAX_MODE_BUY_PRODUCT == 'payment' || $conf->global->TAX_MODE_BUY_SERVICE == 'payment') print '<td class="left">'.$langs->trans("DatePayment").'</td>';
 	else print '<td></td>';
-	print '<td align="left">'.$namesup.'</td>';
-	print '<td align="left">'.$productsup.'</td>';
+	print '<td class="left">'.$namesup.'</td>';
+	print '<td class="left">'.$productsup.'</td>';
 	if ($modetax != 1) {
 		print '<td align="right">'.$amountsup.'</td>';
 		print '<td align="right">'.$langs->trans("Payment").' ('.$langs->trans("PercentOfInvoice").')</td>';
@@ -574,17 +574,17 @@ if (! is_array($x_coll) || ! is_array($x_paye))
 				print '<td class="nowrap" align="left">'.$fields['link'].'</td>';
 
 				// Invoice date
-				print '<td align="left">' . dol_print_date($fields['datef'], 'day') . '</td>';
+				print '<td class="left">' . dol_print_date($fields['datef'], 'day') . '</td>';
 
 				// Payment date
-				if ($conf->global->TAX_MODE_BUY_PRODUCT == 'payment' || $conf->global->TAX_MODE_BUY_SERVICE == 'payment') print '<td align="left">' . dol_print_date($fields['datep'], 'day') . '</td>';
+				if ($conf->global->TAX_MODE_BUY_PRODUCT == 'payment' || $conf->global->TAX_MODE_BUY_SERVICE == 'payment') print '<td class="left">' . dol_print_date($fields['datep'], 'day') . '</td>';
 				else print '<td></td>';
 
 				// Company name
-				print '<td align="left">' . $fields['company_link'] . '</td>';
+				print '<td class="left">' . $fields['company_link'] . '</td>';
 
 				// Description
-				print '<td align="left">';
+				print '<td class="left">';
 				if ($fields['pid'])
 				{
 					$product_static->id=$fields['pid'];

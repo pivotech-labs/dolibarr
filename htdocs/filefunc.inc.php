@@ -31,7 +31,7 @@
  */
 
 if (! defined('DOL_APPLICATION_TITLE')) define('DOL_APPLICATION_TITLE','Dolibarr');
-if (! defined('DOL_VERSION')) define('DOL_VERSION','9.0.0-beta');		// a.b.c-alpha, a.b.c-beta, a.b.c-rcX or a.b.c
+if (! defined('DOL_VERSION')) define('DOL_VERSION','10.0.0-alpha');		// a.b.c-alpha, a.b.c-beta, a.b.c-rcX or a.b.c
 
 if (! defined('EURO')) define('EURO',chr(128));
 
@@ -80,7 +80,7 @@ if (! $result && ! empty($_SERVER["GATEWAY_INTERFACE"]))    // If install not do
         $path=$_SERVER["CONTEXT_PREFIX"];       // example '/dolibarr/' when using an apache alias.
         if (! preg_match('/\/$/', $path)) $path.='/';
     }
-    else if (preg_match('/index\.php/', $_SERVER['PHP_SELF']))
+    elseif (preg_match('/index\.php/', $_SERVER['PHP_SELF']))
     {
         // When we ask index.php, we MUST BE SURE that $path is '' at the end. This is required to make install process
         // when using apache alias like '/dolibarr/' that point to htdocs.
@@ -251,6 +251,7 @@ if (! defined('FPDI_PATH'))            { define('FPDI_PATH',            (empty($
 if (! defined('TCPDI_PATH'))           { define('TCPDI_PATH',           (empty($dolibarr_lib_TCPDI_PATH))?DOL_DOCUMENT_ROOT.'/includes/tcpdi/':$dolibarr_lib_TCPDI_PATH.'/'); }
 if (! defined('NUSOAP_PATH'))          { define('NUSOAP_PATH',          (!isset($dolibarr_lib_NUSOAP_PATH))?DOL_DOCUMENT_ROOT.'/includes/nusoap/lib/':(empty($dolibarr_lib_NUSOAP_PATH)?'':$dolibarr_lib_NUSOAP_PATH.'/')); }
 if (! defined('PHPEXCEL_PATH'))        { define('PHPEXCEL_PATH',        (!isset($dolibarr_lib_PHPEXCEL_PATH))?DOL_DOCUMENT_ROOT.'/includes/phpoffice/phpexcel/Classes/':(empty($dolibarr_lib_PHPEXCEL_PATH)?'':$dolibarr_lib_PHPEXCEL_PATH.'/')); }
+if (! defined('PHPEXCELNEW_PATH'))     { define('PHPEXCELNEW_PATH',     (!isset($dolibarr_lib_PHPEXCELNEW_PATH))?DOL_DOCUMENT_ROOT.'/includes/phpoffice/PhpSpreadsheet/':(empty($dolibarr_lib_PHPEXCELNEW_PATH)?'':$dolibarr_lib_PHPEXCELNEW_PATH.'/')); }
 if (! defined('GEOIP_PATH'))           { define('GEOIP_PATH',           (!isset($dolibarr_lib_GEOIP_PATH))?DOL_DOCUMENT_ROOT.'/includes/geoip/':(empty($dolibarr_lib_GEOIP_PATH)?'':$dolibarr_lib_GEOIP_PATH.'/')); }
 if (! defined('ODTPHP_PATH'))          { define('ODTPHP_PATH',          (!isset($dolibarr_lib_ODTPHP_PATH))?DOL_DOCUMENT_ROOT.'/includes/odtphp/':(empty($dolibarr_lib_ODTPHP_PATH)?'':$dolibarr_lib_ODTPHP_PATH.'/')); }
 if (! defined('ODTPHP_PATHTOPCLZIP'))  { define('ODTPHP_PATHTOPCLZIP',  (!isset($dolibarr_lib_ODTPHP_PATHTOPCLZIP))?DOL_DOCUMENT_ROOT.'/includes/odtphp/zip/pclzip/':(empty($dolibarr_lib_ODTPHP_PATHTOPCLZIP)?'':$dolibarr_lib_ODTPHP_PATHTOPCLZIP.'/')); }

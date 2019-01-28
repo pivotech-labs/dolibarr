@@ -49,7 +49,7 @@ function dol_getwebuser($mode)
  *	@param		array	$authmode			Array list of selected authentication mode array('http', 'dolibarr', 'xxx'...)
  *  @return		string						Login or ''
  */
-function checkLoginPassEntity($usertotest,$passwordtotest,$entitytotest,$authmode)
+function checkLoginPassEntity($usertotest, $passwordtotest, $entitytotest, $authmode)
 {
 	global $conf,$langs;
     //global $dolauthmode;    // To return authentication finally used
@@ -129,7 +129,7 @@ if (! function_exists('dol_loginfunction'))
      * @param       Societe     $mysoc      Company object
      * @return      void
      */
-    function dol_loginfunction($langs,$conf,$mysoc)
+    function dol_loginfunction($langs, $conf, $mysoc)
 	{
 		global $dolibarr_main_demo,$db;
 		global $smartphone,$hookmanager;
@@ -313,7 +313,7 @@ if (! function_exists('dol_loginfunction'))
  *									non defini=>renvoi un salt pour cryptage par defaut
  *	@return		string				Salt string
  */
-function makesalt($type=CRYPT_SALT_LENGTH)
+function makesalt($type = CRYPT_SALT_LENGTH)
 {
 	dol_syslog("makesalt type=".$type);
 	switch($type)
@@ -340,7 +340,7 @@ function makesalt($type=CRYPT_SALT_LENGTH)
  *  @param   	int		$level   	Encode level: 0 no encoding, 1 encoding
  *	@return		int					<0 if KO, >0 if OK
  */
-function encodedecode_dbpassconf($level=0)
+function encodedecode_dbpassconf($level = 0)
 {
 	dol_syslog("encodedecode_dbpassconf level=".$level, LOG_DEBUG);
 	$config = '';
@@ -443,11 +443,12 @@ function encodedecode_dbpassconf($level=0)
 /**
  * Return a generated password using default module
  *
- * @param		boolean		$generic		true=Create generic password (32 chars/numbers), false=Use the configured password generation module
- * @return		string						New value for password
+ * @param		boolean		$generic				true=Create generic password (32 chars/numbers), false=Use the configured password generation module
+ * @param		array		$replaceambiguouschars	Discard ambigous characters. For example array('I').
+ * @return		string								New value for password
  * @see dol_hash
  */
-function getRandomPassword($generic=false)
+function getRandomPassword($generic = false, $replaceambiguouschars = null)
 {
 	global $db,$conf,$langs,$user;
 
@@ -497,7 +498,7 @@ function getRandomPassword($generic=false)
 			$generated_password=str_shuffle($randomCode);
 		}
 	}
-	else if (! empty($conf->global->USER_PASSWORD_GENERATED))
+	elseif (! empty($conf->global->USER_PASSWORD_GENERATED))
 	{
 		$nomclass="modGeneratePass".ucfirst($conf->global->USER_PASSWORD_GENERATED);
 		$nomfichier=$nomclass.".class.php";
@@ -506,6 +507,21 @@ function getRandomPassword($generic=false)
 		$genhandler=new $nomclass($db,$conf,$langs,$user);
 		$generated_password=$genhandler->getNewGeneratedPassword();
 		unset($genhandler);
+	}
+
+	// Do we have to discard some alphabetic characters ?
+	if (is_array($replaceambiguouschars) && count($replaceambiguouschars) > 0)
+	{
+		$numbers = "ABCDEF";
+		$max = strlen($numbers) - 1;
+		if (function_exists('random_int'))	// Cryptographic random
+		{
+			$generated_password=str_replace($replaceambiguouschars, $numbers{random_int(0, $max)}, $generated_password);
+		}
+		else
+		{
+			$generated_password=str_replace($replaceambiguouschars, $numbers{mt_rand(0, $max)}, $generated_password);
+		}
 	}
 
 	return $generated_password;

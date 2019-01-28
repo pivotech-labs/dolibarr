@@ -99,9 +99,9 @@ class mod_facture_mars extends ModeleNumRefFactures
 		$fayymm=''; $max='';
 
 		$posindice=8;
-		$sql = "SELECT MAX(CAST(SUBSTRING(facnumber FROM ".$posindice.") AS SIGNED) as max";	// This is standard SQL
+		$sql = "SELECT MAX(CAST(SUBSTRING(ref FROM ".$posindice.") AS SIGNED) as max";	// This is standard SQL
 		$sql.= " FROM ".MAIN_DB_PREFIX."facture";
-		$sql.= " WHERE facnumber LIKE '".$db->escape($this->prefixinvoice)."____-%'";
+		$sql.= " WHERE ref LIKE '".$db->escape($this->prefixinvoice)."____-%'";
 		$sql.= " AND entity = ".$conf->entity;
 
 		$resql=$db->query($sql);
@@ -121,9 +121,9 @@ class mod_facture_mars extends ModeleNumRefFactures
 		$fayymm='';
 
 		$posindice=8;
-		$sql = "SELECT MAX(SUBSTRING(facnumber FROM ".$posindice.")) as max";	// This is standard SQL
+		$sql = "SELECT MAX(SUBSTRING(ref FROM ".$posindice.")) as max";	// This is standard SQL
 		$sql.= " FROM ".MAIN_DB_PREFIX."facture";
-		$sql.= " WHERE facnumber LIKE '".$db->escape($this->prefixcreditnote)."____-%'";
+		$sql.= " WHERE ref LIKE '".$db->escape($this->prefixcreditnote)."____-%'";
 		$sql.= " AND entity = ".$conf->entity;
 
 		$resql=$db->query($sql);
@@ -149,24 +149,23 @@ class mod_facture_mars extends ModeleNumRefFactures
      * @param   string		$mode       'next' for next value or 'last' for last value
 	 * @return  string       			Value
 	 */
-	function getNextValue($objsoc, $invoice, $mode='next')
+	function getNextValue($objsoc, $invoice, $mode = 'next')
 	{
 		global $db;
-
 		$prefix=$this->prefixinvoice;
 
 		if ($invoice->type == 1) $prefix=$this->prefixreplacement;
-		else if ($invoice->type == 2) $prefix=$this->prefixcreditnote;
-		else if ($invoice->type == 3) $prefix=$this->prefixdeposit;
+		elseif ($invoice->type == 2) $prefix=$this->prefixcreditnote;
+		elseif ($invoice->type == 3) $prefix=$this->prefixdeposit;
 		else $prefix=$this->prefixinvoice;
 
 		// D'abord on recupere la valeur max
 		$posindice=8;
-		$sql = "SELECT MAX(CAST(SUBSTRING(facnumber FROM ".$posindice.") AS SIGNED)) as max";	// This is standard SQL
+		$sql = "SELECT MAX(CAST(SUBSTRING(ref FROM ".$posindice.") AS SIGNED)) as max";	// This is standard SQL
 		$sql.= " FROM ".MAIN_DB_PREFIX."facture";
-		$sql.= " WHERE facnumber LIKE '".$prefix."____-%'";
+		$sql.= " WHERE ref LIKE '".$prefix."____-%'";
 		$sql.= " AND entity IN (".getEntity('invoicenumber', 1, $invoice).")";
-
+		
 		$resql=$db->query($sql);
 		dol_syslog(get_class($this)."::getNextValue", LOG_DEBUG);
 		if ($resql)
@@ -186,11 +185,11 @@ class mod_facture_mars extends ModeleNumRefFactures
     		else $num = sprintf("%04s",$max);
 
             $ref='';
-            $sql = "SELECT facnumber as ref";
+            $sql = "SELECT ref as ref";
             $sql.= " FROM ".MAIN_DB_PREFIX."facture";
-            $sql.= " WHERE facnumber LIKE '".$prefix."____-".$num."'";
+            $sql.= " WHERE ref LIKE '".$prefix."____-".$num."'";
             $sql.= " AND entity IN (".getEntity('invoicenumber', 1, $invoice).")";
-
+			 
             dol_syslog(get_class($this)."::getNextValue", LOG_DEBUG);
             $resql=$db->query($sql);
             if ($resql)
@@ -202,7 +201,7 @@ class mod_facture_mars extends ModeleNumRefFactures
 
             return $ref;
 		}
-		else if ($mode == 'next')
+		elseif ($mode == 'next')
 		{
 			$date=$invoice->date;	// This is invoice date (not creation date)
     		$yymm = strftime("%y%m",$date);
@@ -224,7 +223,7 @@ class mod_facture_mars extends ModeleNumRefFactures
      * @param   string		$mode       	'next' for next value or 'last' for last value
      * @return  string      				Next free value
 	 */
-	function getNumRef($objsoc,$objforref,$mode='next')
+	function getNumRef($objsoc, $objforref, $mode = 'next')
 	{
 		return $this->getNextValue($objsoc,$objforref,$mode);
 	}

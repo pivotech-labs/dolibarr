@@ -132,6 +132,7 @@ class BordereauChequeBlochet extends ModeleChequeReceipts
         $heightforinfotot = 50;	// Height reserved to output the info and total part
         $heightforfreetext= (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT)?$conf->global->MAIN_PDF_FREETEXT_HEIGHT:5);	// Height reserved to output the free text on last page
         $heightforfooter = $this->marge_basse + 8;	// Height reserved to output the footer (value include bottom margin)
+        if ($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS >0) $heightforfooter+= 6;
         $pdf->SetAutoPageBreak(1,0);
 
         if (class_exists('TCPDF'))
@@ -380,7 +381,7 @@ class BordereauChequeBlochet extends ModeleChequeReceipts
 	 *      @param	int			$hidefreetext		1=Hide free text
 	 *      @return	void
 	 */
-	function _pagefoot(&$pdf,$object,$outputlangs,$hidefreetext=0)
+	function _pagefoot(&$pdf, $object, $outputlangs, $hidefreetext = 0)
 	{
 		global $conf;
 		$default_font_size = pdf_getPDFFontSize($outputlangs);

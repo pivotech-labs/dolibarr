@@ -186,7 +186,7 @@ class ExportExcel extends ModeleExports
 	 *  @param		Translate	$outputlangs	Output language object
 	 *	@return		int							<0 if KO, >=0 if OK
 	 */
-	function open_file($file,$outputlangs)
+	function open_file($file, $outputlangs)
 	{
         // phpcs:enable
 		global $user,$conf,$langs;
@@ -236,11 +236,11 @@ class ExportExcel extends ModeleExports
 		    }
 
             $this->workbook = new PHPExcel();
-            $this->workbook->getProperties()->setCreator($user->getFullName($outputlangs).' - Dolibarr '.DOL_VERSION);
+            $this->workbook->getProperties()->setCreator($user->getFullName($outputlangs).' - '.DOL_APPLICATION_TITLE.' '.DOL_VERSION);
             //$this->workbook->getProperties()->setLastModifiedBy('Dolibarr '.DOL_VERSION);
-            $this->workbook->getProperties()->setTitle($outputlangs->trans("Export").' - '.$file);
-            $this->workbook->getProperties()->setSubject($outputlangs->trans("Export").' - '.$file);
-            $this->workbook->getProperties()->setDescription($outputlangs->trans("Export").' - '.$file);
+            $this->workbook->getProperties()->setTitle(basename($file));
+            $this->workbook->getProperties()->setSubject(basename($file));
+            $this->workbook->getProperties()->setDescription(DOL_APPLICATION_TITLE.' '.DOL_VERSION);
 
             $this->workbook->setActiveSheetIndex(0);
             $this->workbook->getActiveSheet()->setTitle($outputlangs->trans("Sheet"));
@@ -275,7 +275,7 @@ class ExportExcel extends ModeleExports
      *  @param		array		$array_types					Array with types of fields
 	 * 	@return		int											<0 if KO, >0 if OK
 	 */
-	function write_title($array_export_fields_label,$array_selected_sorted,$outputlangs,$array_types)
+	function write_title($array_export_fields_label, $array_selected_sorted, $outputlangs, $array_types)
 	{
         // phpcs:enable
 		global $conf;
@@ -332,7 +332,7 @@ class ExportExcel extends ModeleExports
      *  @param		array		$array_types				Array with types of fields
 	 * 	@return		int										<0 if KO, >0 if OK
 	 */
-	function write_record($array_selected_sorted,$objp,$outputlangs,$array_types)
+	function write_record($array_selected_sorted, $objp, $outputlangs, $array_types)
 	{
         // phpcs:enable
 		global $conf;

@@ -321,7 +321,7 @@ class FactureRec extends CommonInvoice
 	 * 	@param		int		$ref_int		Internal reference of other object
 	 *	@return     int         			>0 if OK, <0 if KO, 0 if not found
 	 */
-	function fetch($rowid, $ref='', $ref_ext='', $ref_int='')
+	function fetch($rowid, $ref = '', $ref_ext = '', $ref_int = '')
 	{
 		$sql = 'SELECT f.rowid, f.entity, f.titre, f.suspended, f.fk_soc, f.amount, f.tva, f.localtax1, f.localtax2, f.total, f.total_ttc';
 		$sql.= ', f.remise_percent, f.remise_absolue, f.remise';
@@ -340,7 +340,7 @@ class FactureRec extends CommonInvoice
 		$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_payment_term as c ON f.fk_cond_reglement = c.rowid';
 		$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_paiement as p ON f.fk_mode_reglement = p.id';
 		//$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."element_element as el ON el.fk_target = f.rowid AND el.targettype = 'facture'";
-		$sql.= ' WHERE f.entity IN ('.getEntity('facture').')';
+		$sql.= ' WHERE f.entity IN ('.getEntity('invoice').')';
 		if ($rowid) $sql.= ' AND f.rowid='.$rowid;
 		elseif ($ref) $sql.= " AND f.titre='".$this->db->escape($ref)."'";
 		/* This field are not used for template invoice
@@ -573,7 +573,7 @@ class FactureRec extends CommonInvoice
 	 *	@param		int		$idwarehouse	Id warehouse to use for stock change.
 	 *	@return		int						<0 if KO, >0 if OK
 	 */
-	function delete(User $user, $notrigger=0, $idwarehouse=-1)
+	function delete(User $user, $notrigger = 0, $idwarehouse = -1)
 	{
 	    $rowid=$this->id;
 
@@ -644,7 +644,7 @@ class FactureRec extends CommonInvoice
 	 *  @param		int			$date_end_fill		1=Flag to fill end date when generating invoice
      *	@return    	int             				<0 if KO, Id of line if OK
 	 */
-	function addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1=0, $txlocaltax2=0, $fk_product=0, $remise_percent=0, $price_base_type='HT', $info_bits=0, $fk_remise_except='', $pu_ttc=0, $type=0, $rang=-1, $special_code=0, $label='', $fk_unit=null, $pu_ht_devise=0, $date_start_fill=0, $date_end_fill=0)
+	function addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1 = 0, $txlocaltax2 = 0, $fk_product = 0, $remise_percent = 0, $price_base_type = 'HT', $info_bits = 0, $fk_remise_except = '', $pu_ttc = 0, $type = 0, $rang = -1, $special_code = 0, $label = '', $fk_unit = null, $pu_ht_devise = 0, $date_start_fill = 0, $date_end_fill = 0)
 	{
 	    global $mysoc;
 
@@ -826,7 +826,7 @@ class FactureRec extends CommonInvoice
 	 *  @param		int			$date_end_fill		1=Flag to fill end date when generating invoice
 	 *	@return    	int             				<0 if KO, Id of line if OK
 	 */
-	function updateline($rowid, $desc, $pu_ht, $qty, $txtva, $txlocaltax1=0, $txlocaltax2=0, $fk_product=0, $remise_percent=0, $price_base_type='HT', $info_bits=0, $fk_remise_except='', $pu_ttc=0, $type=0, $rang=-1, $special_code=0, $label='', $fk_unit=null, $pu_ht_devise = 0, $notrigger=0, $date_start_fill=0, $date_end_fill=0)
+	function updateline($rowid, $desc, $pu_ht, $qty, $txtva, $txlocaltax1 = 0, $txlocaltax2 = 0, $fk_product = 0, $remise_percent = 0, $price_base_type = 'HT', $info_bits = 0, $fk_remise_except = '', $pu_ttc = 0, $type = 0, $rang = -1, $special_code = 0, $label = '', $fk_unit = null, $pu_ht_devise = 0, $notrigger = 0, $date_start_fill = 0, $date_end_fill = 0)
 	{
 	    global $mysoc;
 
@@ -998,26 +998,25 @@ class FactureRec extends CommonInvoice
 	 *
 	 *  WARNING: This method change temporarly context $conf->entity to be in correct context for each recurring invoice found.
 	 *
-	 *  @param	int		$restictoninvoiceid		0=All qualified template invoices found. > 0 = restrict action on invoice ID
+	 *  @param	int		$restrictioninvoiceid		0=All qualified template invoices found. > 0 = restrict action on invoice ID
 	 *  @param	int		$forcevalidation		1=Force validation of invoice whatever is template auto_validate flag.
 	 *  @return	int								0 if OK, < 0 if KO (this function is used also by cron so only 0 is OK)
 	 */
-	function createRecurringInvoices($restictoninvoiceid=0, $forcevalidation=0)
+	function createRecurringInvoices($restrictioninvoiceid = 0, $forcevalidation = 0)
 	{
-		global $conf, $langs, $db, $user;
+		global $conf, $langs, $db, $user, $hookmanager;
 
 		$error=0;
+		$nb_create=0;
 
 		// Load translation files required by the page
-        $langs->loadLangs(array("main","bills"));
-
-		$nb_create=0;
+		$langs->loadLangs(array("main","bills"));
 
 		$now = dol_now();
 		$tmparray=dol_getdate($now);
 		$today = dol_mktime(23,59,59,$tmparray['mon'],$tmparray['mday'],$tmparray['year']);   // Today is last second of current day
 
-		dol_syslog("createRecurringInvoices restictoninvoiceid=".$restictoninvoiceid." forcevalidation=".$forcevalidation);
+		dol_syslog("createRecurringInvoices restrictioninvoiceid=".$restrictioninvoiceid." forcevalidation=".$forcevalidation);
 
 		$sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.'facture_rec';
 		$sql.= ' WHERE frequency > 0';      // A recurring invoice is an invoice with a frequency
@@ -1025,30 +1024,39 @@ class FactureRec extends CommonInvoice
 		$sql.= ' AND (nb_gen_done < nb_gen_max OR nb_gen_max = 0)';
 		$sql.= ' AND suspended = 0';
 		$sql.= ' AND entity = '.$conf->entity;	// MUST STAY = $conf->entity here
-		if ($restictoninvoiceid > 0) $sql.=' AND rowid = '.$restictoninvoiceid;
+		if ($restrictioninvoiceid > 0)
+			$sql.=' AND rowid = '.$restrictioninvoiceid;
 		$sql.= $db->order('entity', 'ASC');
 		//print $sql;exit;
+		$parameters = array(
+			'restrictioninvoiceid' => $restrictioninvoiceid,
+			'forcevalidation' => $forcevalidation,
+			);
+		$reshook = $hookmanager->executeHooks('beforeCreationOfRecurringInvoices', $parameters, $sql); // note that $sql might be modified by hooks
 
 		$resql = $db->query($sql);
 		if ($resql)
 		{
-		    $i=0;
-		    $num = $db->num_rows($resql);
+			$i=0;
+			$num = $db->num_rows($resql);
 
-		    if ($num) $this->output.=$langs->trans("FoundXQualifiedRecurringInvoiceTemplate", $num)."\n";
-		    else $this->output.=$langs->trans("NoQualifiedRecurringInvoiceTemplateFound");
+			if ($num)
+				$this->output.=$langs->trans("FoundXQualifiedRecurringInvoiceTemplate", $num)."\n";
+			else
+				$this->output.=$langs->trans("NoQualifiedRecurringInvoiceTemplateFound");
 
-		    $saventity = $conf->entity;
+			$saventity = $conf->entity;
 
-		    while ($i < $num)     // Loop on each template invoice. If $num = 0, test is false at first pass.
+			while ($i < $num)     // Loop on each template invoice. If $num = 0, test is false at first pass.
 			{
 				$line = $db->fetch_object($resql);
 
-			    $db->begin();
+				$db->begin();
 
-			    $invoiceidgenerated = 0;
+				$invoiceidgenerated = 0;
 
-			    $facturerec = new FactureRec($db);
+				$facture = null;
+				$facturerec = new FactureRec($db);
 				$facturerec->fetch($line->rowid);
 
 				if ($facturerec->id > 0)
@@ -1058,44 +1066,44 @@ class FactureRec extends CommonInvoice
 
 					dol_syslog("createRecurringInvoices Process invoice template id=".$facturerec->id.", ref=".$facturerec->ref.", entity=".$facturerec->entity);
 
-				    $facture = new Facture($db);
+					$facture = new Facture($db);
 					$facture->fac_rec = $facturerec->id;    // We will create $facture from this recurring invoice
 					$facture->fk_fac_rec_source = $facturerec->id;    // We will create $facture from this recurring invoice
 
-				    $facture->type = self::TYPE_STANDARD;
-				    $facture->brouillon = 1;
-				    $facture->date = (empty($facturerec->date_when)?$now:$facturerec->date_when);	// We could also use dol_now here but we prefer date_when so invoice has real date when we would like even if we generate later.
-				    $facture->socid = $facturerec->socid;
+					$facture->type = self::TYPE_STANDARD;
+					$facture->brouillon = 1;
+					$facture->date = (empty($facturerec->date_when)?$now:$facturerec->date_when);	// We could also use dol_now here but we prefer date_when so invoice has real date when we would like even if we generate later.
+					$facture->socid = $facturerec->socid;
 
-				    $invoiceidgenerated = $facture->create($user);
-				    if ($invoiceidgenerated <= 0)
-				    {
-				        $this->errors = $facture->errors;
-				        $this->error = $facture->error;
-				        $error++;
-				    }
-				    if (! $error && ($facturerec->auto_validate || $forcevalidation))
-				    {
-				        $result = $facture->validate($user);
-				        if ($result <= 0)
-				        {
-	    			        $this->errors = $facture->errors;
-	    			        $this->error = $facture->error;
-				            $error++;
-	                    }
-				    }
-	                if (! $error && $facturerec->generate_pdf)
-	                {
-	                    // We refresh the object in order to have all necessary data (like date_lim_reglement)
-	                    $facture->fetch($facture->id);
-	                    $result = $facture->generateDocument($facturerec->modelpdf, $langs);
-	                    if ($result <= 0)
-	                    {
-	                        $this->errors = $facture->errors;
-	                        $this->error = $facture->error;
-	                        $error++;
-	                    }
-	                }
+					$invoiceidgenerated = $facture->create($user);
+					if ($invoiceidgenerated <= 0)
+					{
+						$this->errors = $facture->errors;
+						$this->error = $facture->error;
+						$error++;
+					}
+					if (! $error && ($facturerec->auto_validate || $forcevalidation))
+					{
+						$result = $facture->validate($user);
+						if ($result <= 0)
+						{
+							$this->errors = $facture->errors;
+							$this->error = $facture->error;
+							$error++;
+						}
+					}
+					if (! $error && $facturerec->generate_pdf)
+					{
+						// We refresh the object in order to have all necessary data (like date_lim_reglement)
+						$facture->fetch($facture->id);
+						$result = $facture->generateDocument($facturerec->modelpdf, $langs);
+						if ($result <= 0)
+						{
+							$this->errors = $facture->errors;
+							$this->error = $facture->error;
+							$error++;
+						}
+					}
 				}
 				else
 				{
@@ -1114,8 +1122,18 @@ class FactureRec extends CommonInvoice
 				}
 				else
 				{
-				    $db->rollback("createRecurringInvoices Process invoice template id=".$facturerec->id.", ref=".$facturerec->ref);
+					$db->rollback("createRecurringInvoices Process invoice template id=".$facturerec->id.", ref=".$facturerec->ref);
 				}
+
+				$parameters = array(
+					'cpt'        => $i,
+					'total'      => $num,
+					'errorCount' => $error,
+					'invoiceidgenerated' => $invoiceidgenerated,
+					'facturerec' => $facturerec,	// it's an object which PHP passes by "reference", so modifiable by hooks.
+					'this'       => $this,		// it's an object which PHP passes by "reference", so modifiable by hooks.
+					);
+				$reshook = $hookmanager->executeHooks('afterCreationOfRecurringInvoice', $parameters, $facture);  // note: $facture can be modified by hooks (warning: $facture can be null)
 
 				$i++;
 			}
@@ -1141,7 +1159,7 @@ class FactureRec extends CommonInvoice
      * @param  int		$save_lastsearch_value    	-1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
 	 * @return string 			         			String with URL
 	 */
-	function getNomUrl($withpicto=0,$option='',$max=0,$short=0,$moretitle='',$notooltip='',$save_lastsearch_value=-1)
+	function getNomUrl($withpicto = 0, $option = '', $max = 0, $short = 0, $moretitle = '', $notooltip = '', $save_lastsearch_value = -1)
 	{
 		global $langs;
 
@@ -1192,7 +1210,7 @@ class FactureRec extends CommonInvoice
 	 *  @param      integer	$alreadypaid    Not used on recurring invoices
 	 *  @return     string			        Label of status
 	 */
-	function getLibStatut($mode=0, $alreadypaid=-1)
+	function getLibStatut($mode = 0, $alreadypaid = -1)
 	{
 
 		return $this->LibStatut($this->frequency?1:0, $this->suspended, $mode, $alreadypaid, empty($this->type)?0:$this->type);
@@ -1209,7 +1227,7 @@ class FactureRec extends CommonInvoice
 	 *	@param		int		$type			Type invoice
 	 *	@return     string        			Label of status
 	 */
-	function LibStatut($recur, $status, $mode=0, $alreadypaid=-1, $type=0)
+	function LibStatut($recur, $status, $mode = 0, $alreadypaid = -1, $type = 0)
 	{
         // phpcs:enable
 		global $langs;
@@ -1310,7 +1328,7 @@ class FactureRec extends CommonInvoice
 	 *	@param	string		$option		''=Create a specimen invoice with lines, 'nolines'=No lines
 	 *  @return	void
 	 */
-	function initAsSpecimen($option='')
+	function initAsSpecimen($option = '')
 	{
 		global $user,$langs,$conf;
 
@@ -1380,7 +1398,7 @@ class FactureRec extends CommonInvoice
 					$line->total_ttc=-119.6;
 					$line->total_tva=-19.6;
 				}
-				else if ($xnbp == 2)    // UP is negative (free line)
+				elseif ($xnbp == 2)    // UP is negative (free line)
 				{
 					$line->subprice=-100;
 					$line->total_ht=-100;
@@ -1388,7 +1406,7 @@ class FactureRec extends CommonInvoice
 					$line->total_tva=-19.6;
 					$line->remise_percent=0;
 				}
-				else if ($xnbp == 3)    // Discount is 50% (product line)
+				elseif ($xnbp == 3)    // Discount is 50% (product line)
 				{
 					$prodid = mt_rand(1, $num_prods);
 					$line->fk_product=$prodids[$prodid];
@@ -1462,7 +1480,7 @@ class FactureRec extends CommonInvoice
 	 *	@param     	string	$unit 			unit of frequency  (d, m, y)
      *	@return		int						<0 if KO, >0 if OK
      */
-    function setFrequencyAndUnit($frequency,$unit)
+    function setFrequencyAndUnit($frequency, $unit)
     {
         if (! $this->table_element)
         {
@@ -1505,7 +1523,7 @@ class FactureRec extends CommonInvoice
      *	@param     	int			$increment_nb_gen_done	0 do nothing more, >0 increment nb_gen_done
      *	@return		int									<0 if KO, >0 if OK
      */
-    function setNextDate($date, $increment_nb_gen_done=0)
+    function setNextDate($date, $increment_nb_gen_done = 0)
     {
         if (! $this->table_element)
         {
@@ -1805,7 +1823,7 @@ class FactureLigneRec extends CommonInvoiceLine
      *  @param		int		$notrigger				No trigger
      *	@return    	int             				<0 if KO, Id of line if OK
      */
-    function update(User $user, $notrigger=0)
+    function update(User $user, $notrigger = 0)
     {
     	global $conf;
 

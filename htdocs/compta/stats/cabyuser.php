@@ -158,7 +158,7 @@ if ($modecompta=="CREANCES-DETTES") {
     $builddate=dol_now();
     //$exportlink=$langs->trans("NotYetAvailable");
 }
-else if ($modecompta=="RECETTES-DEPENSES")
+elseif ($modecompta=="RECETTES-DEPENSES")
 {
 	$name=$langs->trans("TurnoverCollected").', '.$langs->trans("ByUserAuthorOfInvoice");
 	$calcmode=$langs->trans("CalcModeEngagement");
@@ -168,12 +168,12 @@ else if ($modecompta=="RECETTES-DEPENSES")
     $builddate=dol_now();
     //$exportlink=$langs->trans("NotYetAvailable");
 }
-else if ($modecompta=="BOOKKEEPING")
+elseif ($modecompta=="BOOKKEEPING")
 {
 
 
 }
-else if ($modecompta=="BOOKKEEPINGCOLLECTED")
+elseif ($modecompta=="BOOKKEEPINGCOLLECTED")
 {
 
 
@@ -232,7 +232,7 @@ if ($modecompta == 'CREANCES-DETTES') {
 	    $sql.= " AND p.datep >= '".$db->idate($date_start)."' AND p.datep <= '".$db->idate($date_end)."'";
 	}
 }
-$sql.= " AND f.entity = ".$conf->entity;
+$sql.= " AND f.entity IN (".getEntity('invoice').")";
 if ($socid) $sql.= " AND f.fk_soc = ".$socid;
 $sql .= " GROUP BY u.rowid, u.lastname, u.firstname";
 $sql .= " ORDER BY u.rowid";

@@ -161,13 +161,12 @@ class ProductStockEntrepot extends CommonObject
 	/**
 	 * Load object in memory from the database
 	 *
-	 * @param int    $id  Id object
-	 * @param int    $fk_product Id product
-	 * @param int    $fk_entrepot  Id warehouse
-	 *
-	 * @return int <0 if KO, 0 if not found, >0 if OK
+	 * @param int    $id  				Id object
+	 * @param int    $fk_product 		Id product
+	 * @param int    $fk_entrepot  		Id warehouse
+	 * @return int 						<0 if KO, 0 if not found, >0 if OK
 	 */
-	public function fetch($id, $fk_product, $fk_entrepot)
+	public function fetch($id, $fk_product = 0, $fk_entrepot = 0)
 	{
 		if(empty($id) && (empty($fk_product) || empty($fk_entrepot))) return -1;
 
@@ -175,23 +174,22 @@ class ProductStockEntrepot extends CommonObject
 
 		$sql = 'SELECT';
 		$sql .= ' t.rowid,';
-
 		$sql .= " t.tms,";
 		$sql .= " t.fk_product,";
 		$sql .= " t.fk_entrepot,";
 		$sql .= " t.seuil_stock_alerte,";
 		$sql .= " t.desiredstock,";
 		$sql .= " t.import_key";
-
-
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
 		if(!empty($id)) $sql .= ' WHERE t.rowid = ' . $id;
 		else $sql.= ' WHERE t.fk_product = '.$fk_product.' AND t.fk_entrepot = '.$fk_entrepot;
 
 		$resql = $this->db->query($sql);
-		if ($resql) {
+		if ($resql)
+		{
 			$numrows = $this->db->num_rows($resql);
-			if ($numrows) {
+			if ($numrows)
+			{
 				$obj = $this->db->fetch_object($resql);
 
 				$this->id = $obj->rowid;
@@ -239,7 +237,7 @@ class ProductStockEntrepot extends CommonObject
 	 *
 	 * @return int <0 if KO, >0 if OK
 	 */
-	public function fetchAll($fk_product='', $fk_entrepot='', $sortorder='', $sortfield='', $limit=0, $offset=0, array $filter = array(), $filtermode='AND')
+	public function fetchAll($fk_product = '', $fk_entrepot = '', $sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -445,6 +443,7 @@ class ProductStockEntrepot extends CommonObject
 		// ...
 
 		// Create clone
+		$object->context['createfromclone'] = 'createfromclone';
 		$result = $object->create($user);
 
 		// Other options
@@ -453,6 +452,8 @@ class ProductStockEntrepot extends CommonObject
 			$this->errors = $object->errors;
 			dol_syslog(__METHOD__ . ' ' . implode(',', $this->errors), LOG_ERR);
 		}
+
+		unset($object->context['createfromclone']);
 
 		// End
 		if (!$error) {
@@ -477,7 +478,7 @@ class ProductStockEntrepot extends CommonObject
      *  @param  string  $morecss            Add more css on link
 	 *	@return	string						String with URL
 	 */
-	function getNomUrl($withpicto=0, $option='', $notooltip=0, $maxlen=24, $morecss='')
+	function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $maxlen = 24, $morecss = '')
 	{
 		global $langs, $conf, $db;
         global $dolibarr_main_authentication, $dolibarr_main_demo;
@@ -511,7 +512,7 @@ class ProductStockEntrepot extends CommonObject
 	 *  @param	int		$mode          0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
 	 *  @return	string 			       Label of status
 	 */
-	function getLibStatut($mode=0)
+	function getLibStatut($mode = 0)
 	{
 		return $this->LibStatut($this->status,$mode);
 	}
@@ -524,7 +525,7 @@ class ProductStockEntrepot extends CommonObject
 	 *  @param  int		$mode          	0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
 	 *  @return string 			       	Label of status
 	 */
-	function LibStatut($status,$mode=0)
+	function LibStatut($status, $mode = 0)
 	{
         // phpcs:enable
 		global $langs;

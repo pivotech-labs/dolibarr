@@ -82,7 +82,7 @@ class RejetPrelevement
 	 * @param 	int			$facturation		Facturation
 	 * @return	void
 	 */
-	function create($user, $id, $motif, $date_rejet, $bonid, $facturation=0)
+	function create($user, $id, $motif, $date_rejet, $bonid, $facturation = 0)
 	{
 		global $langs,$conf;
 
@@ -282,7 +282,7 @@ class RejetPrelevement
 	 * @return	array				Array List of invoices related to the withdrawal line
 	 * @TODO	A withdrawal line is today linked to one and only one invoice. So the function should return only one object ?
 	 */
-	private function getListInvoices($amounts=0)
+	private function getListInvoices($amounts = 0)
 	{
 		global $conf;
 
@@ -294,7 +294,7 @@ class RejetPrelevement
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."facture as f ON (pf.fk_facture = f.rowid)";
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."prelevement_lignes as pl ON (pf.fk_prelevement_lignes = pl.rowid)";
 		$sql.= " WHERE pf.fk_prelevement_lignes = ".$this->id;
-		$sql.= " AND f.entity = ".$conf->entity;
+		$sql.= " AND f.entity IN  (".getEntity('invoice').")";
 
 		$resql=$this->db->query($sql);
 		if ($resql)

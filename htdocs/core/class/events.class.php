@@ -76,9 +76,9 @@ class Events // extends CommonObject
 
 	// List of all Audit/Security events supported by triggers
 	public $eventstolog=array(
-		/*array('id'=>'USER_LOGIN',             'test'=>1),
+		array('id'=>'USER_LOGIN',             'test'=>1),
 		array('id'=>'USER_LOGIN_FAILED',      'test'=>1),
-	    array('id'=>'USER_LOGOUT',            'test'=>1),*/
+	    array('id'=>'USER_LOGOUT',            'test'=>1),
 		array('id'=>'USER_CREATE',            'test'=>1),
 		array('id'=>'USER_MODIFY',            'test'=>1),
 		array('id'=>'USER_NEW_PASSWORD',      'test'=>1),
@@ -183,7 +183,7 @@ class Events // extends CommonObject
 	 * @param   int		$notrigger	    0=no, 1=yes (no update trigger)
 	 * @return  int         			<0 if KO, >0 if OK
 	 */
-	function update($user=null, $notrigger=0)
+	function update($user = null, $notrigger = 0)
 	{
 		global $conf, $langs;
 
@@ -220,7 +220,7 @@ class Events // extends CommonObject
 	 *  @param  User	$user       User that load
 	 *  @return int         		<0 if KO, >0 if OK
 	 */
-	function fetch($id, $user=null)
+	function fetch($id, $user = null)
 	{
 		global $langs;
 

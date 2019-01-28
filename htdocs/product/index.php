@@ -36,7 +36,7 @@ if ($type =='' && !$user->rights->service->lire) $type='0';	// Force global page
 
 // Security check
 if ($type=='0') $result=restrictedArea($user,'produit');
-else if ($type=='1') $result=restrictedArea($user,'service');
+elseif ($type=='1') $result=restrictedArea($user,'service');
 else $result=restrictedArea($user,'produit|service');
 
 // Load translation files required by the page
@@ -174,7 +174,7 @@ if ($type == '0')
 	print $statProducts;
 	$total=round($prodser[0][0])+round($prodser[0][1])+round($prodser[0][2]);
 }
-else if ($type == '1')
+elseif ($type == '1')
 {
 	print $statServices;
 	$total=round($prodser[1][0])+round($prodser[1][1])+round($prodser[1][2]);
@@ -418,7 +418,7 @@ function activitytrim($product_type)
 	$sql = "SELECT DATE_FORMAT(p.datep,'%Y') as annee, DATE_FORMAT(p.datep,'%m') as mois, SUM(fd.total_ht) as Mnttot";
 	$sql.= " FROM ".MAIN_DB_PREFIX."facture as f, ".MAIN_DB_PREFIX."facturedet as fd";
 	$sql.= " , ".MAIN_DB_PREFIX."paiement as p,".MAIN_DB_PREFIX."paiement_facture as pf";
-	$sql.= " WHERE f.entity = " . $conf->entity;
+	$sql.= " WHERE f.entity IN (".getEntity('invoice').")";
 	$sql.= " AND f.rowid = fd.fk_facture";
 	$sql.= " AND pf.fk_facture = f.rowid";
 	$sql.= " AND pf.fk_paiement= p.rowid";

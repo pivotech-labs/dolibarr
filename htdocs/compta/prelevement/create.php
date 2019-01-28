@@ -5,6 +5,7 @@
  * Copyright (C) 2010-2012  Juanjo Menent           <jmenent@2byte.es>
  * Copyright (C) 2018       Nicolas ZABOURI         <info@inovea-conseil.com>
  * Copyright (C) 2018       Frédéric France         <frederic.france@netlogic.fr>
+ * Copyright (C) 2019      Markus Welters       <markus@welters.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +68,7 @@ if ($action == 'create')
 {
 	// $conf->global->PRELEVEMENT_CODE_BANQUE and $conf->global->PRELEVEMENT_CODE_GUICHET should be empty
 	$bprev = new BonPrelevement($db);
-        $executiondate = dol_mktime(0, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
+        $executiondate = dol_mktime(0, 0, 0, GETPOST('remonth'), (GETPOST('reday')+$conf->global->PRELEVEMENT_ADDDAYS), GETPOST('reyear'));
 
         $result = $bprev->create($conf->global->PRELEVEMENT_CODE_BANQUE, $conf->global->PRELEVEMENT_CODE_GUICHET, $mode, $format,$executiondate);
 	if ($result < 0)
@@ -166,18 +167,18 @@ if ($nb) {
 		{
 		if ($mysoc->isInEEC())
 		{
-			print '<a class="butActionRefused" href="#">'.$langs->trans("CreateForSepaFRST")."</a>\n";
-			print '<a class="butActionRefused" href="#">'.$langs->trans("CreateForSepaRCUR")."</a>\n";
+			print '<a class="butActionRefused classfortooltip" href="#">'.$langs->trans("CreateForSepaFRST")."</a>\n";
+			print '<a class="butActionRefused classfortooltip" href="#">'.$langs->trans("CreateForSepaRCUR")."</a>\n";
 		}
 		else
 		{
-			print '<a class="butActionRefused" href="#">'.$langs->trans("CreateAll")."</a>\n";
+			print '<a class="butActionRefused classfortooltip" href="#">'.$langs->trans("CreateAll")."</a>\n";
 		}
 	}
 }
 else
 {
-	print '<a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->transnoentitiesnoconv("NoInvoiceToWithdraw", $langs->transnoentitiesnoconv("StandingOrders"))).'">'.$langs->trans("CreateAll")."</a>\n";
+	print '<a class="butActionRefused classfortooltip" href="#" title="'.dol_escape_htmltag($langs->transnoentitiesnoconv("NoInvoiceToWithdraw", $langs->transnoentitiesnoconv("StandingOrders"))).'">'.$langs->trans("CreateAll")."</a>\n";
 }
 
 print "</div>\n";
@@ -188,13 +189,13 @@ print '<br>';
  * Invoices waiting for withdraw
  */
 
-$sql = "SELECT f.facnumber, f.rowid, f.total_ttc, s.nom as name, s.rowid as socid,";
+$sql = "SELECT f.ref, f.rowid, f.total_ttc, s.nom as name, s.rowid as socid,";
 $sql.= " pfd.date_demande, pfd.amount";
 $sql.= " FROM ".MAIN_DB_PREFIX."facture as f,";
 $sql.= " ".MAIN_DB_PREFIX."societe as s,";
 $sql.= " ".MAIN_DB_PREFIX."prelevement_facture_demande as pfd";
 $sql.= " WHERE s.rowid = f.fk_soc";
-$sql.= " AND f.entity = ".$conf->entity;
+$sql.= " AND f.entity IN (".getEntity('invoice').")";
 $sql.= " AND pfd.traite = 0";
 $sql.= " AND pfd.fk_facture = f.rowid";
 if ($socid) $sql.= " AND f.fk_soc = ".$socid;
@@ -249,7 +250,7 @@ if ($resql)
 			print '<tr class="oddeven">';
 			print '<td>';
 			$invoicestatic->id=$obj->rowid;
-			$invoicestatic->ref=$obj->facnumber;
+			$invoicestatic->ref=$obj->ref;
 			print $invoicestatic->getNomUrl(1,'withdraw');
 			print '</td>';
 			// Thirdparty
@@ -303,7 +304,7 @@ print load_fiche_titre($langs->trans("LastWithdrawalReceipts",$limit),'','');
 $sql = "SELECT p.rowid, p.ref, p.amount, p.statut";
 $sql.= ", p.datec";
 $sql.= " FROM ".MAIN_DB_PREFIX."prelevement_bons as p";
-$sql.= " WHERE p.entity IN (".getEntity('facture').")";
+$sql.= " WHERE p.entity IN (".getEntity('invoice').")";
 $sql.= " ORDER BY datec DESC";
 $sql.=$db->plimit($limit);
 

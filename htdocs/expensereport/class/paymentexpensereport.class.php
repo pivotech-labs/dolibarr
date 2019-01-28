@@ -250,7 +250,7 @@ class PaymentExpenseReport extends CommonObject
 		}
 	}
 
-
+    // phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
 	/**
 	 *  Update database
 	 *
@@ -258,8 +258,9 @@ class PaymentExpenseReport extends CommonObject
 	 *  @param  int		$notrigger	    0=launch triggers after, 1=disable triggers
 	 *  @return int         			<0 if KO, >0 if OK
 	 */
-	function update($user=null, $notrigger=0)
+	function update($user = null, $notrigger = 0)
 	{
+		// phpcs:enable
 		global $conf, $langs;
 		$error=0;
 
@@ -336,7 +337,7 @@ class PaymentExpenseReport extends CommonObject
 		}
 	}
 
-
+    // phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
 	/**
 	 *  Delete object in database
 	 *
@@ -344,8 +345,9 @@ class PaymentExpenseReport extends CommonObject
 	 *  @param  int		$notrigger		0=launch triggers after, 1=disable triggers
 	 *  @return int						<0 if KO, >0 if OK
 	 */
-	function delete($user, $notrigger=0)
+	function delete($user, $notrigger = 0)
 	{
+		// phpcs:enable
 		global $conf, $langs;
 		$error=0;
 
@@ -421,8 +423,6 @@ class PaymentExpenseReport extends CommonObject
 
 		$object=new PaymentExpenseReport($this->db);
 
-		$object->context['createfromclone'] = 'createfromclone';
-
 		$this->db->begin();
 
 		// Load source object
@@ -434,6 +434,7 @@ class PaymentExpenseReport extends CommonObject
 		// ...
 
 		// Create clone
+		$object->context['createfromclone'] = 'createfromclone';
 		$result=$object->create($user);
 
 		// Other options
@@ -446,11 +447,9 @@ class PaymentExpenseReport extends CommonObject
 		if (! $error)
 		{
 
-
-
 		}
 
-		unset($this->context['createfromclone']);
+		unset($object->context['createfromclone']);
 
 		// End
 		if (! $error)
@@ -472,7 +471,7 @@ class PaymentExpenseReport extends CommonObject
 	 *  @param	int		$mode       0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long
 	 *  @return string        		Libelle
 	 */
-	function getLibStatut($mode=0)
+	function getLibStatut($mode = 0)
 	{
 	    return '';
 	}
@@ -485,7 +484,7 @@ class PaymentExpenseReport extends CommonObject
 	 *  @param  int		$mode          	0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
 	 *  @return string 			       	Libelle du statut
 	 */
-	function LibStatut($statut,$mode=0)
+	function LibStatut($statut, $mode = 0)
 	{
         // phpcs:enable
 	    global $langs;
@@ -531,7 +530,7 @@ class PaymentExpenseReport extends CommonObject
      *      @param  string	$emetteur_banque    Name of bank
      *      @return int                 		<0 if KO, >0 if OK
      */
-    function addPaymentToBank($user,$mode,$label,$accountid,$emetteur_nom,$emetteur_banque)
+    function addPaymentToBank($user, $mode, $label, $accountid, $emetteur_nom, $emetteur_banque)
     {
         global $langs,$conf;
 
@@ -664,7 +663,7 @@ class PaymentExpenseReport extends CommonObject
 	 * 	@param	int		$maxlen			Longueur max libelle
 	 *	@return	string					Chaine avec URL
 	 */
-	function getNomUrl($withpicto=0,$maxlen=0)
+	function getNomUrl($withpicto = 0, $maxlen = 0)
 	{
 		global $langs;
 

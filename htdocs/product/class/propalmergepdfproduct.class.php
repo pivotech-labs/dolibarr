@@ -72,7 +72,7 @@ class Propalmergepdfproduct extends CommonObject
      *  @param  int		$notrigger   0=launch triggers after, 1=disable triggers
      *  @return int      		   	 <0 if KO, Id of created object if OK
      */
-    function create($user, $notrigger=0)
+    function create($user, $notrigger = 0)
     {
     	global $conf, $langs;
 		$error=0;
@@ -228,7 +228,7 @@ class Propalmergepdfproduct extends CommonObject
      *  @param	string	$lang  			Lang string code
      *  @return int          	<0 if KO, >0 if OK
      */
-    function fetch_by_product($product_id, $lang='')
+    function fetch_by_product($product_id, $lang = '')
     {
         // phpcs:enable
     	global $langs,$conf;
@@ -303,7 +303,7 @@ class Propalmergepdfproduct extends CommonObject
      *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
      *  @return int     		   	 <0 if KO, >0 if OK
      */
-    function update($user=0, $notrigger=0)
+    function update($user = 0, $notrigger = 0)
     {
     	global $conf, $langs;
 		$error=0;
@@ -379,7 +379,7 @@ class Propalmergepdfproduct extends CommonObject
      *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
 	 *  @return	int					 <0 if KO, >0 if OK
 	 */
-	function delete($user, $notrigger=0)
+	function delete($user, $notrigger = 0)
 	{
 		global $conf, $langs;
 		$error=0;
@@ -440,7 +440,7 @@ class Propalmergepdfproduct extends CommonObject
 	 *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
 	 *  @return	int					 <0 if KO, >0 if OK
 	 */
-	function delete_by_product($user, $product_id, $lang_id='',  $notrigger=0)
+	function delete_by_product($user, $product_id, $lang_id = '', $notrigger = 0)
 	{
         // phpcs:enable
 		global $conf, $langs;
@@ -582,6 +582,7 @@ class Propalmergepdfproduct extends CommonObject
 		// ...
 
 		// Create clone
+		$object->context['createfromclone']='createfromclone';
 		$result=$object->create($user);
 
 		// Other options
@@ -594,8 +595,9 @@ class Propalmergepdfproduct extends CommonObject
 		if (! $error)
 		{
 
-
 		}
+
+		unset($object->context['createfromclone']);
 
 		// End
 		if (! $error)

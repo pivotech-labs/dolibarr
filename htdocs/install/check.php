@@ -83,7 +83,7 @@ if (versioncompare(versionphparray(),$arrayphpminversionerror) < 0)        // Mi
 	print '<img src="../theme/eldy/img/error.png" alt="Error"> '.$langs->trans("ErrorPHPVersionTooLow", versiontostring($arrayphpminversionerror));
 	$checksok=0;	// 0=error, 1=warning
 }
-else if (versioncompare(versionphparray(),$arrayphpminversionwarning) < 0)    // Minimum supported (warning if lower)
+elseif (versioncompare(versionphparray(),$arrayphpminversionwarning) < 0)    // Minimum supported (warning if lower)
 {
     print '<img src="../theme/eldy/img/warning.png" alt="Error"> '.$langs->trans("ErrorPHPVersionTooLow",versiontostring($arrayphpminversionwarning));
     $checksok=0;	// 0=error, 1=warning
@@ -437,7 +437,8 @@ else
 								array('from'=>'5.0.0', 'to'=>'6.0.0'),
 								array('from'=>'6.0.0', 'to'=>'7.0.0'),
 								array('from'=>'7.0.0', 'to'=>'8.0.0'),
-								array('from'=>'8.0.0', 'to'=>'9.0.0')
+								array('from'=>'8.0.0', 'to'=>'9.0.0'),
+								array('from'=>'9.0.0', 'to'=>'10.0.0')
 		);
 
 		$count=0;
@@ -554,8 +555,8 @@ else
 
         if (count($notavailable_choices)) {
 
-            print '<div id="AShowChoices">';
-            print '<img src="../theme/eldy/img/1downarrow.png">';
+            print '<br><div id="AShowChoices" style="opacity: 0.5">';
+            print '<img id="availchoice" src="../theme/eldy/img/1downarrow.png"> '.$langs->trans('ShowNotAvailableOptions').'...';
             print '</div>';
 
             print '<div id="navail_choices" style="display:none">';
@@ -573,16 +574,14 @@ else
 
 print '<script type="text/javascript">
 
-$("div#AShowChoices a").click(function() {
+$("div#AShowChoices").click(function() {
 
     $("div#navail_choices").toggle();
 
     if ($("div#navail_choices").css("display") == "none") {
-        $(this).text("'.$langs->trans('ShowNotAvailableOptions').'");
-        $(this).parent().children("img").attr("src", "../theme/eldy/img/1downarrow.png");
+        $(this).text("'.$langs->trans('ShowNotAvailableOptions').'...");
     } else {
-        $(this).text("'.$langs->trans('HideNotAvailableOptions').'");
-        $(this).parent().children("img").attr("src", "../theme/eldy/img/1uparrow.png");
+        $(this).text("'.$langs->trans('HideNotAvailableOptions').'...");
     }
 
 });

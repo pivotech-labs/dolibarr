@@ -219,12 +219,12 @@ if ($search_month > 0)
 {
 	if ($search_year > 0 && empty($search_day))
 		$sql.= " AND erd.date BETWEEN '".$db->idate(dol_get_first_day($search_year,$search_month,false))."' AND '".$db->idate(dol_get_last_day($search_year,$search_month,false))."'";
-		else if ($search_year > 0 && ! empty($search_day))
+		elseif ($search_year > 0 && ! empty($search_day))
 			$sql.= " AND erd.date BETWEEN '".$db->idate(dol_mktime(0, 0, 0, $search_month, $search_day, $search_year))."' AND '".$db->idate(dol_mktime(23, 59, 59, $search_month, $search_day, $search_year))."'";
 			else
 				$sql.= " AND date_format(erd.date, '%m') = '".$db->escape($search_month)."'";
 }
-else if ($search_year > 0)
+elseif ($search_year > 0)
 {
 	$sql.= " AND erd.date BETWEEN '".$db->idate(dol_get_first_day($search_year,1,false))."' AND '".$db->idate(dol_get_last_day($search_year,12,false))."'";
 }
@@ -376,12 +376,12 @@ if ($result) {
 		print $form->textwithtooltip(dol_trunc($text,$trunclength), $objp->comments);
 		print '</td>';
 
-		print '<td align="right">';
+		print '<td class="right">';
 		print price($objp->price);
 		print '</td>';
 
 		// Vat rate
-		print '<td align="right">';
+		print '<td class="right">';
 		print vatrate($objp->tva_tx_line.($objp->vat_src_code?' ('.$objp->vat_src_code.')':''));
 		print '</td>';
 

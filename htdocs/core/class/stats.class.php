@@ -42,7 +42,7 @@ abstract class Stats
      *	@param	int		$format			0=Label of absiss is a translated text, 1=Label of absiss is month number, 2=Label of absiss is first letter of month
 	 * @return 	array					Array of values
 	 */
-	function getNbByMonthWithPrevYear($endyear, $startyear, $cachedelay=0, $format=0)
+	function getNbByMonthWithPrevYear($endyear, $startyear, $cachedelay = 0, $format = 0)
 	{
 		global $conf,$user,$langs;
 
@@ -136,7 +136,7 @@ abstract class Stats
      * @param	int		$format			0=Label of absiss is a translated text, 1=Label of absiss is month number, 2=Label of absiss is first letter of month
 	 * @return 	array					Array of values
 	 */
-	function getAmountByMonthWithPrevYear($endyear, $startyear, $cachedelay=0, $format=0)
+	function getAmountByMonthWithPrevYear($endyear, $startyear, $cachedelay = 0, $format = 0)
 	{
 		global $conf,$user,$langs;
 
@@ -228,7 +228,7 @@ abstract class Stats
 	 * @param	int		$startyear		End year
 	 * @return 	array					Array of values
 	 */
-	function getAverageByMonthWithPrevYear($endyear,$startyear)
+	function getAverageByMonthWithPrevYear($endyear, $startyear)
 	{
         if ($startyear > $endyear) return -1;
 
@@ -264,7 +264,7 @@ abstract class Stats
 	 * @param	int		$cachedelay		Delay we accept for cache file (0=No read, no save of cache, -1=No read but save)
 	 * @return 	array					Array of values
 	 */
-	function getAllByProductEntry($year,$cachedelay=0)
+	function getAllByProductEntry($year, $cachedelay = 0)
 	{
 		global $conf,$user,$langs;
 
@@ -384,16 +384,16 @@ abstract class Stats
 				$row = $this->db->fetch_object($resql);
 				$result[$i]['year'] = $row->year;
 				$result[$i]['nb'] = $row->nb;
-				if($i>0 && $row->nb) $result[$i-1]['nb_diff'] = ($result[$i-1]['nb'] - $row->nb) / $row->nb * 100;
+				if($i>0 && $row->nb>0) $result[$i-1]['nb_diff'] = ($result[$i-1]['nb'] - $row->nb) / $row->nb * 100;
 				$result[$i]['total'] = $row->total;
-				if($i>0 && $row->total) $result[$i-1]['total_diff'] = ($result[$i-1]['total'] - $row->total) / $row->total * 100;
+				if($i>0 && $row->total>0) $result[$i-1]['total_diff'] = ($result[$i-1]['total'] - $row->total) / $row->total * 100;
 				$result[$i]['avg'] = $row->avg;
-				if($i>0 && $row->avg) $result[$i-1]['avg_diff'] = ($result[$i-1]['avg'] - $row->avg) / $row->avg * 100;
+				if($i>0 && $row->avg>0) $result[$i-1]['avg_diff'] = ($result[$i-1]['avg'] - $row->avg) / $row->avg * 100;
 				// For some $sql only
 				if (isset($row->weighted))
 				{
 				    $result[$i]['weighted'] = $row->weighted;
-				    if($i>0 && $row->weighted) $result[$i-1]['avg_weighted'] = ($result[$i-1]['weighted'] - $row->weighted) / $row->weighted * 100;
+				    if($i>0 && $row->weighted>0) $result[$i-1]['avg_weighted'] = ($result[$i-1]['weighted'] - $row->weighted) / $row->weighted * 100;
 				}
 				$i++;
 			}
@@ -413,7 +413,7 @@ abstract class Stats
      *     @param	int		$format		0=Label of absiss is a translated text, 1=Label of absiss is month number, 2=Label of absiss is first letter of month
      *     @return	array				Array of nb each month
 	 */
-	function _getNbByMonth($year, $sql, $format=0)
+	function _getNbByMonth($year, $sql, $format = 0)
 	{
 		global $langs;
 
@@ -470,7 +470,7 @@ abstract class Stats
      *     @param	int		$format		0=Label of absiss is a translated text, 1=Label of absiss is month number, 2=Label of absiss is first letter of month
 	 *     @return	array
 	 */
-	function _getAmountByMonth($year, $sql, $format=0)
+	function _getAmountByMonth($year, $sql, $format = 0)
 	{
 		global $langs;
 
@@ -524,7 +524,7 @@ abstract class Stats
      *     @param	int		$format		0=Label of absiss is a translated text, 1=Label of absiss is month number, 2=Label of absiss is first letter of month
 	 *     @return	array
 	 */
-	function _getAverageByMonth($year, $sql, $format=0)
+	function _getAverageByMonth($year, $sql, $format = 0)
 	{
 		global $langs;
 
@@ -577,7 +577,7 @@ abstract class Stats
      *     @param	int		$limit		Limit
      *     @return	array
 	 */
-	function _getAllByProduct($sql, $limit=10)
+	function _getAllByProduct($sql, $limit = 10)
 	{
 		global $langs;
 

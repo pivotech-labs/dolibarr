@@ -72,7 +72,7 @@ $object = new Mailing($db);
 
 if ($action == 'add')
 {
-	$module=GETPOST("module");
+	$module=GETPOST("module",'alpha');
 	$result=-1;
 
 	foreach ($modulesdir as $dir)
@@ -89,14 +89,10 @@ if ($action == 'add')
 		{
 			require_once $file;
 
-			// We fill $filtersarray. Using this variable is now deprecated. Kept for backward compatibility.
-			$filtersarray=array();
-			if (isset($_POST["filter"])) $filtersarray[0]=$_POST["filter"];
-
 			// Add targets into database
 			$obj = new $classname($db);
 			dol_syslog("Call add_to_target on class ".$classname);
-			$result=$obj->add_to_target($id,$filtersarray);
+			$result=$obj->add_to_target($id);
 		}
 	}
 	if ($result > 0)
@@ -329,14 +325,16 @@ if ($object->fetch($id) >= 0)
 				// Si le module mailing est qualifie
 				if ($qualified)
 				{
+					$var = ! $var;
+
 					if ($allowaddtarget)
 					{
-						print '<form class="oddeven tagtr" name="'.$modulename.'" action="'.$_SERVER['PHP_SELF'].'?action=add&id='.$object->id.'&module='.$modulename.'" method="POST" enctype="multipart/form-data">';
+						print '<form '.$bctag[$var].' name="'.$modulename.'" action="'.$_SERVER['PHP_SELF'].'?action=add&id='.$object->id.'&module='.$modulename.'" method="POST" enctype="multipart/form-data">';
 						print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 					}
 					else
 					{
-					    print '<div class="oddeven tagtr">';
+					    print '<div '.$bctag[$var].'>';
 					}
 
 					print '<div class="tagtd">';
@@ -559,7 +557,7 @@ if ($object->fetch($id) >= 0)
 						$objectstatic->fetch($obj->source_id);
                         print $objectstatic->getNomUrl(1);
                     }
-                    else if ($obj->source_type == 'user')
+                    elseif ($obj->source_type == 'user')
                     {
                         include_once DOL_DOCUMENT_ROOT.'/user/class/user.class.php';
                         $objectstatic=new User($db);
@@ -567,14 +565,14 @@ if ($object->fetch($id) >= 0)
                         $objectstatic->id=$obj->source_id;
                         print $objectstatic->getNomUrl(1);
                     }
-                    else if ($obj->source_type == 'thirdparty')
+                    elseif ($obj->source_type == 'thirdparty')
                     {
                         include_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
                         $objectstatic=new Societe($db);
 						$objectstatic->fetch($obj->source_id);
                         print $objectstatic->getNomUrl(1);
                     }
-                    else if ($obj->source_type == 'contact')
+                    elseif ($obj->source_type == 'contact')
                     {
                     	include_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
                     	$objectstatic=new Contact($db);
@@ -604,7 +602,7 @@ if ($object->fetch($id) >= 0)
 				}
 
 				// Search Icon
-				print '<td align="right">';
+				print '<td class="right">';
 				if ($obj->statut == 0)	// Not sent yet
 				{
 					if ($user->rights->mailing->creer && $allowaddtarget) {

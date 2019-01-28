@@ -641,7 +641,6 @@ if ($num > 0)
 			$object->id = $line->id;
 			$object->piece_num = $line->piece_num;
 			print $object->getNomUrl(1,'',0,'',1);
-			//print '<a href="./card.php?piece_num=' . $line->piece_num . '&save_lastsearch_values=1">' . $line->piece_num . '</a>';
 			print '</td>';
 			if (! $i) $totalarray['nbfield']++;
 		}
@@ -684,7 +683,7 @@ if ($num > 0)
 		// Amount debit
 		if (! empty($arrayfields['t.debit']['checked']))
 		{
-			print '<td align="right">' . ($line->debit ? price($line->debit) : ''). '</td>';
+			print '<td class="right">' . ($line->debit ? price($line->debit) : ''). '</td>';
 			if (! $i) $totalarray['nbfield']++;
 			if (! $i) $totalarray['totaldebitfield']=$totalarray['nbfield'];
 			$totalarray['totaldebit'] += $line->debit;
@@ -693,7 +692,7 @@ if ($num > 0)
 		// Amount credit
 		if (! empty($arrayfields['t.credit']['checked']))
 		{
-			print '<td align="right">' . ($line->credit ? price($line->credit) : '') . '</td>';
+			print '<td class="right">' . ($line->credit ? price($line->credit) : '') . '</td>';
 			if (! $i) $totalarray['nbfield']++;
 			if (! $i) $totalarray['totalcreditfield']=$totalarray['nbfield'];
 			$totalarray['totalcredit'] += $line->credit;
@@ -752,11 +751,11 @@ if ($num > 0)
 			$i++;
 				if ($i == 1)
 				{
-					if ($num < $limit && empty($offset)) print '<td align="left">'.$langs->trans("Total").'</td>';
-					else print '<td align="left">'.$langs->trans("Totalforthispage").'</td>';
+					if ($num < $limit && empty($offset)) print '<td class="left">'.$langs->trans("Total").'</td>';
+					else print '<td class="left">'.$langs->trans("Totalforthispage").'</td>';
 				}
-				elseif ($totalarray['totaldebitfield'] == $i)  print '<td align="right">'.price($totalarray['totaldebit']).'</td>';
-				elseif ($totalarray['totalcreditfield'] == $i) print '<td align="right">'.price($totalarray['totalcredit']).'</td>';
+				elseif ($totalarray['totaldebitfield'] == $i)  print '<td class="right">'.price($totalarray['totaldebit']).'</td>';
+				elseif ($totalarray['totalcreditfield'] == $i) print '<td class="right">'.price($totalarray['totalcredit']).'</td>';
 				else print '<td></td>';
 		}
 		print '</tr>';

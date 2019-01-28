@@ -103,9 +103,9 @@ class mod_codeclient_monkey extends ModeleThirdPartyCode
 	 * @param	int			$type		Type of third party (1:customer, 2:supplier, -1:autodetect)
 	 * @return	string					Return string example
 	 */
-	function getExample($langs,$objsoc=0,$type=-1)
+	function getExample($langs, $objsoc = 0, $type = -1)
 	{
-		return $this->prefixcustomer.'0901-0001<br>'.$this->prefixsupplier.'0901-0001';
+		return $this->prefixcustomer.'0901-00001<br>'.$this->prefixsupplier.'0901-00001';
 	}
 
 
@@ -116,23 +116,18 @@ class mod_codeclient_monkey extends ModeleThirdPartyCode
 	 *	@param  int			$type       Client ou fournisseur (1:client, 2:fournisseur)
 	 *  @return string      			Value if OK, '' if module not configured, <0 if KO
 	 */
-	function getNextValue($objsoc=0,$type=-1)
+	function getNextValue($objsoc = 0, $type = -1)
 	{
 		global $db, $conf, $mc;
 
-		$return='000001';
-
 		$field='';
-        $where='';
         $prefix = '';
 		if ($type == 0) {
 			$field = 'code_client';
             $prefix = $this->prefixcustomer;
-			//$where = ' AND client in (1,2)';
 		} elseif ($type == 1) {
 			$field = 'code_fournisseur';
             $prefix = $this->prefixsupplier;
-			//$where = ' AND fournisseur = 1';
 		} else {
             return -1;
         }
@@ -161,8 +156,8 @@ class mod_codeclient_monkey extends ModeleThirdPartyCode
 		$date	= dol_now();
 		$yymm	= strftime("%y%m",$date);
 
-		if ($max >= (pow(10, 4) - 1)) $num=$max+1;	// If counter > 9999, we do not format on 4 chars, we take number as it is
-		else $num = sprintf("%04s",$max+1);
+		if ($max >= (pow(10, 5) - 1)) $num=$max+1;	// If counter > 99999, we do not format on 5 chars, we take number as it is
+		else $num = sprintf("%05s",$max+1);
 
 		dol_syslog(get_class($this)."::getNextValue return ".$prefix.$yymm."-".$num);
 		return $prefix.$yymm."-".$num;
@@ -193,7 +188,7 @@ class mod_codeclient_monkey extends ModeleThirdPartyCode
 		{
 			$result=0;
 		}
-		else if (empty($code) && (! $this->code_null || ! empty($conf->global->MAIN_COMPANY_CODE_ALWAYS_REQUIRED)) )
+		elseif (empty($code) && (! $this->code_null || ! empty($conf->global->MAIN_COMPANY_CODE_ALWAYS_REQUIRED)) )
 		{
 			$result=-2;
 		}
@@ -239,7 +234,7 @@ class mod_codeclient_monkey extends ModeleThirdPartyCode
 	 *		@param  int		  	$type   	0 = customer/prospect , 1 = supplier
 	 *		@return	int						0 if available, <0 if KO
 	 */
-	function verif_dispo($db, $code, $soc, $type=0)
+	function verif_dispo($db, $code, $soc, $type = 0)
 	{
         // phpcs:enable
 		global $conf, $mc;

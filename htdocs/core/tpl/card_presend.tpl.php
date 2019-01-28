@@ -81,7 +81,7 @@ if ($action == 'presend')
 	$topicmail='';
 	if (empty($object->ref_client)) {
 		$topicmail = $outputlangs->trans($defaulttopic, '__REF__');
-	} else if (! empty($object->ref_client)) {
+	} elseif (! empty($object->ref_client)) {
 		$topicmail = $outputlangs->trans($defaulttopic, '__REF__ (__REFCLIENT__)');
 	}
 
@@ -139,6 +139,10 @@ if ($action == 'presend')
 		foreach ($object->thirdparty_and_contact_email_array(1) as $key => $value) {
 			$liste[$key] = $value;
 		}
+	}
+	elseif ($object->element == 'contact')
+	{
+		$liste['contact'] = $object->getFullName($langs)." <".$object->email.">";
 	}
 	elseif ($object->element == 'user' || $object->element == 'member')
 	{

@@ -18,9 +18,9 @@
  */
 
 /**
- * \file 		htdocs/accountancy/admin/card.php
- * \ingroup		Advanced accountancy
- * \brief 		Card of accounting account
+ *  \file       htdocs/accountancy/admin/card.php
+ *  \ingroup    Advanced accountancy
+ *  \brief      Card of accounting account
  */
 
 require '../../main.inc.php';
@@ -124,7 +124,7 @@ if ($action == 'add' && $user->rights->accounting->chartofaccount)
 		    exit;
 		}
 	}
-} else if ($action == 'edit' && $user->rights->accounting->chartofaccount) {
+} elseif ($action == 'edit' && $user->rights->accounting->chartofaccount) {
 	if (! $cancel) {
 		$result = $object->fetch($id);
 
@@ -177,7 +177,7 @@ if ($action == 'add' && $user->rights->accounting->chartofaccount)
 	    header("Location: " . $urltogo);
 		exit();
 	}
-} else if ($action == 'delete' && $user->rights->accounting->chartofaccount) {
+} elseif ($action == 'delete' && $user->rights->accounting->chartofaccount) {
 	$result = $object->fetch($id);
 
 	if (! empty($object->id)) {
@@ -272,7 +272,7 @@ if ($action == 'create') {
 
 	print '</form>';
 }
-else if ($id > 0 || $ref) {
+elseif ($id > 0 || $ref) {
 
 	$result = $object->fetch($id, $ref, 1);
 
@@ -388,13 +388,13 @@ else if ($id > 0 || $ref) {
 			if (! empty($user->rights->accounting->chartofaccount)) {
 				print '<a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?action=update&id=' . $id . '">' . $langs->trans('Modify') . '</a>';
 			} else {
-				print '<a class="butActionRefused" href="#" title="' . dol_escape_htmltag($langs->trans("NotAllowed")) . '">' . $langs->trans('Modify') . '</a>';
+				print '<a class="butActionRefused classfortooltip" href="#" title="' . dol_escape_htmltag($langs->trans("NotAllowed")) . '">' . $langs->trans('Modify') . '</a>';
 			}
 
 			if (! empty($user->rights->accounting->chartofaccount)) {
 				print '<a class="butActionDelete" href="' . $_SERVER["PHP_SELF"] . '?action=delete&id=' . $id . '">' . $langs->trans('Delete') . '</a>';
 			} else {
-				print '<a class="butActionRefused" href="#" title="' . dol_escape_htmltag($langs->trans("NotAllowed")) . '">' . $langs->trans('Delete') . '</a>';
+				print '<a class="butActionRefused classfortooltip" href="#" title="' . dol_escape_htmltag($langs->trans("NotAllowed")) . '">' . $langs->trans('Delete') . '</a>';
 			}
 
 			print '</div>';

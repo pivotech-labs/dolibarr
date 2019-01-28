@@ -53,7 +53,7 @@ class FactureStats extends Stats
 	 * 	@param 	string		$mode	   	Option ('customer', 'supplier')
      * 	@param	int			$userid    	Id user for filter (creation user)
 	 */
-	function __construct($db, $socid, $mode, $userid=0)
+	function __construct($db, $socid, $mode, $userid = 0)
 	{
 		global $user, $conf;
 
@@ -80,7 +80,7 @@ class FactureStats extends Stats
 		}
 
 		$this->where = " f.fk_statut > 0";
-		$this->where.= " AND f.entity = ".$conf->entity;
+		$this->where.= " AND f.entity IN (".getEntity('invoice').")";
 		if (!$user->rights->societe->client->voir && !$this->socid) $this->where .= " AND f.fk_soc = sc.fk_soc AND sc.fk_user = " .$user->id;
 		if ($mode == 'customer') $this->where.=" AND (f.fk_statut <> 3 OR f.close_code <> 'replaced')";	// Exclude replaced invoices as they are duplicated (we count closed invoices for other reasons)
 		if ($this->socid)
@@ -100,7 +100,7 @@ class FactureStats extends Stats
      *	@param	int		$format		0=Label of absiss is a translated text, 1=Label of absiss is month number, 2=Label of absiss is first letter of month
 	 *	@return	array				Array of values
 	 */
-	function getNbByMonth($year, $format=0)
+	function getNbByMonth($year, $format = 0)
 	{
 		global $user;
 
@@ -145,7 +145,7 @@ class FactureStats extends Stats
      *	@param	int		$format		0=Label of absiss is a translated text, 1=Label of absiss is month number, 2=Label of absiss is first letter of month
 	 *	@return	array				Array with amount by month
 	 */
-	function getAmountByMonth($year, $format=0)
+	function getAmountByMonth($year, $format = 0)
 	{
 		global $user;
 

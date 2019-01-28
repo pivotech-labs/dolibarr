@@ -121,7 +121,7 @@ class Cronjob extends CommonObject
      *  @param  int		$notrigger   0=launch triggers after, 1=disable triggers
      *  @return int      		   	 <0 if KO, Id of created object if OK
      */
-    function create($user, $notrigger=0)
+    function create($user, $notrigger = 0)
     {
     	global $conf, $langs;
 		$error=0;
@@ -406,7 +406,7 @@ class Cronjob extends CommonObject
 	 *  @param  int         $processing     Processing or not
      *  @return int          			    <0 if KO, >0 if OK
      */
-    function fetch_all($sortorder='DESC', $sortfield='t.rowid', $limit=0, $offset=0, $status=1, $filter='', $processing=-1)
+    function fetch_all($sortorder = 'DESC', $sortfield = 't.rowid', $limit = 0, $offset = 0, $status = 1, $filter = '', $processing = -1)
     {
         // phpcs:enable
         global $langs;
@@ -541,7 +541,7 @@ class Cronjob extends CommonObject
      *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
      *  @return int     		   	 <0 if KO, >0 if OK
      */
-    function update($user=null, $notrigger=0)
+    function update($user = null, $notrigger = 0)
     {
     	global $conf, $langs;
 
@@ -691,7 +691,7 @@ class Cronjob extends CommonObject
      *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
 	 *  @return	int					 <0 if KO, >0 if OK
 	 */
-	function delete($user, $notrigger=0)
+	function delete($user, $notrigger = 0)
 	{
 		$error=0;
 
@@ -757,8 +757,6 @@ class Cronjob extends CommonObject
 
 		$object=new Cronjob($this->db);
 
-		$object->context['createfromclone'] = 'createfromclone';
-
 		$this->db->begin();
 
 		// Load source object
@@ -770,6 +768,7 @@ class Cronjob extends CommonObject
 		// ...
 
 		// Create clone
+		$object->context['createfromclone'] = 'createfromclone';
 		$result=$object->create($user);
 
 		// Other options
@@ -782,10 +781,9 @@ class Cronjob extends CommonObject
 		//if (! $error)
 		//{
 
-
 		//}
 
-		unset($this->context['createfromclone']);
+		unset($object->context['createfromclone']);
 
 		// End
 		if (! $error)
@@ -854,7 +852,7 @@ class Cronjob extends CommonObject
 	 *  @param  int     $save_lastsearch_value    	-1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
 	 *	@return	string								String with URL
 	 */
-	function getNomUrl($withpicto=0, $option='', $notooltip=0, $morecss='', $save_lastsearch_value=-1)
+	function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
 	{
 		global $db, $conf, $langs;
 		global $dolibarr_main_authentication, $dolibarr_main_demo;
@@ -1303,7 +1301,7 @@ class Cronjob extends CommonObject
 	 *  @param	int		$mode          0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
 	 *  @return	string 			       Label of status
 	 */
-	function getLibStatut($mode=0)
+	function getLibStatut($mode = 0)
 	{
 	    return $this->LibStatut($this->status, $mode, $this->processing);
 	}
@@ -1317,7 +1315,7 @@ class Cronjob extends CommonObject
 	 *	@param	int		$processing		0=Not running, 1=Running
 	 *  @return string 			       	Label of status
 	 */
-	function LibStatut($status, $mode=0, $processing=0)
+	function LibStatut($status, $mode = 0, $processing = 0)
 	{
         // phpcs:enable
         global $langs;
@@ -1338,22 +1336,22 @@ class Cronjob extends CommonObject
 	    }
 	    elseif ($mode == 2)
 	    {
-	    	if ($status == 1) return img_picto($langs->trans('Enabled'),'statut4','class="pictostatus"').' '.$langs->trans('Enabled').$moretext;
+	    	if ($status == 1) return img_picto($langs->trans('Enabled'),'statut'.($processing?'1':'4'),'class="pictostatus"').' '.$langs->trans('Enabled').$moretext;
 	    	elseif ($status == 0) return img_picto($langs->trans('Disabled'),'statut5','class="pictostatus"').' '.$langs->trans('Disabled').$moretext;
 	    }
 	    elseif ($mode == 3)
 	    {
-	    	if ($status == 1) return img_picto($langs->trans('Enabled').$moretext,'statut4','class="pictostatus"');
+	    	if ($status == 1) return img_picto($langs->trans('Enabled').$moretext,'statut'.($processing?'1':'4'),'class="pictostatus"');
 	    	elseif ($status == 0) return img_picto($langs->trans('Disabled').$moretext,'statut5','class="pictostatus"');
 	    }
 	    elseif ($mode == 4)
 	    {
-	    	if ($status == 1) return img_picto($langs->trans('Enabled').$moretext,'statut4','class="pictostatus"').' '.$langs->trans('Enabled').$moretext;
+	    	if ($status == 1) return img_picto($langs->trans('Enabled').$moretext,'statut'.($processing?'1':'4'),'class="pictostatus"').' '.$langs->trans('Enabled').$moretext;
 	    	elseif ($status == 0) return img_picto($langs->trans('Disabled').$moretext,'statut5','class="pictostatus"').' '.$langs->trans('Disabled').$moretext;
 	    }
 	    elseif ($mode == 5)
 	    {
-	    	if ($status == 1) return $langs->trans('Enabled').$moretext.' '.img_picto($langs->trans('Enabled').$moretext,'statut4','class="pictostatus"');
+	    	if ($status == 1) return $langs->trans('Enabled').$moretext.' '.img_picto($langs->trans('Enabled').$moretext,'statut'.($processing?'1':'4'),'class="pictostatus"');
 	    	elseif ($status == 0) return $langs->trans('Disabled').$moretext.' '.img_picto($langs->trans('Disabled').$moretext,'statut5','class="pictostatus"');
 	    }
 	}

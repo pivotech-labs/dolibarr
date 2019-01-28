@@ -8,9 +8,9 @@
  * Copyright (C) 2013		Christophe Battarel		<christophe.battarel@altairis.fr>
  * Copyright (C) 2013		Florian Henry			<florian.henry@open-concept.pro>
  * Copyright (C) 2014-2015	Marcos García			<marcosgdf@gmail.com>
- * Copyright (C) 2015-2017	Ferran Marcet			<fmarcet@2byte.es>
  * Copyright (C) 2018   	Nicolas ZABOURI			<info@inovea-conseil.com>
  * Copyright (C) 2018       Frédéric France         <frederic.france@netlogic.fr>
+ * Copyright (C) 2015-2018	Ferran Marcet			<fmarcet@2byte.es>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -261,7 +261,7 @@ class Contrat extends CommonObject
 	 * 	@param	string		$comment	A comment typed by user
 	 *  @return int         			<0 if KO, >0 if OK
 	 */
-	function active_line($user, $line_id, $date, $date_end='', $comment='')
+	function active_line($user, $line_id, $date, $date_end = '', $comment = '')
 	{
         // phpcs:enable
 		$result = $this->lines[$this->lines_id_index_mapper[$line_id]]->active_line($user, $date, $date_end, $comment);
@@ -284,7 +284,7 @@ class Contrat extends CommonObject
 	 * 	@param	string		$comment	A comment typed by user
 	 *  @return int         			<0 if KO, >0 if OK
 	 */
-	function close_line($user, $line_id, $date_end, $comment='')
+	function close_line($user, $line_id, $date_end, $comment = '')
 	{
         // phpcs:enable
 		$result=$this->lines[$this->lines_id_index_mapper[$line_id]]->close_line($user, $date_end, $comment);
@@ -307,7 +307,7 @@ class Contrat extends CommonObject
 	 *	@return	int							<0 if KO, >0 if OK
 	 *  @see closeAll
 	 */
-	function activateAll($user, $date_start='', $notrigger=0, $comment='')
+	function activateAll($user, $date_start = '', $notrigger = 0, $comment = '')
 	{
 		if (empty($date_start)) $date_start = dol_now();
 
@@ -363,7 +363,7 @@ class Contrat extends CommonObject
 	 * @return	int							<0 if KO, >0 if OK
 	 * @see activateAll
 	 */
-	function closeAll(User $user, $notrigger=0, $comment='')
+	function closeAll(User $user, $notrigger = 0, $comment = '')
 	{
 		$this->db->begin();
 
@@ -419,7 +419,7 @@ class Contrat extends CommonObject
      * @param	int		$notrigger		1=Does not execute triggers, 0= execute triggers
 	 * @return	int						<0 if KO, >0 if OK
 	 */
-	function validate(User $user, $force_number='', $notrigger=0)
+	function validate(User $user, $force_number = '', $notrigger = 0)
 	{
 		require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 		global $langs, $conf;
@@ -445,7 +445,7 @@ class Contrat extends CommonObject
 		{
 			$num = $force_number;
 		}
-		else if (! $error && (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref))) // empty should not happened, but when it occurs, the test save life
+		elseif (! $error && (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref))) // empty should not happened, but when it occurs, the test save life
 		{
 			$num = $this->getNextNumRef($this->thirdparty);
 		}
@@ -547,7 +547,7 @@ class Contrat extends CommonObject
      * @param	int		$notrigger		1=Does not execute triggers, 0=execute triggers
 	 * @return	int						<0 if KO, >0 if OK
 	 */
-	function reopen($user, $notrigger=0)
+	function reopen($user, $notrigger = 0)
 	{
 		require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 		global $langs, $conf;
@@ -614,7 +614,7 @@ class Contrat extends CommonObject
 	 *    @param	string	$ref_supplier	Supplier ref
 	 *    @return   int     				<0 if KO, 0 if not found, Id of contract if OK
 	 */
-	function fetch($id, $ref='', $ref_customer='', $ref_supplier='')
+	function fetch($id, $ref = '', $ref_customer = '', $ref_supplier = '')
 	{
 		$sql = "SELECT rowid, statut, ref, fk_soc, mise_en_service as datemise,";
 		$sql.= " ref_supplier, ref_customer,";
@@ -1242,7 +1242,7 @@ class Contrat extends CommonObject
 	 *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
 	 *  @return int     		   	 <0 if KO, >0 if OK
 	 */
-	function update($user, $notrigger=0)
+	function update($user, $notrigger = 0)
 	{
 		global $conf, $langs;
 		$error=0;
@@ -1360,7 +1360,7 @@ class Contrat extends CommonObject
 	 * 	@param 	string		$rang 				Position
 	 *  @return int             				<0 if KO, >0 if OK
 	 */
-	function addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1, $txlocaltax2, $fk_product, $remise_percent, $date_start, $date_end, $price_base_type='HT', $pu_ttc=0.0, $info_bits=0, $fk_fournprice=null, $pa_ht = 0,$array_options=0, $fk_unit = null, $rang=0)
+	function addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1, $txlocaltax2, $fk_product, $remise_percent, $date_start, $date_end, $price_base_type = 'HT', $pu_ttc = 0.0, $info_bits = 0, $fk_fournprice = null, $pa_ht = 0, $array_options = 0, $fk_unit = null, $rang = 0)
 	{
 		global $user, $langs, $conf, $mysoc;
 		$error=0;
@@ -1382,7 +1382,9 @@ class Contrat extends CommonObject
 			$pu_ht=price2num($pu_ht);
 			$pu_ttc=price2num($pu_ttc);
 			$pa_ht=price2num($pa_ht);
-			$txtva=price2num($txtva);
+			if (!preg_match('/\((.*)\)/', $txtva)) {
+				$txtva = price2num($txtva);               // $txtva can have format '5.0(XXX)' or '5'
+			}
 			$txlocaltax1=price2num($txlocaltax1);
 			$txlocaltax2=price2num($txlocaltax2);
 			$remise_percent=price2num($remise_percent);
@@ -1407,20 +1409,20 @@ class Contrat extends CommonObject
 			// Check parameters
 			if (empty($remise_percent)) $remise_percent=0;
 
+			$localtaxes_type=getLocalTaxesFromRate($txtva, 0, $this->societe, $mysoc);
+
+			// Clean vat code
+			$vat_src_code='';
+			if (preg_match('/\((.*)\)/', $txtva, $reg))
+			{
+				$vat_src_code = $reg[1];
+				$txtva = preg_replace('/\s*\(.*\)/', '', $txtva);    // Remove code into vatrate.
+			}
+
 			// Calcul du total TTC et de la TVA pour la ligne a partir de
 			// qty, pu, remise_percent et txtva
 			// TRES IMPORTANT: C'est au moment de l'insertion ligne qu'on doit stocker
 			// la part ht, tva et ttc, et ce au niveau de la ligne qui a son propre taux tva.
-
-			$localtaxes_type=getLocalTaxesFromRate($txtva, 0, $this->societe, $mysoc);
-
-		    // Clean vat code
-    		$vat_src_code='';
-    		if (preg_match('/\((.*)\)/', $txtva, $reg))
-    		{
-    		    $vat_src_code = $reg[1];
-    		    $txtva = preg_replace('/\s*\(.*\)/', '', $txtva);    // Remove code into vatrate.
-    		}
 
 			$tabprice=calcul_price_total($qty, $pu, $remise_percent, $txtva, $txlocaltax1, $txlocaltax2, 0, $price_base_type, $info_bits, 1,$mysoc, $localtaxes_type);
 			$total_ht  = $tabprice[0];
@@ -1568,7 +1570,7 @@ class Contrat extends CommonObject
 	 * 	@param 	string		$fk_unit 			Code of the unit to use. Null to use the default one
 	 *  @return int              				< 0 si erreur, > 0 si ok
 	 */
-	function updateline($rowid, $desc, $pu, $qty, $remise_percent, $date_start, $date_end, $tvatx, $localtax1tx=0.0, $localtax2tx=0.0, $date_debut_reel='', $date_fin_reel='', $price_base_type='HT', $info_bits=0, $fk_fournprice=null, $pa_ht = 0,$array_options=0, $fk_unit = null)
+	function updateline($rowid, $desc, $pu, $qty, $remise_percent, $date_start, $date_end, $tvatx, $localtax1tx = 0.0, $localtax2tx = 0.0, $date_debut_reel = '', $date_fin_reel = '', $price_base_type = 'HT', $info_bits = 0, $fk_fournprice = null, $pa_ht = 0, $array_options = 0, $fk_unit = null)
 	{
 		global $user, $conf, $langs, $mysoc;
 
@@ -1838,7 +1840,7 @@ class Contrat extends CommonObject
 	 *  @param  int		$mode          	0=Long label, 1=Short label, 2=Picto + Libelle court, 3=Picto, 4=Picto + Long label of all services, 5=Libelle court + Picto, 6=Picto of all services, 7=Same than 6 with fixed length
 	 *	@return string      			Label
 	 */
-	function LibStatut($statut,$mode)
+	function LibStatut($statut, $mode)
 	{
         // phpcs:enable
 		global $langs;
@@ -1907,7 +1909,7 @@ class Contrat extends CommonObject
      *  @param  int     $save_lastsearch_value		-1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
 	 *	@return	string								Chaine avec URL
 	 */
-	function getNomUrl($withpicto=0, $maxlength=0, $notooltip=0, $save_lastsearch_value=-1)
+	function getNomUrl($withpicto = 0, $maxlength = 0, $notooltip = 0, $save_lastsearch_value = -1)
 	{
 		global $conf, $langs, $user;
 
@@ -2020,7 +2022,7 @@ class Contrat extends CommonObject
 	 *  @param	int		$statut     Status of lines to get
 	 *  @return array       		Array of line's rowid
 	 */
-	function array_detail($statut=-1)
+	function array_detail($statut = -1)
 	{
         // phpcs:enable
 		$tab=array();
@@ -2057,7 +2059,7 @@ class Contrat extends CommonObject
 	 *	@param	string		$option		'all' or 'others'
 	 *  @return array   				Array of contracts id
 	 */
-	function getListOfContracts($option='all')
+	function getListOfContracts($option = 'all')
 	{
 		$tab=array();
 
@@ -2098,7 +2100,7 @@ class Contrat extends CommonObject
      *      @param  string	$mode           "inactive" pour services a activer, "expired" pour services expires
      *      @return WorkboardResponse|int <0 if KO, WorkboardResponse if OK
 	 */
-	function load_board($user,$mode)
+	function load_board($user, $mode)
 	{
         // phpcs:enable
 		global $conf, $langs;
@@ -2334,7 +2336,7 @@ class Contrat extends CommonObject
          *  @param   null|array  $moreparams     Array to provide more information
 	 * 	@return     int         				0 if KO, 1 if OK
 	 */
-	public function generateDocument($modele, $outputlangs, $hidedetails=0, $hidedesc=0, $hideref=0, $moreparams=null)
+	public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null)
 	{
 		global $conf,$langs;
 
@@ -2380,13 +2382,11 @@ class Contrat extends CommonObject
 	 * @param int $notrigger	1=Does not execute triggers, 0= execute triggers
 	 * @return int New id of clone
 	 */
-    function createFromClone($socid = 0, $notrigger=0)
+    function createFromClone($socid = 0, $notrigger = 0)
     {
 		global $db, $user, $langs, $conf, $hookmanager, $extrafields;
 
 		dol_include_once('/projet/class/project.class.php');
-
-		$this->context['createfromclone'] = 'createfromclone';
 
 		$error = 0;
 
@@ -2438,6 +2438,7 @@ class Contrat extends CommonObject
 		}
 
 		// Create clone
+		$clonedObj->context['createfromclone'] = 'createfromclone';
 		$result = $clonedObj->create($user);
 		if ($result < 0) {
 			$error ++;
@@ -2477,7 +2478,7 @@ class Contrat extends CommonObject
 			}
 		}
 
-		unset($this->context['createfromclone']);
+		unset($clonedObj->context['createfromclone']);
 
 		// End
 		if (! $error) {
@@ -2657,7 +2658,7 @@ class ContratLigne extends CommonObjectLine
 	 *  @param	string	$moreatt	More attribute
 	 *  @return string      		Libelle
 	 */
-	static function LibStatut($statut,$mode,$expired=-1,$moreatt='')
+	static function LibStatut($statut, $mode, $expired = -1, $moreatt = '')
 	{
         // phpcs:enable
 		global $langs;
@@ -2719,7 +2720,7 @@ class ContratLigne extends CommonObjectLine
 	 *  @param	int		$maxlength		Max length
 	 *  @return	string					Chaine avec URL
  	 */
-	function getNomUrl($withpicto=0,$maxlength=0)
+	function getNomUrl($withpicto = 0, $maxlength = 0)
 	{
 		global $langs;
 
@@ -2746,7 +2747,7 @@ class ContratLigne extends CommonObjectLine
 	 * 		@param	string	$ref		Ref of contract
 	 *    	@return int         		<0 if KO, >0 if OK
 	 */
-	function fetch($id, $ref='')
+	function fetch($id, $ref = '')
 	{
 
 		// Check parameters
@@ -2878,7 +2879,7 @@ class ContratLigne extends CommonObjectLine
 	 *      @param  int		$notrigger	    0=no, 1=yes (no update trigger)
 	 *      @return int         			<0 if KO, >0 if OK
 	 */
-	function update($user, $notrigger=0)
+	function update($user, $notrigger = 0)
 	{
 		global $conf, $langs, $mysoc;
 
@@ -3256,7 +3257,7 @@ class ContratLigne extends CommonObjectLine
      * @param    int	$notrigger		1=Does not execute triggers, 0=Execute triggers
 	 * @return int                    	<0 if KO, >0 if OK
 	 */
-	function close_line($user, $date_end, $comment = '', $notrigger=0)
+	function close_line($user, $date_end, $comment = '', $notrigger = 0)
 	{
         // phpcs:enable
 		global $langs, $conf;

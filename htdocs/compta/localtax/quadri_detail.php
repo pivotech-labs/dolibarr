@@ -68,8 +68,8 @@ if (empty($date_start) || empty($date_end)) // We define date_start and date_end
 		{
 			$date_start=dol_get_first_day($year_start,empty($conf->global->SOCIETE_FISCAL_MONTH_START)?1:$conf->global->SOCIETE_FISCAL_MONTH_START,false);
 			if (empty($conf->global->MAIN_INFO_VAT_RETURN) || $conf->global->MAIN_INFO_VAT_RETURN == 2) $date_end=dol_time_plus_duree($date_start, 3, 'm') - 1;
-			else if ($conf->global->MAIN_INFO_VAT_RETURN == 3) $date_end=dol_time_plus_duree($date_start, 1, 'y') - 1;
-			else if ($conf->global->MAIN_INFO_VAT_RETURN == 1) $date_end=dol_time_plus_duree($date_start, 1, 'm') - 1;
+			elseif ($conf->global->MAIN_INFO_VAT_RETURN == 3) $date_end=dol_time_plus_duree($date_start, 1, 'y') - 1;
+			elseif ($conf->global->MAIN_INFO_VAT_RETURN == 1) $date_end=dol_time_plus_duree($date_start, 1, 'm') - 1;
 		}
 	}
 	else
@@ -318,8 +318,8 @@ else
 	//{
 		// Customers invoices
 		print '<tr class="liste_titre">';
-		print '<td align="left">'.$elementcust.'</td>';
-		print '<td align="left">'.$productcust.'</td>';
+		print '<td class="left">'.$elementcust.'</td>';
+		print '<td class="left">'.$productcust.'</td>';
 		if ($modetax != 2) print '<td align="right">'.$amountcust.'</td>';
 		if ($modetax != 1) print '<td align="right">'.$langs->trans("Payment").' ('.$langs->trans("PercentOfInvoice").')</td>';
 		print '<td align="right">'.$langs->trans("BI").'</td>';
@@ -360,7 +360,7 @@ else
 						print '<td class="nowrap" align="left">'.$fields['link'].'</td>';
 
 						// Description
-						print '<td align="left">';
+						print '<td class="left">';
 						if ($fields['pid'])
 						{
 							$product_static->id=$fields['pid'];
@@ -481,8 +481,8 @@ else
 		echo '<table class="noborder" width="100%">';
 		//print table headers for this quadri - expenses now
 		print '<tr class="liste_titre">';
-		print '<td align="left">'.$elementsup.'</td>';
-		print '<td align="left">'.$productsup.'</td>';
+		print '<td class="left">'.$elementsup.'</td>';
+		print '<td class="left">'.$productsup.'</td>';
 		if ($modetax != 1)
 		{
 			print '<td align="right">'.$amountsup.'</td>';
@@ -522,7 +522,7 @@ else
 						print '<td class="nowrap" align="left">'.$fields['link'].'</td>';
 
 						// Description
-						print '<td align="left">';
+						print '<td class="left">';
 						if ($fields['pid'])
 						{
 							$product_static->id=$fields['pid'];

@@ -119,7 +119,7 @@ $sql.= ' WHERE cf.fk_soc = s.rowid ';
 $sql.= ' AND cf.entity = ' . $conf->entity;
 if ($conf->global->STOCK_CALCULATE_ON_SUPPLIER_VALIDATE_ORDER) {
     $sql .= ' AND cf.fk_statut < 3';
-} elseif ($conf->global->STOCK_CALCULATE_ON_SUPPLIER_DISPATCH_ORDER) {
+} elseif ($conf->global->STOCK_CALCULATE_ON_SUPPLIER_DISPATCH_ORDER|| !empty($conf->global->STOCK_CALCULATE_ON_RECEPTION) || !empty($conf->global->STOCK_CALCULATE_ON_RECEPTION_CLOSE)) {
     $sql .= ' AND cf.fk_statut < 6';	// We want also status 5, we will keep them visible if dispatching is not yet finished (tested with function dolDispatchToDo).
 } else {
     $sql .= ' AND cf.fk_statut < 5';
@@ -136,12 +136,12 @@ if ($search_datemonth > 0)
 {
 	if ($search_dateyear > 0 && empty($search_dateday))
 		$sql.= " AND cf.date_creation BETWEEN '".$db->idate(dol_get_first_day($search_dateyear,$search_datemonth,false))."' AND '".$db->idate(dol_get_last_day($search_dateyear,$search_datemonth,false))."'";
-		else if ($search_dateyear > 0 && ! empty($search_dateday))
+		elseif ($search_dateyear > 0 && ! empty($search_dateday))
 			$sql.= " AND cf.date_creation BETWEEN '".$db->idate(dol_mktime(0, 0, 0, $search_datemonth, $search_dateday, $search_dateyear))."' AND '".$db->idate(dol_mktime(23, 59, 59, $search_datemonth, $search_dateday, $search_dateyear))."'";
 			else
 				$sql.= " AND date_format(cf.date_creation, '%m') = '".$search_datemonth."'";
 }
-else if ($search_dateyear > 0)
+elseif ($search_dateyear > 0)
 {
 	$sql.= " AND cf.date_creation BETWEEN '".$db->idate(dol_get_first_day($search_dateyear,1,false))."' AND '".$db->idate(dol_get_last_day($search_dateyear,12,false))."'";
 }

@@ -82,7 +82,7 @@ class PaymentTerm // extends CommonObject
      *      @param      int		$notrigger	    0=launch triggers after, 1=disable triggers
      *      @return     int       			  	<0 if KO, Id of created object if OK
      */
-    function create($user, $notrigger=0)
+    function create($user, $notrigger = 0)
     {
     	global $conf, $langs;
 		$error=0;
@@ -178,7 +178,7 @@ class PaymentTerm // extends CommonObject
     	global $langs;
         $sql = "SELECT";
 		$sql.= " t.rowid,";
-		$sql.= " t.entity";
+		$sql.= " t.entity,";
 
 		$sql.= " t.code,";
 		$sql.= " t.sortorder,";
@@ -268,7 +268,7 @@ class PaymentTerm // extends CommonObject
      *      @param      int		$notrigger	    0=launch triggers after, 1=disable triggers
      *      @return     int       			  	<0 if KO, >0 if OK
      */
-	function update($user=null, $notrigger=0)
+	function update($user = null, $notrigger = 0)
 	{
 		global $conf, $langs;
 
@@ -345,7 +345,7 @@ class PaymentTerm // extends CommonObject
 	 *  @param      int		$notrigger	0=launch triggers after, 1=disable triggers
 	 *	@return		int					<0 if KO, >0 if OK
 	 */
-	function delete($user, $notrigger=0)
+	function delete($user, $notrigger = 0)
 	{
 		global $conf, $langs;
 		$error=0;
@@ -404,8 +404,6 @@ class PaymentTerm // extends CommonObject
 
 		$object=new PaymentTerm($this->db);
 
-		$object->context['createfromclone'] = 'createfromclone';
-
 		$this->db->begin();
 
 		// Load source object
@@ -417,6 +415,7 @@ class PaymentTerm // extends CommonObject
 		// ...
 
 		// Create clone
+		$object->context['createfromclone'] = 'createfromclone';
 		$result=$object->create($user);
 
 		// Other options
@@ -430,7 +429,7 @@ class PaymentTerm // extends CommonObject
 		//{
 		//}
 
-		unset($this->context['createfromclone']);
+		unset($object->context['createfromclone']);
 
 		// End
 		if (! $error)

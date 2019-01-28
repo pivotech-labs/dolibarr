@@ -76,7 +76,7 @@ class mailing_xinputuser extends MailingTargets
 	 *  @param      string	$sql   	Sql request to count
 	 *	@return		string			'' means NA
 	 */
-	function getNbOfRecipients($sql='')
+	function getNbOfRecipients($sql = '')
 	{
 		return '';
 	}
@@ -113,10 +113,9 @@ class mailing_xinputuser extends MailingTargets
 	 *  Ajoute destinataires dans table des cibles
 	 *
 	 *  @param	int		$mailing_id    	Id of emailing
-	 *  @param	array	$filtersarray   Requete sql de selection des destinataires
 	 *  @return int           			< 0 si erreur, nb ajout si ok
 	 */
-	function add_to_target($mailing_id,$filtersarray=array())
+	function add_to_target($mailing_id)
 	{
         // phpcs:enable
 		global $conf,$langs,$_FILES;

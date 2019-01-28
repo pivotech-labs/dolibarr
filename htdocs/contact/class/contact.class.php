@@ -123,7 +123,6 @@ class Contact extends CommonObject
 
 	public $birthday;
 	public $default_lang;
-	public $no_email;				// 1=Don't send e-mail to this contact, 0=do
 
 	public $ref_facturation;       // Reference number of invoice for which it is contact
 	public $ref_contrat;           // Nb de reference contrat pour lequel il est contact
@@ -314,7 +313,7 @@ class Contact extends CommonObject
 	 *      @param		int		$nosyncuser		No sync linked user (external users and contacts are linked)
 	 *      @return     int      			   	<0 if KO, >0 if OK
 	 */
-	function update($id, $user=null, $notrigger=0, $action='update', $nosyncuser=0)
+	function update($id, $user = null, $notrigger = 0, $action = 'update', $nosyncuser = 0)
 	{
 		global $conf, $langs, $hookmanager;
 
@@ -345,7 +344,7 @@ class Contact extends CommonObject
 
 		$sql = "UPDATE ".MAIN_DB_PREFIX."socpeople SET ";
 		if ($this->socid > 0) $sql .= " fk_soc='".$this->db->escape($this->socid)."',";
-		else if ($this->socid == -1) $sql .= " fk_soc=null,";
+		elseif ($this->socid == -1) $sql .= " fk_soc=null,";
 		$sql .= "  civility='".$this->db->escape($this->civility_id)."'";
 		$sql .= ", lastname='".$this->db->escape($this->lastname)."'";
 		$sql .= ", firstname='".$this->db->escape($this->firstname)."'";
@@ -372,7 +371,6 @@ class Contact extends CommonObject
 		$sql .= ", statut = ".$this->db->escape($this->statut);
 		$sql .= ", fk_user_modif=".($user->id > 0 ? "'".$this->db->escape($user->id)."'":"NULL");
 		$sql .= ", default_lang=".($this->default_lang?"'".$this->db->escape($this->default_lang)."'":"NULL");
-		$sql .= ", no_email=".($this->no_email?"'".$this->db->escape($this->no_email)."'":"0");
 		$sql .= ", entity = " . $this->db->escape($this->entity);
 		$sql .= " WHERE rowid=".$this->db->escape($id);
 
@@ -503,7 +501,7 @@ class Contact extends CommonObject
 	 *									2=Return key only (uid=qqq)
 	 *	@return		string				DN
 	 */
-	function _load_ldap_dn($info,$mode=0)
+	function _load_ldap_dn($info, $mode = 0)
 	{
         // phpcs:enable
 		global $conf;
@@ -599,7 +597,7 @@ class Contact extends CommonObject
 	 *  @param      int		    $notrigger	0=no, 1=yes
      *  @return     int         			<0 if KO, >=0 if OK
 	 */
-	function update_perso($id, $user=null, $notrigger=0)
+	function update_perso($id, $user = null, $notrigger = 0)
 	{
         // phpcs:enable
 	    $error=0;
@@ -688,7 +686,7 @@ class Contact extends CommonObject
      *  @param		string	$email		Email
 	 *  @return     int     		    -1 if KO, 0 if OK but not found, 1 if OK
 	 */
-	function fetch($id, $user=null, $ref_ext='', $email='')
+	function fetch($id, $user = null, $ref_ext = '', $email = '')
 	{
 		global $langs;
 
@@ -709,7 +707,7 @@ class Contact extends CommonObject
 		$sql.= " c.birthday,";
 		$sql.= " c.poste, c.phone, c.phone_perso, c.phone_mobile, c.fax, c.email, c.jabberid, c.skype, c.twitter, c.facebook,";
         $sql.= " c.photo,";
-		$sql.= " c.priv, c.note_private, c.note_public, c.default_lang, c.no_email, c.canvas,";
+		$sql.= " c.priv, c.note_private, c.note_public, c.default_lang, c.canvas,";
 		$sql.= " c.import_key,";
 		$sql.= " c.datec as date_creation, c.tms as date_modification,";
 		$sql.= " co.label as country, co.code as country_code,";
@@ -790,7 +788,6 @@ class Contact extends CommonObject
 				$this->note_private		= $obj->note_private;
 				$this->note_public		= $obj->note_public;
 				$this->default_lang		= $obj->default_lang;
-				$this->no_email			= $obj->no_email;
 				$this->user_id			= $obj->user_id;
 				$this->user_login		= $obj->user_login;
 				$this->canvas			= $obj->canvas;
@@ -877,7 +874,7 @@ class Contact extends CommonObject
 	    unset($this->gender);
     	if (in_array($this->civility_id, array('MR'))) {
     	    $this->gender = 'man';
-    	} else if(in_array($this->civility_id, array('MME','MLE'))) {
+    	} elseif(in_array($this->civility_id, array('MME','MLE'))) {
     	    $this->gender = 'woman';
     	}
 	}
@@ -934,7 +931,7 @@ class Contact extends CommonObject
 	 *   	@param		int		$notrigger		Disable all trigger
 	 *		@return		int						<0 if KO, >0 if OK
 	 */
-	function delete($notrigger=0)
+	function delete($notrigger = 0)
 	{
 		global $conf, $langs, $user;
 
@@ -1127,7 +1124,7 @@ class Contact extends CommonObject
 	 *	@param		int			$notooltip					1=Disable tooltip
 	 *	@return		string									String with URL
 	 */
-	function getNomUrl($withpicto=0, $option='', $maxlen=0, $moreparam='', $save_lastsearch_value=-1, $notooltip=0)
+	function getNomUrl($withpicto = 0, $option = '', $maxlen = 0, $moreparam = '', $save_lastsearch_value = -1, $notooltip = 0)
 	{
 		global $conf, $langs, $hookmanager;
 
@@ -1234,7 +1231,7 @@ class Contact extends CommonObject
 	 *  @param      int			$mode       0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
 	 *  @return     string					Libelle
 	 */
-	function LibStatut($statut,$mode)
+	function LibStatut($statut, $mode)
 	{
         // phpcs:enable
 		global $langs;

@@ -157,7 +157,7 @@ class Paiement extends CommonObject
 	 *    @param	int		$fk_bank	Id of bank line associated to payment
 	 *    @return   int		            <0 if KO, 0 if not found, >0 if OK
 	 */
-	public function fetch($id, $ref='', $fk_bank='')
+	public function fetch($id, $ref = '', $fk_bank = '')
 	{
 		$sql = 'SELECT p.rowid, p.ref, p.datep as dp, p.amount, p.statut, p.ext_payment_id, p.ext_payment_site, p.fk_bank,';
 		$sql.= ' c.code as type_code, c.libelle as type_libelle,';
@@ -165,12 +165,12 @@ class Paiement extends CommonObject
 		$sql.= ' b.fk_account';
 		$sql.= ' FROM '.MAIN_DB_PREFIX.'paiement as p LEFT JOIN '.MAIN_DB_PREFIX.'c_paiement as c ON p.fk_paiement = c.id';
 		$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'bank as b ON p.fk_bank = b.rowid';
-		$sql.= ' WHERE p.entity IN (' . getEntity('facture').')';
+		$sql.= ' WHERE p.entity IN (' . getEntity('invoice').')';
 		if ($id > 0)
 			$sql.= ' AND p.rowid = '.$id;
-		else if ($ref)
+		elseif ($ref)
 			$sql.= " AND p.ref = '".$ref."'";
-		else if ($fk_bank)
+		elseif ($fk_bank)
 			$sql.= ' AND p.fk_bank = '.$fk_bank;
 
 		$resql = $this->db->query($sql);
@@ -224,7 +224,7 @@ class Paiement extends CommonObject
 	 *    @param    int		$closepaidinvoices   	1=Also close payed invoices to paid, 0=Do nothing more
 	 *    @return   int                 			id of created payment, < 0 if error
 	 */
-	function create($user, $closepaidinvoices=0)
+	function create($user, $closepaidinvoices = 0)
 	{
 		global $conf, $langs;
 
@@ -357,7 +357,7 @@ class Paiement extends CommonObject
 							);
 
                             if (!in_array($invoice->type, $affected_types)) dol_syslog("Invoice ".$facid." is not a standard, nor replacement invoice, nor credit note, nor deposit invoice, nor situation invoice. We do nothing more.");
-                            else if ($remaintopay) dol_syslog("Remain to pay for invoice ".$facid." not null. We do nothing more.");
+                            elseif ($remaintopay) dol_syslog("Remain to pay for invoice ".$facid." not null. We do nothing more.");
                             //else if ($mustwait) dol_syslog("There is ".$mustwait." differed payment to process, we do nothing more.");
                             else
                             {
@@ -450,7 +450,7 @@ class Paiement extends CommonObject
 				}
 			}
 
-			if (! $error)
+			if (! $error)    // All payments into $this->amounts were recorded without errors
 			{
 				// Appel des triggers
 				$result=$this->call_trigger('PAYMENT_CUSTOMER_CREATE', $user);
@@ -488,7 +488,7 @@ class Paiement extends CommonObject
 	 *  @param	int		$notrigger		No trigger
 	 *  @return int     				<0 si ko, >0 si ok
 	 */
-	function delete($notrigger=0)
+	function delete($notrigger = 0)
 	{
 		global $conf, $user, $langs;
 
@@ -598,7 +598,7 @@ class Paiement extends CommonObject
      *      @param	int		$notrigger			No trigger
      *      @return int                 		<0 if KO, bank_line_id if OK
      */
-    function addPaymentToBank($user,$mode,$label,$accountid,$emetteur_nom,$emetteur_banque,$notrigger=0)
+    function addPaymentToBank($user, $mode, $label, $accountid, $emetteur_nom, $emetteur_banque, $notrigger = 0)
     {
         global $conf,$langs,$user;
 
@@ -804,23 +804,55 @@ class Paiement extends CommonObject
     function update_date($date)
     {
         // phpcs:enable
-        if (!empty($date) && $this->statut!=1)
+        $error=0;
+
+        if (!empty($date) && $this->statut != 1)
         {
+            $this->db->begin();
+
+            dol_syslog(get_class($this)."::update_date with date = ".$date, LOG_DEBUG);
+
             $sql = "UPDATE ".MAIN_DB_PREFIX.$this->table_element;
             $sql.= " SET datep = '".$this->db->idate($date)."'";
             $sql.= " WHERE rowid = ".$this->id;
 
-            dol_syslog(get_class($this)."::update_date", LOG_DEBUG);
             $result = $this->db->query($sql);
-            if ($result)
+            if (! $result)
             {
-            	$this->datepaye = $date;
+                $error++;
+                $this->error='Error -1 '.$this->db->error();
+            }
+
+            $type = $this->element;
+
+            $sql = "UPDATE ".MAIN_DB_PREFIX.'bank';
+            $sql.= " SET dateo = '".$this->db->idate($date)."', datev = '".$this->db->idate($date)."'";
+            $sql.= " WHERE rowid IN (SELECT fk_bank FROM ".MAIN_DB_PREFIX."bank_url WHERE type = '".$type."' AND url_id = ".$this->id.")";
+            $sql.= " AND rappro = 0";
+
+            $result = $this->db->query($sql);
+            if (! $result)
+            {
+                $error++;
+                $this->error='Error -1 '.$this->db->error();
+            }
+
+            if (! $error)
+            {
+
+            }
+
+            if (! $error)
+            {
+                $this->datepaye = $date;
                 $this->date = $date;
+
+                $this->db->commit();
                 return 0;
             }
             else
             {
-                $this->error='Error -1 '.$this->db->error();
+                $this->db->rollback();
                 return -2;
             }
         }
@@ -865,7 +897,7 @@ class Paiement extends CommonObject
 	 *	  @param	User	$user		User making validation
 	 *    @return   int     			<0 if KO, >0 if OK
 	 */
-	function valide(User $user=null)
+	function valide(User $user = null)
 	{
 		$sql = 'UPDATE '.MAIN_DB_PREFIX.$this->table_element.' SET statut = 1 WHERE rowid = '.$this->id;
 
@@ -889,7 +921,7 @@ class Paiement extends CommonObject
 	 *	  @param	User	$user		User making reject
 	 *    @return   int     			<0 if KO, >0 if OK
 	 */
-	function reject(User $user=null)
+	function reject(User $user = null)
 	{
 		$sql = 'UPDATE '.MAIN_DB_PREFIX.$this->table_element.' SET statut = 2 WHERE rowid = '.$this->id;
 
@@ -957,7 +989,7 @@ class Paiement extends CommonObject
 	 *  @param	string	$filter         Critere de filtre
 	 *  @return array					Tableau des id de factures
 	 */
-	function getBillsArray($filter='')
+	function getBillsArray($filter = '')
 	{
 		$sql = 'SELECT fk_facture';
 		$sql.= ' FROM '.MAIN_DB_PREFIX.'paiement_facture as pf, '.MAIN_DB_PREFIX.'facture as f';
@@ -995,15 +1027,15 @@ class Paiement extends CommonObject
 	 *      @param     string		$mode		'next' for next value or 'last' for last value
 	 *      @return    string					free ref or last ref
 	 */
-	function getNextNumRef($soc,$mode='next')
+	function getNextNumRef($soc, $mode = 'next')
 	{
 		global $conf, $db, $langs;
 		$langs->load("bills");
 
 		// Clean parameters (if not defined or using deprecated value)
 		if (empty($conf->global->PAYMENT_ADDON)) $conf->global->PAYMENT_ADDON='mod_payment_cicada';
-		else if ($conf->global->PAYMENT_ADDON=='ant') $conf->global->PAYMENT_ADDON='mod_payment_ant';
-		else if ($conf->global->PAYMENT_ADDON=='cicada') $conf->global->PAYMENT_ADDON='mod_payment_cicada';
+		elseif ($conf->global->PAYMENT_ADDON=='ant') $conf->global->PAYMENT_ADDON='mod_payment_ant';
+		elseif ($conf->global->PAYMENT_ADDON=='cicada') $conf->global->PAYMENT_ADDON='mod_payment_cicada';
 
 		if (! empty($conf->global->PAYMENT_ADDON))
 		{
@@ -1106,7 +1138,7 @@ class Paiement extends CommonObject
 	 *	@param	string		$option		''=Create a specimen invoice with lines, 'nolines'=No lines
 	 *  @return	void
 	 */
-	function initAsSpecimen($option='')
+	function initAsSpecimen($option = '')
 	{
 		global $user,$langs,$conf;
 
@@ -1132,14 +1164,16 @@ class Paiement extends CommonObject
      *  @param	int  	$notooltip		1=Disable tooltip
 	 *	@return	string					Chaine avec URL
 	 */
-	function getNomUrl($withpicto=0, $option='', $mode='withlistofinvoices', $notooltip=0)
+	function getNomUrl($withpicto = 0, $option = '', $mode = 'withlistofinvoices', $notooltip = 0)
 	{
 		global $conf, $langs;
 
 		if (! empty($conf->dol_no_mouse_hover)) $notooltip=1;   // Force disable tooltips
 
 		$result='';
-        $label = $langs->trans("ShowPayment").': '.$this->ref;
+        $label = '<u>'.$langs->trans("ShowPayment").'</u><br>';
+        $label.= '<strong>'.$langs->trans("Ref").':</strong> '.$this->ref;
+        $label.= '<br><strong>'.$langs->trans("Date").':</strong> '.dol_print_date($this->datepaye ? $this->datepaye : $this->date, 'dayhour');
         if ($mode == 'withlistofinvoices')
         {
             $arraybill = $this->getBillsArray();
@@ -1188,7 +1222,7 @@ class Paiement extends CommonObject
 	 * @param	int		$mode       0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
 	 * @return  string				Libelle
 	 */
-	function getLibStatut($mode=0)
+	function getLibStatut($mode = 0)
 	{
 		return $this->LibStatut($this->statut,$mode);
 	}
@@ -1201,7 +1235,7 @@ class Paiement extends CommonObject
 	 * @param   int		$mode       0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
 	 * @return	string  		    Libelle du statut
 	 */
-	function LibStatut($status,$mode=0)
+	function LibStatut($status, $mode = 0)
 	{
         // phpcs:enable
 		global $langs;	// TODO Renvoyer le libelle anglais et faire traduction a affichage
@@ -1252,7 +1286,7 @@ class Paiement extends CommonObject
 	 *	@param		int		$force_thirdparty_id	Force thirdparty id
 	 *	@return		int								<0 if KO, >0 if OK
 	 */
-	function fetch_thirdparty($force_thirdparty_id=0)
+	function fetch_thirdparty($force_thirdparty_id = 0)
 	{
         // phpcs:enable
 		include_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';

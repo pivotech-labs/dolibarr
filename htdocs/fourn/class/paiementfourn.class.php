@@ -82,7 +82,7 @@ class PaiementFourn extends Paiement
 	 *  @param	int		$fk_bank	Id of bank line associated to payment
 	 *  @return int		            <0 if KO, -2 if not found, >0 if OK
 	 */
-	function fetch($id, $ref='', $fk_bank='')
+	function fetch($id, $ref = '', $fk_bank = '')
 	{
 		$error=0;
 
@@ -95,9 +95,9 @@ class PaiementFourn extends Paiement
 		$sql.= ' WHERE p.entity IN ('.getEntity('facture_fourn').')';
 		if ($id > 0)
 			$sql.= ' AND p.rowid = '.$id;
-		else if ($ref)
+		elseif ($ref)
 			$sql.= ' AND p.rowid = '.$ref;
-		else if ($fk_bank)
+		elseif ($fk_bank)
 			$sql.= ' AND p.fk_bank = '.$fk_bank;
 		//print $sql;
 
@@ -114,6 +114,7 @@ class PaiementFourn extends Paiement
 				$this->date           = $this->db->jdate($obj->dp);
 				$this->datepaye       = $this->db->jdate($obj->dp);
 				$this->numero         = $obj->num_paiement;
+				$this->num_paiement   = $obj->num_paiement;
 				$this->bank_account   = $obj->fk_account;
 				$this->bank_line      = $obj->fk_bank;
 				$this->montant        = $obj->amount;
@@ -144,7 +145,7 @@ class PaiementFourn extends Paiement
 	 *	@param		int		$closepaidinvoices   	1=Also close payed invoices to paid, 0=Do nothing more
 	 *	@return     int         					id of created payment, < 0 if error
 	 */
-	function create($user, $closepaidinvoices=0)
+	function create($user, $closepaidinvoices = 0)
 	{
 		global $langs,$conf;
 
@@ -316,7 +317,7 @@ class PaiementFourn extends Paiement
 	 *	@param		int		$notrigger		No trigger
 	 *	@return     int     <0 si ko, >0 si ok
 	 */
-	function delete($notrigger=0)
+	function delete($notrigger = 0)
 	{
 		global $conf, $user, $langs;
 
@@ -462,7 +463,7 @@ class PaiementFourn extends Paiement
 	 *	@param      string	$filter         SQL filter
 	 *	@return     array           		Array of supplier invoice id
 	 */
-	function getBillsArray($filter='')
+	function getBillsArray($filter = '')
 	{
 		$sql = 'SELECT fk_facturefourn';
 		$sql.= ' FROM '.MAIN_DB_PREFIX.'paiementfourn_facturefourn as pf, '.MAIN_DB_PREFIX.'facture_fourn as f';
@@ -500,7 +501,7 @@ class PaiementFourn extends Paiement
 	 *	@param      int		$mode       0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
 	 *	@return     string				Libelle
 	 */
-	function getLibStatut($mode=0)
+	function getLibStatut($mode = 0)
 	{
 		return $this->LibStatut($this->statut,$mode);
 	}
@@ -513,7 +514,7 @@ class PaiementFourn extends Paiement
 	 *	@param      int		$mode      0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
 	 *	@return     string      		Libelle du statut
 	 */
-	function LibStatut($status,$mode=0)
+	function LibStatut($status, $mode = 0)
 	{
         // phpcs:enable
 		global $langs;
@@ -567,18 +568,22 @@ class PaiementFourn extends Paiement
      *  @param		int  	$notooltip		1=Disable tooltip
 	 *	@return		string					Chaine avec URL
 	 */
-	function getNomUrl($withpicto=0, $option='', $mode='withlistofinvoices', $notooltip=0)
+	function getNomUrl($withpicto = 0, $option = '', $mode = 'withlistofinvoices', $notooltip = 0)
 	{
 		global $langs;
 
 		$result='';
+
 		$text=$this->ref;   // Sometimes ref contains label
 		if (preg_match('/^\((.*)\)$/i',$text,$reg)) {
 			// Label generique car entre parentheses. On l'affiche en le traduisant
 			if ($reg[1]=='paiement') $reg[1]='Payment';
 			$text=$langs->trans($reg[1]);
 		}
-		$label = $langs->trans("ShowPayment").': '.$text;
+
+		$label = '<u>'.$langs->trans("ShowPayment").'</u><br>';
+		$label.= '<strong>'.$langs->trans("Ref").':</strong> '.$text;
+		$label.= '<br><strong>'.$langs->trans("Date").':</strong> '.dol_print_date($this->datepaye ? $this->datepaye : $this->date, 'dayhour');
 
 		$linkstart = '<a href="'.DOL_URL_ROOT.'/fourn/paiement/card.php?id='.$this->id.'" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
 		$linkend = '</a>';
@@ -599,7 +604,7 @@ class PaiementFourn extends Paiement
 	 *	@param	string		$option		''=Create a specimen invoice with lines, 'nolines'=No lines
 	 *  @return	void
 	 */
-	function initAsSpecimen($option='')
+	function initAsSpecimen($option = '')
 	{
 		global $user,$langs,$conf;
 
@@ -624,15 +629,15 @@ class PaiementFourn extends Paiement
 	 *      @param     string		$mode		'next' for next value or 'last' for last value
 	 *      @return    string					free ref or last ref
 	 */
-	function getNextNumRef($soc,$mode='next')
+	function getNextNumRef($soc, $mode = 'next')
 	{
 		global $conf, $db, $langs;
 		$langs->load("bills");
 
 		// Clean parameters (if not defined or using deprecated value)
 		if (empty($conf->global->SUPPLIER_PAYMENT_ADDON)) $conf->global->SUPPLIER_PAYMENT_ADDON='mod_supplier_payment_bronan';
-		else if ($conf->global->SUPPLIER_PAYMENT_ADDON=='brodator') $conf->global->SUPPLIER_PAYMENT_ADDON='mod_supplier_payment_brodator';
-		else if ($conf->global->SUPPLIER_PAYMENT_ADDON=='bronan') $conf->global->SUPPLIER_PAYMENT_ADDON='mod_supplier_payment_bronan';
+		elseif ($conf->global->SUPPLIER_PAYMENT_ADDON=='brodator') $conf->global->SUPPLIER_PAYMENT_ADDON='mod_supplier_payment_brodator';
+		elseif ($conf->global->SUPPLIER_PAYMENT_ADDON=='bronan') $conf->global->SUPPLIER_PAYMENT_ADDON='mod_supplier_payment_bronan';
 
 		if (! empty($conf->global->SUPPLIER_PAYMENT_ADDON))
 		{
@@ -710,7 +715,7 @@ class PaiementFourn extends Paiement
          *  @param   null|array  $moreparams     Array to provide more information
 	 *  @return     int         				<0 if KO, 0 if nothing done, >0 if OK
 	 */
-	public function generateDocument($modele, $outputlangs, $hidedetails=0, $hidedesc=0, $hideref=0, $moreparams=null)
+	public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null)
 	{
 		global $conf, $user, $langs;
 
@@ -776,7 +781,7 @@ class PaiementFourn extends Paiement
 	 *	@param		int		$force_thirdparty_id	Force thirdparty id
 	 *	@return		int								<0 if KO, >0 if OK
 	 */
-	function fetch_thirdparty($force_thirdparty_id=0)
+	function fetch_thirdparty($force_thirdparty_id = 0)
 	{
         // phpcs:enable
 		require_once DOL_DOCUMENT_ROOT . '/fourn/class/fournisseur.facture.class.php';

@@ -139,7 +139,7 @@ class modDeplacement extends DolibarrModules
     		$childids = $user->getAllChildIds();
     		$childids[]=$user->id;
 
-    		if (empty($user->rights->deplacement->readall) && empty($user->rights->deplacement->lire_tous)) $sql.=' AND d.fk_user IN ('.join(',',$childids).')';
+    		if (empty($user->rights->deplacement->readall) && empty($user->rights->deplacement->lire_tous)) $this->export_sql_end[$r] .=' AND d.fk_user IN ('.join(',',$childids).')';
 		}
 	}
 
@@ -152,7 +152,7 @@ class modDeplacement extends DolibarrModules
      *      @param      string	$options    Options when enabling module ('', 'noboxes')
 	 *      @return     int             	1 if OK, 0 if KO
 	 */
-	function init($options='')
+	function init($options = '')
 	{
 		// Permissions
 		$this->remove($options);

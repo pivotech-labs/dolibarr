@@ -121,7 +121,7 @@ if ($action == 'confirm_create_thirdparty' && $confirm == 'yes' && $user->rights
 	{
 		// Creation of thirdparty
 		$company = new Societe($db);
-		$result=$company->create_from_member($object, GETPOST('companyname', 'alpha'), GETPOST('companyalias', 'alpha'));
+		$result=$company->create_from_member($object, GETPOST('companyname', 'alpha'), GETPOST('companyalias', 'alpha'), GETPOST('customercode', 'alpha'));
 
 		if ($result < 0)
 		{
@@ -348,7 +348,7 @@ if ($user->rights->adherent->cotisation->creer && $action == 'subscription' && !
         if (! $error)
         {
             // Send confirmation Email
-            if ($object->email && $sendalsoemail)
+            if ($object->email && $sendalsoemail)   // $object is 'Adherent'
             {
             	$subject = '';
             	$msg= '';
@@ -361,6 +361,7 @@ if ($user->rights->adherent->cotisation->creer && $action == 'subscription' && !
             	$outputlangs->setDefaultLang(empty($object->thirdparty->default_lang) ? $mysoc->default_lang : $object->thirdparty->default_lang);
             	// Load traductions files requiredby by page
             	$outputlangs->loadLangs(array("main", "members"));
+
             	// Get email content from template
             	$arraydefaultmessage=null;
             	$labeltouse = $conf->global->ADHERENT_EMAIL_TEMPLATE_SUBSCRIPTION;
@@ -583,7 +584,7 @@ if ($rowid > 0)
 			print '<tr><td>';
 			print $form->select_company($object->fk_soc,'socid','',1);
 			print '</td>';
-			print '<td align="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
+			print '<td class="left"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
 			print '</tr></table></form>';
 		}
 		else
@@ -609,7 +610,7 @@ if ($rowid > 0)
 	print '</td>';
 	if ($action != 'editlogin' && $user->rights->adherent->creer)
 	{
-		print '<td align="right">';
+		print '<td class="right">';
 		if ($user->rights->user->user->creer)
 		{
 			print '<a href="'.$_SERVER["PHP_SELF"].'?action=editlogin&amp;rowid='.$object->id.'">'.img_edit($langs->trans('SetLinkToUser'),1).'</a>';
@@ -654,7 +655,7 @@ if ($rowid > 0)
             print '<div class="tabsAction">';
 
             if ($object->statut > 0) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?rowid='.$rowid.'&action=addsubscription">'.$langs->trans("AddSubscription")."</a></div>";
-            else print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("ValidateBefore")).'">'.$langs->trans("AddSubscription").'</a></div>';
+            else print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#" title="'.dol_escape_htmltag($langs->trans("ValidateBefore")).'">'.$langs->trans("AddSubscription").'</a></div>';
 
             print '</div>';
         }
@@ -694,10 +695,10 @@ if ($rowid > 0)
             print '<td align="center">'.$langs->trans("DateCreation").'</td>';
             print '<td align="center">'.$langs->trans("DateStart").'</td>';
             print '<td align="center">'.$langs->trans("DateEnd").'</td>';
-            print '<td align="right">'.$langs->trans("Amount").'</td>';
+            print '<td class="right">'.$langs->trans("Amount").'</td>';
             if (! empty($conf->banque->enabled))
             {
-                print '<td align="right">'.$langs->trans("Account").'</td>';
+                print '<td class="right">'.$langs->trans("Account").'</td>';
             }
             print "</tr>\n";
 
@@ -715,10 +716,10 @@ if ($rowid > 0)
                 print '<td align="center">'.dol_print_date($db->jdate($objp->datec),'dayhour')."</td>\n";
                 print '<td align="center">'.dol_print_date($db->jdate($objp->dateh),'day')."</td>\n";
                 print '<td align="center">'.dol_print_date($db->jdate($objp->datef),'day')."</td>\n";
-                print '<td align="right">'.price($objp->subscription).'</td>';
+                print '<td class="right">'.price($objp->subscription).'</td>';
 				if (! empty($conf->banque->enabled))
 				{
-					print '<td align="right">';
+					print '<td class="right">';
 					if ($objp->bid)
 					{
 						$accountstatic->label=$objp->label;
@@ -792,8 +793,8 @@ if ($rowid > 0)
         else
         {
         	if (! empty($conf->global->ADHERENT_BANK_USE) && $conf->global->ADHERENT_BANK_USE == 'bankviainvoice' && ! empty($conf->banque->enabled) && ! empty($conf->societe->enabled) && ! empty($conf->facture->enabled)) $bankviainvoice=1;
-        	else if (! empty($conf->global->ADHERENT_BANK_USE) && $conf->global->ADHERENT_BANK_USE == 'bankdirect' && ! empty($conf->banque->enabled)) $bankdirect=1;
-        	else if (! empty($conf->global->ADHERENT_BANK_USE) && $conf->global->ADHERENT_BANK_USE == 'invoiceonly' && ! empty($conf->banque->enabled) && ! empty($conf->societe->enabled) && ! empty($conf->facture->enabled)) $invoiceonly=1;
+        	elseif (! empty($conf->global->ADHERENT_BANK_USE) && $conf->global->ADHERENT_BANK_USE == 'bankdirect' && ! empty($conf->banque->enabled)) $bankdirect=1;
+        	elseif (! empty($conf->global->ADHERENT_BANK_USE) && $conf->global->ADHERENT_BANK_USE == 'invoiceonly' && ! empty($conf->banque->enabled) && ! empty($conf->societe->enabled) && ! empty($conf->facture->enabled)) $invoiceonly=1;
         }
 
         print "\n\n<!-- Form add subscription -->\n";
@@ -856,6 +857,23 @@ if ($rowid > 0)
 				array('label' => $langs->trans("NameToCreate"), 'type' => 'text', 'name' => 'companyname', 'value' => $companyname, 'morecss' => 'minwidth300', 'moreattr' => 'maxlength="128"'),
 				array('label' => $langs->trans("AliasNames"), 'type' => 'text', 'name' => 'companyalias', 'value' => $companyalias, 'morecss' => 'minwidth300', 'moreattr' => 'maxlength="128"')
 			);
+			// If customer code was forced to "required", we ask it at creation to avoid error later
+			if (! empty($conf->global->MAIN_COMPANY_CODE_ALWAYS_REQUIRED))
+			{
+				$tmpcompany = new Societe($db);
+				$tmpcompany->name=$companyname;
+                $tmpcompany->get_codeclient($tmpcompany, 0);
+				$customercode = $tmpcompany->code_client;
+				$formquestion[]=array(
+                    'label' => $langs->trans("CustomerCode"),
+                    'type' => 'text',
+                    'name' => 'customercode',
+                    'value' => $customercode,
+                    'morecss' => 'minwidth300',
+                    'moreattr' => 'maxlength="128"',
+                );
+			}
+			// @TODO Add other extrafields mandatory for thirdparty creation
 
 			print $form->formconfirm($_SERVER["PHP_SELF"]."?rowid=".$object->id,$langs->trans("CreateDolibarrThirdParty"),$langs->trans("ConfirmCreateThirdParty"),"confirm_create_thirdparty",$formquestion,1);
 		}

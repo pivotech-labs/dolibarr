@@ -1,12 +1,12 @@
 <?php
-/* Copyright (C) 2001-2007	Rodolphe Quiedeville		<rodolphe@quiedeville.org>
+/* Copyright (C) 2001-2007	Rodolphe Quiedeville	<rodolphe@quiedeville.org>
  * Copyright (C) 2004-2014	Laurent Destailleur		<eldy@users.sourceforge.net>
  * Copyright (C) 2005		Eric Seigne				<eric.seigne@ryxeo.com>
  * Copyright (C) 2005-2017	Regis Houssin			<regis.houssin@inodbox.com>
- * Copyright (C) 2006		Andre Cianfarani			<acianfa@free.fr>
+ * Copyright (C) 2006		Andre Cianfarani		<acianfa@free.fr>
  * Copyright (C) 2014		Florian Henry			<florian.henry@open-concept.pro>
  * Copyright (C) 2014-2018	Juanjo Menent			<jmenent@2byte.es>
- * Copyright (C) 2014-2018 	Philippe Grand 		    <philippe.grand@atoo-net.com>
+ * Copyright (C) 2014-2019 	Philippe Grand 		    <philippe.grand@atoo-net.com>
  * Copyright (C) 2014		Ion agorria				<ion@agorria.com>
  * Copyright (C) 2015		Alexandre Spangaro		<aspangaro.dolibarr@gmail.com>
  * Copyright (C) 2015		Marcos García			<marcosgdf@gmail.com>
@@ -352,7 +352,10 @@ if (empty($reshook))
 					break;
 				}
 
-				$res = $object->updatePrice($newprice, $val['price_base_type'], $user, $val['vat_tx'], $newprice_min, $key, $val['npr'], $psq, 0, $val['localtaxes_array'], $val['default_vat_code']);
+				if($object->multiprices[$key]!=$newprice || $object->multiprices_min[$key]!=$newprice_min || $object->multiprices_base_type[$key]!=$val['price_base_type'])
+       				$res = $object->updatePrice($newprice, $val['price_base_type'], $user, $val['vat_tx'], $newprice_min, $key, $val['npr'], $psq, 0, $val['localtaxes_array'], $val['default_vat_code']);
+				else $res=0;
+
 
 				if ($res < 0) {
 					$error ++;
@@ -1111,7 +1114,7 @@ if (! $action || $action == 'delete' || $action == 'showlog_customer_price' || $
 
     if ($object->isVariant()) {
 		if ($user->rights->produit->creer || $user->rights->service->creer) {
-			print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NoEditVariants")).'">'.$langs->trans("UpdateDefaultPrice").'</a></div>';
+			print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#" title="'.dol_escape_htmltag($langs->trans("NoEditVariants")).'">'.$langs->trans("UpdateDefaultPrice").'</a></div>';
 		}
 	} else {
 		if (empty($conf->global->PRODUIT_MULTIPRICES) && empty($conf->global->PRODUIT_CUSTOMER_PRICES_BY_QTY_MULTIPRICES)) {
@@ -1392,7 +1395,7 @@ if ($action == 'edit_price' && $object->getRights()->creer)
 			}
 			if ( !empty($conf->global->PRODUCT_MINIMUM_RECOMMENDED_PRICE))
 			{
-				print '<td align="left">'.$langs->trans("MinimumRecommendedPrice", price($maxpricesupplier,0,'',1,-1,-1,'auto')).' '.img_warning().'</td>';
+				print '<td class="left">'.$langs->trans("MinimumRecommendedPrice", price($maxpricesupplier,0,'',1,-1,-1,'auto')).' '.img_warning().'</td>';
 			}
 			print '</td>';
 
@@ -1443,7 +1446,7 @@ if ((empty($conf->global->PRODUIT_CUSTOMER_PRICES) || $action=='showlog_default_
 
     		// Il doit au moins y avoir la ligne de prix initial.
     		// On l'ajoute donc pour remettre a niveau (pb vieilles versions)
-    		//$object->updatePrice($object->price, $object->price_base_type, $user, $newprice_min);
+    		//$object->updatePrice($object->price, $object->price_base_type, $user, $object->tva_tx, $object->price_min);
             if (! empty($conf->global->PRODUIT_MULTIPRICES)) {
             	$object->updatePrice($object->multiprices[1], $object->multiprices_base_type[1], $user, (empty($object->multiprices_tva_tx[1])?0:$object->multiprices_tva_tx[1]), $object->multiprices_min[1], 1);
             } else {
@@ -1707,7 +1710,7 @@ if (! empty($conf->global->PRODUIT_CUSTOMER_PRICES))
 		}
 		if ( !empty($conf->global->PRODUCT_MINIMUM_RECOMMENDED_PRICE))
 		{
-			print '<td align="left">'.$langs->trans("MinimumRecommendedPrice", price($maxpricesupplier,0,'',1,-1,-1,'auto')).' '.img_warning().'</td>';
+			print '<td class="left">'.$langs->trans("MinimumRecommendedPrice", price($maxpricesupplier,0,'',1,-1,-1,'auto')).' '.img_warning().'</td>';
 		}
 		print '</td></tr>';
 
@@ -1798,7 +1801,7 @@ if (! empty($conf->global->PRODUIT_CUSTOMER_PRICES))
 		print '</td>';
 		if ( !empty($conf->global->PRODUCT_MINIMUM_RECOMMENDED_PRICE))
 		{
-			print '<td align="left">'.$langs->trans("MinimumRecommendedPrice", price($maxpricesupplier,0,'',1,-1,-1,'auto')).' '.img_warning().'</td>';
+			print '<td class="left">'.$langs->trans("MinimumRecommendedPrice", price($maxpricesupplier,0,'',1,-1,-1,'auto')).' '.img_warning().'</td>';
 		}
 		print '</tr>';
 
@@ -1826,7 +1829,7 @@ if (! empty($conf->global->PRODUIT_CUSTOMER_PRICES))
 	elseif ($action == 'showlog_customer_price')
 	{
 		// List of all log of prices by customers
-		print '<!-- list of all lof of prices per customer -->'."\n";
+		print '<!-- list of all log of prices per customer -->'."\n";
 
 	    $filter = array('t.fk_product' => $object->id,'t.fk_soc' => GETPOST('socid', 'int'));
 
@@ -1849,7 +1852,7 @@ if (! empty($conf->global->PRODUIT_CUSTOMER_PRICES))
 		$title=$langs->trans('PriceByCustomerLog');
 		$title.=' - '.$staticsoc->getNomUrl(1);
 
-		$backbutton='<a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '">' . $langs->trans("Back") . '</a>';
+		$backbutton='<a class="justalink" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '">' . $langs->trans("Back") . '</a>';
 
 		print_barre_liste($title, $page, $_SERVEUR['PHP_SELF'], $option, $sortfield, $sortorder, $backbutton, count($prodcustprice->lines), $nbtotalofrecords, 'title_accountancy.png');
 
@@ -1955,7 +1958,7 @@ if (! empty($conf->global->PRODUIT_CUSTOMER_PRICES))
 			print $langs->trans('None');
 		}
 	}
-	else if ($action != 'showlog_default_price' && $action != 'edit_price')
+	elseif ($action != 'showlog_default_price' && $action != 'edit_price')
 	{
 		// List of all prices by customers
         print '<!-- list of all prices per customer -->'."\n";

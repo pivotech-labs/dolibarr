@@ -55,7 +55,7 @@ if (empty($eid)) //This also disables fetch when eid == 0
 {
 	$eid = 0;
 }
-else if ($action != 'delete')
+elseif ($action != 'delete')
 {
 	$price_expression->fetch($eid);
 }
@@ -94,7 +94,7 @@ if ($action == 'add')
 				}
 			}
 		}
-		else if ($result < 0)
+		elseif ($result < 0)
 		{
 			setEventMessages("add find: ".$price_expression->error, $price_expression->errors, 'errors');
 		}
@@ -134,7 +134,7 @@ if ($action == 'update')
 				}
 			}
 		}
-		else if ($result < 0)
+		elseif ($result < 0)
 		{
 			setEventMessages("update find: ".$price_expression->error, $price_expression->errors, 'errors');
 		}
@@ -219,7 +219,7 @@ print '<input type="submit" class="butAction" value="'.$langs->trans("Save").'">
 print '<span id="back" class="butAction">'.$langs->trans("Back").'</span>';
 if ($eid == 0)
 {
-	print '<div class="inline-block divButAction"><span id="action-delete" class="butActionRefused">'.$langs->trans('Delete').'</span></div>'."\n";
+	print '<div class="inline-block divButAction"><span id="action-delete" class="butActionRefused classfortooltip">'.$langs->trans('Delete').'</span></div>'."\n";
 }
 else
 {

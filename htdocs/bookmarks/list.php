@@ -132,7 +132,7 @@ if ($resql)
 		print '<tr class="oddeven">';
 
 		// Id
-		print '<td align="left">';
+		print '<td class="left">';
 		print "<a href=\"card.php?id=".$obj->rowid."\">".img_object($langs->trans("ShowBookmark"),"bookmark").' '.$obj->rowid."</a>";
 		print '</td>';
 
@@ -179,7 +179,7 @@ if ($resql)
 		print '<td align="center">'.dol_print_date($db->jdate($obj->dateb),'day')."</td>";
 
 		// Position
-		print '<td align="right">'.$obj->position."</td>";
+		print '<td class="right">'.$obj->position."</td>";
 
 		// Actions
 		print '<td align="right" class="nowrap">';

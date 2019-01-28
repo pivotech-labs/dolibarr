@@ -36,7 +36,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 
 // Load translation files required by the page
-$langs->loadLangs(array("companies", "suppliers"));
+$langs->loadLangs(array("companies", "suppliers", "categories"));
 
 $action=GETPOST('action','alpha');
 $massaction=GETPOST('massaction','alpha');
@@ -113,13 +113,13 @@ if ($type == "c")
 	$titre.='  ('.$langs->trans("ThirdPartyCustomers").')';
 	$urlfiche="card.php";
 }
-else if ($type == "f")
+elseif ($type == "f")
 {
 	if (empty($contextpage) || $contextpage == 'contactlist') $contextpage='contactsupplierlist';
 	$titre.=' ('.$langs->trans("ThirdPartySuppliers").')';
 	$urlfiche="card.php";
 }
-else if ($type == "o")
+elseif ($type == "o")
 {
 	if (empty($contextpage) || $contextpage == 'contactlist') $contextpage='contactotherlist';
 	$titre.=' ('.$langs->trans("OthersNotLinkedToThirdParty").')';
@@ -158,6 +158,7 @@ $arrayfields=array(
 	'p.phone_mobile'=>array('label'=>"PhoneMobile", 'checked'=>1),
 	'p.fax'=>array('label'=>"Fax", 'checked'=>0),
 	'p.email'=>array('label'=>"EMail", 'checked'=>1),
+	'p.jabberid'=>array('label'=>"Jabber", 'checked'=>1, 'enabled'=>(! empty($conf->socialnetworks->enabled))),
 	'p.skype'=>array('label'=>"Skype", 'checked'=>1, 'enabled'=>(! empty($conf->socialnetworks->enabled))),
 	'p.twitter'=>array('label'=>"Twitter", 'checked'=>1, 'enabled'=>(! empty($conf->socialnetworks->enabled))),
 	'p.facebook'=>array('label'=>"Facebook", 'checked'=>1, 'enabled'=>(! empty($conf->socialnetworks->enabled))),
@@ -329,15 +330,15 @@ if ($type == "o")        // filtre sur type
 {
 	$sql .= " AND p.fk_soc IS NULL";
 }
-else if ($type == "f")        // filtre sur type
+elseif ($type == "f")        // filtre sur type
 {
 	$sql .= " AND s.fournisseur = 1";
 }
-else if ($type == "c")        // filtre sur type
+elseif ($type == "c")        // filtre sur type
 {
 	$sql .= " AND s.client IN (1, 3)";
 }
-else if ($type == "p")        // filtre sur type
+elseif ($type == "p")        // filtre sur type
 {
 	$sql .= " AND s.client IN (2, 3)";
 }
@@ -486,7 +487,7 @@ if (! empty($conf->categorie->enabled))
 	{
 		$moreforfilter.='<div class="divsearchfield">';
 		if ($type == 'c') $moreforfilter.=$langs->trans('CustomersCategoriesShort'). ': ';
-		else if ($type == 'p') $moreforfilter.=$langs->trans('ProspectsCategoriesShort'). ': ';
+		elseif ($type == 'p') $moreforfilter.=$langs->trans('ProspectsCategoriesShort'). ': ';
 		else $moreforfilter.=$langs->trans('CustomersProspectsCategoriesShort'). ': ';
 		$moreforfilter.=$formother->select_categories(Categorie::TYPE_CUSTOMER,$search_categ_thirdparty,'search_categ_thirdparty',1);
 		$moreforfilter.='</div>';
@@ -822,10 +823,17 @@ while ($i < min($num,$limit))
 		print '<td>'.dol_print_email($obj->email,$obj->rowid,$obj->socid,'AC_EMAIL',18).'</td>';
 		if (! $i) $totalarray['nbfield']++;
 	}
+
 	// Skype
 	if (! empty($arrayfields['p.skype']['checked']))
 	{
 		if (! empty($conf->socialnetworks->enabled)) { print '<td>'.dol_print_socialnetworks($obj->skype,$obj->rowid,$obj->socid,'skype').'</td>'; }
+		if (! $i) $totalarray['nbfield']++;
+	}
+	// Jabber
+	if (! empty($arrayfields['p.jabberid']['checked']))
+	{
+		if (! empty($conf->socialnetworks->enabled)) { print '<td>'.dol_print_socialnetworks($obj->jabberid,$obj->rowid,$obj->socid,'jabberid').'</td>'; }
 		if (! $i) $totalarray['nbfield']++;
 	}
 	// Twitter

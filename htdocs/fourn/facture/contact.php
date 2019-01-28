@@ -81,7 +81,7 @@ if ($action == 'addcontact' && $user->rights->fournisseur->facture->creer)
 }
 
 // bascule du statut d'un contact
-else if ($action == 'swapstatut' && $user->rights->fournisseur->facture->creer)
+elseif ($action == 'swapstatut' && $user->rights->fournisseur->facture->creer)
 {
 	if ($object->fetch($id))
 	{
@@ -94,7 +94,7 @@ else if ($action == 'swapstatut' && $user->rights->fournisseur->facture->creer)
 }
 
 // Efface un contact
-else if ($action == 'deletecontact' && $user->rights->fournisseur->facture->creer)
+elseif ($action == 'deletecontact' && $user->rights->fournisseur->facture->creer)
 {
 	$object->fetch($id);
 	$result = $object->delete_contact($_GET["lineid"]);
@@ -150,7 +150,8 @@ if ($id > 0 || ! empty($ref))
     	$morehtmlref.=$form->editfieldval("RefSupplier", 'ref_supplier', $object->ref_supplier, $object, 0, 'string', '', null, null, '', 1);
     	// Thirdparty
     	$morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . $object->thirdparty->getNomUrl(1);
-		// Project
+    	if (empty($conf->global->MAIN_DISABLE_OTHER_LINK) && $object->thirdparty->id > 0) $morehtmlref.=' (<a href="'.DOL_URL_ROOT.'/fourn/facture/list.php?socid='.$object->thirdparty->id.'&search_company='.urlencode($object->thirdparty->name).'">'.$langs->trans("OtherBills").'</a>)';
+    	// Project
 		if (! empty($conf->projet->enabled))
 		{
 			$langs->load("projects");

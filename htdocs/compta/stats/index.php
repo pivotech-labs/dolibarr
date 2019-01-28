@@ -128,7 +128,7 @@ if ($modecompta=="CREANCES-DETTES")
 	$builddate=dol_now();
 	//$exportlink=$langs->trans("NotYetAvailable");
 }
-else if ($modecompta=="RECETTES-DEPENSES")
+elseif ($modecompta=="RECETTES-DEPENSES")
 {
 	$name=$langs->trans("TurnoverCollected");
 	$calcmode=$langs->trans("CalcModeEngagement");
@@ -141,7 +141,7 @@ else if ($modecompta=="RECETTES-DEPENSES")
 	$builddate=dol_now();
 	//$exportlink=$langs->trans("NotYetAvailable");
 }
-else if ($modecompta=="BOOKKEEPING")
+elseif ($modecompta=="BOOKKEEPING")
 {
 	$name=$langs->trans("Turnover");
 	$calcmode=$langs->trans("CalcModeBookkeeping");
@@ -171,10 +171,10 @@ if ($modecompta == 'CREANCES-DETTES')
 	$sql.= " WHERE f.fk_statut in (1,2)";
 	if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) $sql.= " AND f.type IN (0,1,2,5)";
 	else $sql.= " AND f.type IN (0,1,2,3,5)";
-	$sql.= " AND f.entity = ".$conf->entity;
+	$sql.= " AND f.entity IN (".getEntity('invoice').")";
 if ($socid) $sql.= " AND f.fk_soc = ".$socid;
 }
-else if ($modecompta=="RECETTES-DEPENSES")
+elseif ($modecompta=="RECETTES-DEPENSES")
 {
 	/*
 	 * Liste des paiements (les anciens paiements ne sont pas vus par cette requete car, sur les
@@ -186,10 +186,10 @@ else if ($modecompta=="RECETTES-DEPENSES")
 	$sql.= ", ".MAIN_DB_PREFIX."paiement as p";
 	$sql.= " WHERE p.rowid = pf.fk_paiement";
 	$sql.= " AND pf.fk_facture = f.rowid";
-	$sql.= " AND f.entity = ".$conf->entity;
+	$sql.= " AND f.entity IN (".getEntity('invoice').")";
 if ($socid) $sql.= " AND f.fk_soc = ".$socid;
 }
-else if ($modecompta=="BOOKKEEPING")
+elseif ($modecompta=="BOOKKEEPING")
 {
 	$sql  = "SELECT date_format(b.doc_date,'%Y-%m') as dm, sum(b.credit) as amount_ttc";
 	$sql.= " FROM ".MAIN_DB_PREFIX."accounting_bookkeeping as b, ".MAIN_DB_PREFIX."accounting_journal as aj";
@@ -541,14 +541,14 @@ print '</div>';
  // Factures non reglees
  // Y a bug ici. Il faut prendre le reste a payer et non le total des factures non reglees !
 
- $sql = "SELECT f.facnumber, f.rowid, s.nom, s.rowid as socid, f.total_ttc, sum(pf.amount) as am";
+ $sql = "SELECT f.ref, f.rowid, s.nom, s.rowid as socid, f.total_ttc, sum(pf.amount) as am";
  $sql .= " FROM ".MAIN_DB_PREFIX."societe as s,".MAIN_DB_PREFIX."facture as f left join ".MAIN_DB_PREFIX."paiement_facture as pf on f.rowid=pf.fk_facture";
  $sql .= " WHERE s.rowid = f.fk_soc AND f.paye = 0 AND f.fk_statut = 1";
  if ($socid)
  {
  $sql .= " AND f.fk_soc = $socid";
  }
- $sql .= " GROUP BY f.facnumber,f.rowid,s.nom, s.rowid, f.total_ttc";
+ $sql .= " GROUP BY f.ref,f.rowid,s.nom, s.rowid, f.total_ttc";
 
  $resql=$db->query($sql);
  if ($resql)

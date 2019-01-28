@@ -61,10 +61,9 @@ class mailing_example extends MailingTargets
      *  This is the main function that returns the array of emails
      *
      *  @param	int		$mailing_id    	Id of mailing. No need to use it.
-     *  @param  array	$filtersarray   If you used the formFilter function. Empty otherwise.
      *  @return int           			<0 if error, number of emails added if ok
      */
-    function add_to_target($mailing_id,$filtersarray=array())
+    function add_to_target($mailing_id)
     {
         // phpcs:enable
         $target = array();
@@ -111,7 +110,7 @@ class mailing_example extends MailingTargets
      *  @param		string		$sql		Requete sql de comptage
      *	@return		int|string				Number of recipient or '?'
      */
-    function getNbOfRecipients($sql='')
+    function getNbOfRecipients($sql = '')
     {
         // CHANGE THIS: Optionnal
 

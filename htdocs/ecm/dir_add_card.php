@@ -201,7 +201,7 @@ if ($action == 'add' && $permtoadd)
 }
 
 // Deleting file
-else if ($action == 'confirm_deletesection' && $confirm == 'yes')
+elseif ($action == 'confirm_deletesection' && $confirm == 'yes')
 {
 	$result=$ecmdir->delete($user);
 	setEventMessages($langs->trans("ECMSectionWasRemoved", $ecmdir->label), null, 'mesgs');
@@ -303,7 +303,7 @@ if (empty($action) || $action == 'delete_section')
 	}
 	else
 	{
-		print '<a class="butActionRefused" href="#" title="'.$langs->trans("NotAllowed").'">'.$langs->trans('Delete').'</a>';
+		print '<a class="butActionRefused classfortooltip" href="#" title="'.$langs->trans("NotAllowed").'">'.$langs->trans('Delete').'</a>';
 	}
 	print '</div>';
 }

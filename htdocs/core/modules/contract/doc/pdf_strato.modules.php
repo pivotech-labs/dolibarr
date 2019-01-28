@@ -172,7 +172,7 @@ class pdf_strato extends ModelePDFContract
      *  @param		int				$hideref			Do not show ref
      *  @return		int									1=OK, 0=KO
 	 */
-	function write_file($object,$outputlangs,$srctemplatepath='',$hidedetails=0,$hidedesc=0,$hideref=0)
+	function write_file($object, $outputlangs, $srctemplatepath = '', $hidedetails = 0, $hidedesc = 0, $hideref = 0)
 	{
         // phpcs:enable
 		global $user,$langs,$conf,$hookmanager,$mysoc;
@@ -228,6 +228,7 @@ class pdf_strato extends ModelePDFContract
                 $heightforinfotot = 50;	// Height reserved to output the info and total part
 		        $heightforfreetext= (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT)?$conf->global->MAIN_PDF_FREETEXT_HEIGHT:5);	// Height reserved to output the free text on last page
 	            $heightforfooter = $this->marge_basse + 8;	// Height reserved to output the footer (value include bottom margin)
+	            if ($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS >0) $heightforfooter+= 6;
                 $pdf->SetAutoPageBreak(1,0);
 
                 if (class_exists('TCPDF'))
@@ -370,7 +371,7 @@ class pdf_strato extends ModelePDFContract
 							$pdf->writeHTMLCell(0, 0, $curX, $curY, dol_concatdesc($txtpredefinedservice, dol_concatdesc($txt, $desc)), 0, 1, 0);
 							$pageposafter=$pdf->getPage();
 							$posyafter=$pdf->GetY();
-							
+
 							if ($posyafter > ($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot)))	// There is no space left for total+free text
 							{
 								if ($i == ($nblines-1))	// No more lines, and no space left to show total, so we create a new page
@@ -394,7 +395,7 @@ class pdf_strato extends ModelePDFContract
 
 						$nexY = $pdf->GetY() + 2;
 						$pageposafter=$pdf->getPage();
-						
+
 						$pdf->setPage($pageposbefore);
 						$pdf->setTopMargin($this->marge_haute);
 						$pdf->setPageOrientation('', 1, 0);	// The only function to edit the bottom margin of current page to set it.
@@ -423,7 +424,7 @@ class pdf_strato extends ModelePDFContract
 							$pdf->setPage($pagenb);
 							$pdf->setPageOrientation('', 1, 0);	// The only function to edit the bottom margin of current page to set it.
 						}
-						
+
 						if (isset($object->lines[$i+1]->pagebreak) && $object->lines[$i+1]->pagebreak)
 						{
 							if ($pagenb == 1)
@@ -447,7 +448,7 @@ class pdf_strato extends ModelePDFContract
 				if ($pagenb == 1)
 				{
 					$this->_tableau($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0);
-					$this->_tab_signature($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforinfotot - $heightforfreetext - $heightforfooter, $outputlangs);
+					$this->tabSignature($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforinfotot - $heightforfreetext - $heightforfooter, $outputlangs);
 					$bottomlasttab=$this->page_hauteur - $heightforfooter - $heightforfooter + 1;
 				}
 				else
@@ -456,7 +457,7 @@ class pdf_strato extends ModelePDFContract
 					$this->tabSignature($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforfooter, $outputlangs);
 					$bottomlasttab=$this->page_hauteur - $heightforfooter - $heightforfooter + 1;
 				}
-				
+
 				$this->_pagefoot($pdf,$object,$outputlangs);
 				if (method_exists($pdf,'AliasNbPages')) $pdf->AliasNbPages();
 
@@ -507,7 +508,7 @@ class pdf_strato extends ModelePDFContract
 	 *   @param		int			$hidebottom		Hide bottom bar of array
 	 *   @return	void
 	 */
-	function _tableau(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop=0, $hidebottom=0)
+	function _tableau(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop = 0, $hidebottom = 0)
 	{
 		global $conf;
 
@@ -761,7 +762,7 @@ class pdf_strato extends ModelePDFContract
 	 *      @param	int			$hidefreetext		1=Hide free text
 	 *      @return	integer
 	 */
-	function _pagefoot(&$pdf,$object,$outputlangs,$hidefreetext=0)
+	function _pagefoot(&$pdf, $object, $outputlangs, $hidefreetext = 0)
 	{
 		global $conf;
 		$showdetails=$conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS;

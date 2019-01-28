@@ -95,8 +95,8 @@ if ($action == 'create')
 	    $type=GETPOST('type');
 	    $halfday=0;
 	    if ($starthalfday == 'afternoon' && $endhalfday == 'morning') $halfday=2;
-	    else if ($starthalfday == 'afternoon') $halfday=-1;
-	    else if ($endhalfday == 'morning') $halfday=1;
+	    elseif ($starthalfday == 'afternoon') $halfday=-1;
+	    elseif ($endhalfday == 'morning') $halfday=1;
 
 	    $valideur = GETPOST('valideur');
 	    $description = trim(GETPOST('description'));
@@ -201,8 +201,8 @@ if ($action == 'update')
 	$endhalfday=GETPOST('endhalfday');
 	$halfday=0;
 	if ($starthalfday == 'afternoon' && $endhalfday == 'morning') $halfday=2;
-	else if ($starthalfday == 'afternoon') $halfday=-1;
-	else if ($endhalfday == 'morning') $halfday=1;
+	elseif ($starthalfday == 'afternoon') $halfday=-1;
+	elseif ($endhalfday == 'morning') $halfday=1;
 
     // If no right to modify a request
     if (! $user->rights->holiday->write)
@@ -1326,14 +1326,14 @@ else
                         }
                         else
                         {
-                            print '<a href="#" class="butActionRefused" title="'.$langs->trans("NotTheAssignedApprover").'">'.$langs->trans("Approve").'</a>';
-                            print '<a href="#" class="butActionRefused" title="'.$langs->trans("NotTheAssignedApprover").'">'.$langs->trans("ActionRefuseCP").'</a>';
+                            print '<a href="#" class="butActionRefused classfortooltip" title="'.$langs->trans("NotTheAssignedApprover").'">'.$langs->trans("Approve").'</a>';
+                            print '<a href="#" class="butActionRefused classfortooltip" title="'.$langs->trans("NotTheAssignedApprover").'">'.$langs->trans("ActionRefuseCP").'</a>';
                         }
                     }
                     if (($user->id == $object->fk_validator || in_array($object->fk_user, $childids) || ! empty($user->rights->holiday->write_all)) && ($object->statut == 2 || $object->statut == 3))	// Status validated or approved
                     {
                     	if (($object->date_debut > dol_now()) || $user->admin) print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=cancel" class="butAction">'.$langs->trans("ActionCancelCP").'</a>';
-                    	else print '<a href="#" class="butActionRefused" title="'.$langs->trans("HolidayStarted").'">'.$langs->trans("ActionCancelCP").'</a>';
+                    	else print '<a href="#" class="butActionRefused classfortooltip" title="'.$langs->trans("HolidayStarted").'">'.$langs->trans("ActionCancelCP").'</a>';
                     }
                     if ($cancreate && $object->statut == Holiday::STATUS_CANCELED)
                     {

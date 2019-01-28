@@ -673,11 +673,11 @@ else
 	{
 		print $langs->trans('RobotEmail');
 	}
-	else if ($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE === 'user')
+	elseif ($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE === 'user')
 	{
 		print $langs->trans('UserEmail');
 	}
-	else if ($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE === 'company')
+	elseif ($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE === 'company')
 	{
 		print $langs->trans('CompanyEmail').' '.dol_escape_htmltag('<'.$mysoc->email.'>');
 	}
@@ -735,7 +735,7 @@ else
 	}
 	else
 	{
-		print '<a class="butActionRefused" href="#" title="'.$langs->trans("FeatureNotAvailableOnLinux").'">'.$langs->trans("DoTestServerAvailability").'</a>';
+		print '<a class="butActionRefused classfortooltip" href="#" title="'.$langs->trans("FeatureNotAvailableOnLinux").'">'.$langs->trans("DoTestServerAvailability").'</a>';
 	}
 
 	print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?action=test&mode=init#formmailbeforetitle">'.$langs->trans("DoTestSend").'</a>';

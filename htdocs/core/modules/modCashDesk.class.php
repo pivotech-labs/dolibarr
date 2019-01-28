@@ -46,7 +46,7 @@ class modCashDesk extends DolibarrModules
 		$this->rights_class = 'cashdesk';
 
 		$this->family = "portal";
-		$this->module_position = '10';
+		$this->module_position = '55';
 		// Module label (no space allowed), used if translation string 'ModuleXXXName' not found (where XXX is value of numeric property 'numero' of module)
 		$this->name = preg_replace('/^mod/i','',get_class($this));
 		$this->description = "CashDesk module";
@@ -132,7 +132,7 @@ class modCashDesk extends DolibarrModules
      *      @param      string	$options    Options when enabling module ('', 'noboxes')
 	 *      @return     int             	1 if OK, 0 if KO
      */
-	function init($options='')
+	function init($options = '')
   	{
     	$sql = array();
 

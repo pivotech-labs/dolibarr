@@ -121,7 +121,7 @@ class Opensurveysondage extends CommonObject
      *  @param  int		$notrigger   0=launch triggers after, 1=disable triggers
      *  @return int      		   	 <0 if KO, Id of created object if OK
      */
-    function create(User $user, $notrigger=0)
+    function create(User $user, $notrigger = 0)
     {
 		$error=0;
 
@@ -138,7 +138,6 @@ class Opensurveysondage extends CommonObject
 
         // Insert request
 		$sql = "INSERT INTO ".MAIN_DB_PREFIX."opensurvey_sondage(";
-
 		$sql.= "id_sondage,";
 		$sql.= "commentaires,";
 		$sql.= "fk_user_creat,";
@@ -151,7 +150,6 @@ class Opensurveysondage extends CommonObject
 		$sql.= "allow_spy,";
 		$sql.= "sujet";
         $sql.= ") VALUES (";
-
 		$sql.= "'".$this->db->escape($this->id_sondage)."',";
 		$sql.= " ".(empty($this->commentaires)?'NULL':"'".$this->db->escape($this->commentaires)."'").",";
 		$sql.= " ".$user->id.",";
@@ -163,7 +161,6 @@ class Opensurveysondage extends CommonObject
 		$sql.= " ".$this->db->escape($this->allow_comments).",";
 		$sql.= " ".$this->db->escape($this->allow_spy).",";
 		$sql.= " '".$this->db->escape($this->sujet)."'";
-
 		$sql.= ")";
 
 		$this->db->begin();
@@ -211,7 +208,7 @@ class Opensurveysondage extends CommonObject
      *  @param	string	$numsurvey			Ref of survey (admin or not)
      *  @return int          				<0 if KO, >0 if OK
      */
-    function fetch($id, $numsurvey='')
+    function fetch($id, $numsurvey = '')
     {
     	$sql = "SELECT";
 		$sql.= " t.id_sondage,";
@@ -229,7 +226,7 @@ class Opensurveysondage extends CommonObject
 		$sql.= " t.sujet,";
 		$sql.= " t.tms";
         $sql.= " FROM ".MAIN_DB_PREFIX."opensurvey_sondage as t";
-        $sql.= " WHERE t.id_sondage = '".$this->db->escape($numsurvey)."'";
+        $sql.= " WHERE t.id_sondage = '".$this->db->escape($id ? $id : $numsurvey)."'";
 
     	dol_syslog(get_class($this)."::fetch", LOG_DEBUG);
         $resql=$this->db->query($sql);
@@ -286,7 +283,7 @@ class Opensurveysondage extends CommonObject
      *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
      *  @return int     		   	 <0 if KO, >0 if OK
      */
-    function update(User $user, $notrigger=0)
+    function update(User $user, $notrigger = 0)
     {
     	global $conf, $langs;
 		$error=0;
@@ -359,10 +356,15 @@ class Opensurveysondage extends CommonObject
      *  @param	string	$numsondage			Num sondage admin to delete
      *  @return	int					 		<0 if KO, >0 if OK
      */
-    function delete(User $user, $notrigger, $numsondage)
+    function delete(User $user, $notrigger = 0, $numsondage = '')
     {
 		global $conf, $langs;
 		$error=0;
+
+		if (empty($numsondage))
+		{
+		    $numsondage = $this->id_sondage;
+		}
 
 		$this->db->begin();
 
@@ -422,7 +424,7 @@ class Opensurveysondage extends CommonObject
 	 *  @param  int     $save_lastsearch_value    	-1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
 	 *	@return	string								String with URL
 	 */
-	function getNomUrl($withpicto=0, $notooltip=0, $morecss='', $save_lastsearch_value=-1)
+	function getNomUrl($withpicto = 0, $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
 	{
 		global $db, $conf, $langs;
 		global $dolibarr_main_authentication, $dolibarr_main_demo;
@@ -635,7 +637,7 @@ class Opensurveysondage extends CommonObject
 	 *	@param      int		$mode        	  0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
 	 *  @return     string					  Label of status
 	 */
-	function LibStatut($status,$mode)
+	function LibStatut($status, $mode)
 	{
         // phpcs:enable
 	    global $langs, $conf;

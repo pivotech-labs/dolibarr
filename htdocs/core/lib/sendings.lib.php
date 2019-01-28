@@ -174,7 +174,7 @@ function delivery_prepare_head($object)
  * @param	string		$filter			Filter
  * @return	int							<0 if KO, >0 if OK
  */
-function show_list_sending_receive($origin,$origin_id,$filter='')
+function show_list_sending_receive($origin, $origin_id, $filter = '')
 {
 	global $db, $conf, $langs, $bc;
 	global $form;
@@ -217,9 +217,9 @@ function show_list_sending_receive($origin,$origin_id,$filter='')
 
 			print '<table class="liste" width="100%">';
 			print '<tr class="liste_titre">';
-			//print '<td align="left">'.$langs->trans("QtyOrdered").'</td>';
-			print '<td align="left">'.$langs->trans("SendingSheet").'</td>';
-			print '<td align="left">'.$langs->trans("Description").'</td>';
+			//print '<td class="left">'.$langs->trans("QtyOrdered").'</td>';
+			print '<td class="left">'.$langs->trans("SendingSheet").'</td>';
+			print '<td class="left">'.$langs->trans("Description").'</td>';
 			print '<td align="center">'.$langs->trans("DateCreation").'</td>';
 			print '<td align="center">'.$langs->trans("DateDeliveryPlanned").'</td>';
 			print '<td align="center">'.$langs->trans("QtyPreparedOrShipped").'</td>';

@@ -180,10 +180,10 @@ class Conf
 							if (! isset($this->modules_parts[$partname]) || ! is_array($this->modules_parts[$partname])) { $this->modules_parts[$partname] = array(); }
 							$arrValue = json_decode($value,true);
 							if (is_array($arrValue) && ! empty($arrValue)) $value = $arrValue;
-							else if (in_array($partname,array('login','menus','substitutions','triggers','tpl'))) $value = '/'.$modulename.'/core/'.$partname.'/';
-							else if (in_array($partname,array('models','theme'))) $value = '/'.$modulename.'/';
-							else if (in_array($partname,array('sms'))) $value = '/'.$modulename.'/';
-							else if ($value == 1) $value = '/'.$modulename.'/core/modules/'.$partname.'/';	// ex: partname = societe
+							elseif (in_array($partname,array('login','menus','substitutions','triggers','tpl'))) $value = '/'.$modulename.'/core/'.$partname.'/';
+							elseif (in_array($partname,array('models','theme'))) $value = '/'.$modulename.'/';
+							elseif (in_array($partname,array('sms'))) $value = '/'.$modulename.'/';
+							elseif ($value == 1) $value = '/'.$modulename.'/core/modules/'.$partname.'/';	// ex: partname = societe
 							$this->modules_parts[$partname] = array_merge($this->modules_parts[$partname], array($modulename => $value));	// $value may be a string or an array
 						}
                         // If this is a module constant (must be at end)
@@ -252,7 +252,7 @@ class Conf
 		if (empty($this->global->MAIN_MENUFRONT_SMARTPHONE)) $this->global->MAIN_MENUFRONT_SMARTPHONE="eldy_menu.php";	// Use eldy by default because smartphone does not work on all phones
 		// Clean var use vat for company
 		if (! isset($this->global->FACTURE_TVAOPTION)) $this->global->FACTURE_TVAOPTION=1;
-		else if (! empty($this->global->FACTURE_TVAOPTION) && ! is_numeric($this->global->FACTURE_TVAOPTION))
+		elseif (! empty($this->global->FACTURE_TVAOPTION) && ! is_numeric($this->global->FACTURE_TVAOPTION))
 		{
 			// Old value of option, we clean to use new value (0 or 1)
 			if ($this->global->FACTURE_TVAOPTION != "franchise") $this->global->FACTURE_TVAOPTION=1;
@@ -428,10 +428,11 @@ class Conf
         $this->global->MAIN_MAIL_USE_MULTI_PART=1;
 
 		// societe
-		if (empty($this->global->SOCIETE_CODECLIENT_ADDON))       $this->global->SOCIETE_CODECLIENT_ADDON="mod_codeclient_leopard";
-		if (empty($this->global->SOCIETE_CODECOMPTA_ADDON))       $this->global->SOCIETE_CODECOMPTA_ADDON="mod_codecompta_panicum";
+		if (empty($this->global->SOCIETE_CODECLIENT_ADDON))		$this->global->SOCIETE_CODECLIENT_ADDON="mod_codeclient_leopard";
+		if (empty($this->global->SOCIETE_CODECOMPTA_ADDON))		$this->global->SOCIETE_CODECOMPTA_ADDON="mod_codecompta_panicum";
 
-		if (empty($this->global->CHEQUERECEIPTS_ADDON))           $this->global->CHEQUERECEIPTS_ADDON='mod_chequereceipt_mint';
+		if (empty($this->global->CHEQUERECEIPTS_ADDON))			$this->global->CHEQUERECEIPTS_ADDON='mod_chequereceipt_mint';
+		if (empty($conf->global->TICKETSUP_ADDON))				$this->global->TICKETSUP_ADDON='mod_ticket_simple';
 
         // Security
 		if (empty($this->global->USER_PASSWORD_GENERATED)) $this->global->USER_PASSWORD_GENERATED='standard'; // Default password generator
@@ -457,7 +458,11 @@ class Conf
 			$this->global->STOCK_CALCULATE_ON_SHIPMENT_CLOSE=0;
 			$this->global->STOCK_CALCULATE_ON_SUPPLIER_BILL=0;
 			$this->global->STOCK_CALCULATE_ON_SUPPLIER_VALIDATE_ORDER=0;
-			$this->global->STOCK_CALCULATE_ON_SUPPLIER_DISPATCH_ORDER=1;
+			if(empty($this->reception->enabled))$this->global->STOCK_CALCULATE_ON_SUPPLIER_DISPATCH_ORDER=1;
+			else {
+				$this->global->STOCK_CALCULATE_ON_RECEPTION=1;
+				$this->global->STOCK_CALCULATE_ON_RECEPTION_CLOSE=0;
+			}
 		}
 
 		// conf->currency

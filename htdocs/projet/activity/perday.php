@@ -81,7 +81,7 @@ $yearofday=GETPOST('addtimeyear');
 
 $daytoparse = $now;
 if ($yearofday && $monthofday && $dayofday) $daytoparse=dol_mktime(0, 0, 0, $monthofday, $dayofday, $yearofday);	// xxxofday is value of day after submit action 'addtime'
-else if ($year && $month && $day) $daytoparse=dol_mktime(0, 0, 0, $month, $day, $year);							// this are value submited after submit of action 'submitdateselect'
+elseif ($year && $month && $day) $daytoparse=dol_mktime(0, 0, 0, $month, $day, $year);							// this are value submited after submit of action 'submitdateselect'
 
 
 if (empty($search_usertoprocessid) || $search_usertoprocessid == $user->id)
@@ -388,7 +388,7 @@ $head=project_timesheet_prepare_head($mode, $usertoprocess);
 dol_fiche_head($head, 'inputperday', $langs->trans('TimeSpent'), -1, 'task');
 
 // Show description of content
-print '<div class="hideonsmartphone">';
+print '<div class="hideonsmartphone opacitymedium">';
 if ($mine || ($usertoprocess->id == $user->id)) print $langs->trans("MyTasksDesc").'.'.($onlyopenedproject?' '.$langs->trans("OnlyOpenedProject"):'').'<br>';
 else
 {

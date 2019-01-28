@@ -81,7 +81,7 @@ class BonPrelevement extends CommonObject
 	 *  @param		DoliDB		$db      	Database handler
 	 *  @param		string		$filename	Filename of withdraw receipt
 	 */
-	function __construct($db, $filename='')
+	function __construct($db, $filename = '')
 	{
 		global $conf,$langs;
 
@@ -276,7 +276,7 @@ class BonPrelevement extends CommonObject
 	 *  @param	string	$ref		Ref of direct debit
 	 *	@return	int					>0 if OK, <0 if KO
 	 */
-	function fetch($rowid, $ref='')
+	function fetch($rowid, $ref = '')
 	{
 		global $conf;
 
@@ -288,7 +288,7 @@ class BonPrelevement extends CommonObject
 		$sql.= ", p.fk_user_credit";
 		$sql.= ", p.statut";
 		$sql.= " FROM ".MAIN_DB_PREFIX."prelevement_bons as p";
-		$sql.= " WHERE p.entity IN (".getEntity('facture').")";
+		$sql.= " WHERE p.entity IN (".getEntity('invoice').")";
 		if ($rowid > 0) $sql.= " AND p.rowid = ".$rowid;
 		else $sql.= " AND p.ref = '".$this->db->escape($ref)."'";
 
@@ -630,7 +630,7 @@ class BonPrelevement extends CommonObject
 	 *  @param 	int		$amounts 	If you want to get the amount of the order for each invoice
 	 *	@return	array 				Id of invoices
 	 */
-	private function getListInvoices($amounts=0)
+	private function getListInvoices($amounts = 0)
 	{
 		global $conf;
 
@@ -699,7 +699,7 @@ class BonPrelevement extends CommonObject
 		$sql.= " ".MAIN_DB_PREFIX."prelevement_facture_demande as pfd";
 		//$sql.= " ,".MAIN_DB_PREFIX."c_paiement as cp";
 		$sql.= " WHERE f.fk_statut = 1";
-		$sql.= " AND f.entity = ".$conf->entity;
+		$sql.= " AND f.entity IN (".getEntity('invoice').")";
 		$sql.= " AND f.rowid = pfd.fk_facture";
 		$sql.= " AND f.paye = 0";
 		$sql.= " AND pfd.traite = 0";
@@ -731,7 +731,7 @@ class BonPrelevement extends CommonObject
 	 *	@param	int		$agence		dolibarr mysoc agence
 	 *	@return	int					<O if KO, number of invoices if OK
 	 */
-	function NbFactureAPrelever($banque=0,$agence=0)
+	function NbFactureAPrelever($banque = 0, $agence = 0)
 	{
         // phpcs:enable
 		global $conf;
@@ -740,7 +740,7 @@ class BonPrelevement extends CommonObject
 		$sql.= " FROM ".MAIN_DB_PREFIX."facture as f";
 		$sql.= ", ".MAIN_DB_PREFIX."prelevement_facture_demande as pfd";
 		$sql.= " WHERE f.fk_statut = 1";
-		$sql.= " AND f.entity = ".$conf->entity;
+		$sql.= " AND f.entity IN (".getEntity('invoice').")";
 		$sql.= " AND f.rowid = pfd.fk_facture";
 		$sql.= " AND f.paye = 0";
 		$sql.= " AND pfd.traite = 0";
@@ -777,7 +777,7 @@ class BonPrelevement extends CommonObject
          * @param       string  $executiondate	Date to execute the transfer
 	 *	@return	int					<0 if KO, nbre of invoice withdrawed if OK
 	 */
-	function Create($banque=0, $agence=0, $mode='real', $format='ALL',$executiondate='')
+	function Create($banque = 0, $agence = 0, $mode = 'real', $format = 'ALL', $executiondate = '')
 	{
         // phpcs:enable
 		global $conf,$langs;
@@ -820,7 +820,7 @@ class BonPrelevement extends CommonObject
 			$sql.= ", ".MAIN_DB_PREFIX."societe as s";
 			$sql.= ", ".MAIN_DB_PREFIX."prelevement_facture_demande as pfd";
 			$sql.= " WHERE f.rowid = pfd.fk_facture";
-			$sql.= " AND f.entity IN (".getEntity('facture').')';
+			$sql.= " AND f.entity IN (".getEntity('invoice').')';
 			$sql.= " AND s.rowid = f.fk_soc";
 			//if ($banque || $agence) $sql.= " AND s.rowid = sr.fk_soc";
 			$sql.= " AND f.fk_statut = 1";
@@ -1138,7 +1138,7 @@ class BonPrelevement extends CommonObject
 	 *  @param	User	$user		Object user that delete
 	 *	@return	int					>0 if OK, <0 if KO
 	 */
-	function delete($user=null)
+	function delete($user = null)
 	{
 		$this->db->begin();
 
@@ -1178,7 +1178,7 @@ class BonPrelevement extends CommonObject
 	 *	@param	string	$option		link target
 	 *	@return	string				URL of target
 	 */
-	function getNomUrl($withpicto=0,$option='')
+	function getNomUrl($withpicto = 0, $option = '')
 	{
 		global $langs;
 
@@ -1299,7 +1299,7 @@ class BonPrelevement extends CommonObject
          * @param string $executiondate		Date to execute transfer
 	 *	@return		int					0 if OK, <0 if KO
 	 */
-	function generate($format='ALL',$executiondate='')
+	function generate($format = 'ALL', $executiondate = '')
 	{
 		global $conf,$langs,$mysoc;
 
@@ -1349,7 +1349,7 @@ class BonPrelevement extends CommonObject
 
 			$sql = "SELECT soc.code_client as code, soc.address, soc.zip, soc.town, c.code as country_code,";
 			$sql.= " pl.client_nom as nom, pl.code_banque as cb, pl.code_guichet as cg, pl.number as cc, pl.amount as somme,";
-			$sql.= " f.facnumber as fac, pf.fk_facture as idfac, rib.datec, rib.iban_prefix as iban, rib.bic as bic, rib.rowid as drum";
+			$sql.= " f.ref as fac, pf.fk_facture as idfac, rib.datec, rib.iban_prefix as iban, rib.bic as bic, rib.rowid as drum";
 			$sql.= " FROM";
 			$sql.= " ".MAIN_DB_PREFIX."prelevement_lignes as pl,";
 			$sql.= " ".MAIN_DB_PREFIX."facture as f,";
@@ -1488,12 +1488,12 @@ class BonPrelevement extends CommonObject
 	 *	@param	string	$rib_guichet 	code of bank office
 	 *	@param	string	$rib_number		bank account
 	 *	@param	float	$amount			amount
-	 *	@param	string	$facnumber		ref of invoice
+	 *	@param	string	$ref		ref of invoice
 	 *	@param	int		$facid			id of invoice
 	 *  @param	string	$rib_dom		rib domiciliation
 	 *	@return	void
 	 */
-	function EnregDestinataire($rowid, $client_nom, $rib_banque, $rib_guichet, $rib_number, $amount, $facnumber, $facid, $rib_dom='')
+	function EnregDestinataire($rowid, $client_nom, $rib_banque, $rib_guichet, $rib_number, $amount, $ref, $facid, $rib_dom = '')
 	{
         // phpcs:enable
 		fputs($this->file, "06");
@@ -1537,7 +1537,7 @@ class BonPrelevement extends CommonObject
 
 		// Libelle F
 
-		fputs($this->file, substr("*_".$facnumber."_RDVnet".$rowid."                               ", 0, 31));
+		fputs($this->file, substr("*_".$ref."_RDVnet".$rowid."                               ", 0, 31));
 
 		// Code etablissement G1
 
@@ -1580,7 +1580,7 @@ class BonPrelevement extends CommonObject
 	 *	@param	string		$row_cg				pl.code_guichet AS cg,		Not used for SEPA
 	 *	@param	string		$row_cc				pl.number AS cc,			Not used for SEPA
 	 *	@param	string		$row_somme			pl.amount AS somme,
-	 *	@param	string		$row_facnumber		f.facnumber
+	 *	@param	string		$row_ref		f.ref
 	 *	@param	string		$row_idfac			pf.fk_facture AS idfac,
 	 *	@param	string		$row_iban			rib.iban_prefix AS iban,
 	 *	@param	string		$row_bic			rib.bic AS bic,
@@ -1588,9 +1588,10 @@ class BonPrelevement extends CommonObject
 	 *	@param	string		$row_drum			rib.rowid used to generate rum
 	 *	@return	string							Return string with SEPA part DrctDbtTxInf
 	 */
-	function EnregDestinataireSEPA($row_code_client, $row_nom, $row_address, $row_zip, $row_town, $row_country_code, $row_cb, $row_cg, $row_cc, $row_somme, $row_facnumber, $row_idfac, $row_iban, $row_bic, $row_datec, $row_drum)
+	function EnregDestinataireSEPA($row_code_client, $row_nom, $row_address, $row_zip, $row_town, $row_country_code, $row_cb, $row_cg, $row_cc, $row_somme, $row_ref, $row_idfac, $row_iban, $row_bic, $row_datec, $row_drum)
 	{
         // phpcs:enable
+        global $conf;
 		$CrLf = "\n";
 		$Rowing = sprintf("%06d", $row_idfac);
 
@@ -1604,8 +1605,8 @@ class BonPrelevement extends CommonObject
 		$XML_DEBITOR ='';
 		$XML_DEBITOR .='			<DrctDbtTxInf>'.$CrLf;
 		$XML_DEBITOR .='				<PmtId>'.$CrLf;
-	//	$XML_DEBITOR .='					<EndToEndId>'.('AS-'.dol_trunc($row_facnumber,20).'-'.$Rowing).'</EndToEndId>'.$CrLf;          // ISO20022 states that EndToEndId has a MaxLength of 35 characters
-		$XML_DEBITOR .='					<EndToEndId>'.(($conf->global->END_TO_END != "" ) ? $conf->global->END_TO_END : ('AS-'.dol_trunc($row_facnumber,20)).'-'.$Rowing).'</EndToEndId>'.$CrLf;          // ISO20022 states that EndToEndId has a MaxLength of 35 characters
+	//	$XML_DEBITOR .='					<EndToEndId>'.('AS-'.dol_trunc($row_ref,20).'-'.$Rowing).'</EndToEndId>'.$CrLf;          // ISO20022 states that EndToEndId has a MaxLength of 35 characters
+		$XML_DEBITOR .='					<EndToEndId>'.(($conf->global->PRELEVEMENT_END_TO_END != "" ) ? $conf->global->PRELEVEMENT_END_TO_END : ('AS-'.dol_trunc($row_ref,20)).'-'.$Rowing).'</EndToEndId>'.$CrLf;          // ISO20022 states that EndToEndId has a MaxLength of 35 characters
 		$XML_DEBITOR .='				</PmtId>'.$CrLf;
 		$XML_DEBITOR .='				<InstdAmt Ccy="EUR">'.round($row_somme, 2).'</InstdAmt>'.$CrLf;
 		$XML_DEBITOR .='				<DrctDbtTx>'.$CrLf;
@@ -1636,9 +1637,9 @@ class BonPrelevement extends CommonObject
 		$XML_DEBITOR .='					</Id>'.$CrLf;
 		$XML_DEBITOR .='				</DbtrAcct>'.$CrLf;
 		$XML_DEBITOR .='				<RmtInf>'.$CrLf;
-	//	$XML_DEBITOR .='					<Ustrd>'.($row_facnumber.'/'.$Rowing.'/'.$Rum).'</Ustrd>'.$CrLf;
-	//	$XML_DEBITOR .='					<Ustrd>'.dol_trunc($row_facnumber, 135).'</Ustrd>'.$CrLf;        // 140 max
-		$XML_DEBITOR .='					<Ustrd>'.(($conf->global->USTRD != "" ) ? $conf->global->USTRD : dol_trunc($row_facnumber, 135) ).'</Ustrd>'.$CrLf;        // 140 max
+	//	$XML_DEBITOR .='					<Ustrd>'.($row_ref.'/'.$Rowing.'/'.$Rum).'</Ustrd>'.$CrLf;
+	//	$XML_DEBITOR .='					<Ustrd>'.dol_trunc($row_ref, 135).'</Ustrd>'.$CrLf;        // 140 max
+		$XML_DEBITOR .='					<Ustrd>'.(($conf->global->PRELEVEMENT_USTRD != "" ) ? $conf->global->PRELEVEMENT_USTRD : dol_trunc($row_ref, 135) ).'</Ustrd>'.$CrLf;        // 140 max
 		$XML_DEBITOR .='				</RmtInf>'.$CrLf;
 		$XML_DEBITOR .='			</DrctDbtTxInf>'.$CrLf;
 		return $XML_DEBITOR;
@@ -1725,7 +1726,7 @@ class BonPrelevement extends CommonObject
 	 *  @param	string	$format			FRST or RCUR or ALL
 	 *	@return	string					String with SEPA Sender
 	 */
-	function EnregEmetteurSEPA($configuration, $ladate, $nombre, $total, $CrLf='\n', $format='FRST')
+	function EnregEmetteurSEPA($configuration, $ladate, $nombre, $total, $CrLf = '\n', $format = 'FRST')
 	{
         // phpcs:enable
 		// SEPA INITIALISATION
@@ -1904,7 +1905,7 @@ class BonPrelevement extends CommonObject
 	 *    @param    int		$mode   0=Label, 1=Picto + label, 2=Picto, 3=Label + Picto
 	 * 	  @return	string     		Label
 	 */
-	function getLibStatut($mode=0)
+	function getLibStatut($mode = 0)
 	{
 		return $this->LibStatut($this->statut,$mode);
 	}
@@ -1917,7 +1918,7 @@ class BonPrelevement extends CommonObject
 	 *  @param  int		$mode       0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
 	 * 	@return	string  		    Label
 	 */
-	function LibStatut($statut,$mode=0)
+	function LibStatut($statut, $mode = 0)
 	{
         // phpcs:enable
 		if (empty($this->labelstatut))

@@ -380,22 +380,37 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$sourcedir = $object->source_directory;
 	$targetdir = ($object->target_directory ? $object->target_directory : '');			// Can be '[Gmail]/Trash' or 'mytag'
 
-	$connectstringserver = $object->getConnectStringIMAP();
-	$connectstringsource = $connectstringserver.imap_utf7_encode($sourcedir);
-	$connectstringtarget = $connectstringserver.imap_utf7_encode($targetdir);
+	$connection = null;
+	$connectstringserver = '';
+	$connectstringsource = '';
+	$connectstringtarget = '';
 
-	$connection = imap_open($connectstringsource, $object->user, $object->password);
+	if (function_exists('imap_open'))
+	{
+		$connectstringserver = $object->getConnectStringIMAP();
+		$connectstringsource = $connectstringserver.imap_utf7_encode($sourcedir);
+		$connectstringtarget = $connectstringserver.imap_utf7_encode($targetdir);
+
+		$connection = imap_open($connectstringsource, $object->user, $object->password);
+	}
+	else
+	{
+		$morehtml .= 'IMAP functions not available on your PHP';
+	}
+
 	if (! $connection)
 	{
 		$morehtml .= 'Failed to open IMAP connection '.$connectstringsource;
 	}
 	else
 	{
-		//$morehtmlstatus .= imap_num_msg($connection).'</div><div class="statusref">';
 		$morehtml .= imap_num_msg($connection);
 	}
 
-	imap_close($connection);
+	if ($connection)
+	{
+		imap_close($connection);
+	}
 
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref.'<div class="refidno">'.$morehtml.'</div>', '', 0, '', '', 0, '');
 
@@ -433,7 +448,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</td><td>';
 	print '<input type="text" name="rulevalue">';
 	print '</td>';
-	print '<td align="right"><input type="submit" name="addfilter" id="addfilter" class="flat button" value="'.$langs->trans("Add").'"></td>';
+	print '<td class="right"><input type="submit" name="addfilter" id="addfilter" class="flat button" value="'.$langs->trans("Add").'"></td>';
 	print '</tr>';
 	// List filters
 	foreach($object->filters as $rulefilter)
@@ -446,7 +461,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print $langs->trans($arrayoftypes[$rulefilter['type']]);
 		print '</td>';
 		print '<td>'.$rulefilter['rulevalue'].'</td>';
-		print '<td align="right">';
+		print '<td class="right">';
 		//print $rulefilterobj->getLibStatut(3);
 		print ' <a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=deletefilter&filterid='.$rulefilter['id'].'">'.img_delete().'</a>';
 		print '</td>';
@@ -471,9 +486,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print $form->selectarray('operationtype', $arrayoftypes, '', 1, 0, 0, '', 1);
 	print '</td><td>';
 	print '<input type="text" name="operationparam">';
+	$htmltext=$langs->transnoentitiesnoconv("OperationParamDesc");
+	//var_dump($htmltext);
+	print $form->textwithpicto('', $htmltext);
 	print '</td>';
 	print '<td></td>';
-	print '<td align="right"><input type="submit" name="addoperation" id="addoperation" class="flat button" value="'.$langs->trans("Add").'"></td>';
+	print '<td class="right"><input type="submit" name="addoperation" id="addoperation" class="flat button" value="'.$langs->trans("Add").'"></td>';
 	print '</tr>';
 	// List operations
 	$nboflines = count($object->actions);
@@ -490,7 +508,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print $langs->trans($arrayoftypes[$ruleaction['type']]);
 		print '</td>';
 		print '<td>'.$ruleaction['actionparam'].'</td>';
-		print '<td align="right">';
+		print '<td class="right">';
 		//print $ruleactionobj->getLibStatut(3);
 		print ' <a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=deleteoperation&operationid='.$ruleaction['id'].'">'.img_delete().'</a>';
 		print '</td>';

@@ -71,7 +71,7 @@ if ($action == 'updateMask')
     }
 }
 
-else if ($action == 'specimen') // For contract
+elseif ($action == 'specimen') // For contract
 {
 	$modele= GETPOST('module','alpha');
 
@@ -117,12 +117,12 @@ else if ($action == 'specimen') // For contract
 }
 
 // Activate a model
-else if ($action == 'set')
+elseif ($action == 'set')
 {
 	$ret = addDocumentModel($value, $type, $label, $scandir);
 }
 
-else if ($action == 'del')
+elseif ($action == 'del')
 {
 	$ret = delDocumentModel($value, $type);
 	if ($ret > 0)
@@ -132,7 +132,7 @@ else if ($action == 'del')
 }
 
 // Set default model
-else if ($action == 'setdoc')
+elseif ($action == 'setdoc')
 {
 	if (dolibarr_set_const($db, "HOLIDAY_ADDON_PDF",$value,'chaine',0,'',$conf->entity))
 	{
@@ -149,7 +149,7 @@ else if ($action == 'setdoc')
 	}
 }
 
-else if ($action == 'setmod')
+elseif ($action == 'setmod')
 {
 	// TODO Verifier si module numerotation choisi peut etre active
 	// par appel methode canBeActivated
@@ -157,7 +157,7 @@ else if ($action == 'setmod')
 	dolibarr_set_const($db, "HOLIDAY_ADDON",$value,'chaine',0,'',$conf->entity);
 }
 
-else if ($action == 'set_other')
+elseif ($action == 'set_other')
 {
 	$freetext= GETPOST('HOLIDAY_FREE_TEXT','none');	// No alpha here, we want exact string
 	$res1 = dolibarr_set_const($db, "HOLIDAY_FREE_TEXT",$freetext,'chaine',0,'',$conf->entity);
@@ -221,8 +221,6 @@ foreach ($dirmodels as $reldir)
 		$handle = opendir($dir);
 		if (is_resource($handle))
 		{
-			$var=true;
-
 			while (($file = readdir($handle))!==false)
 			{
 				if (substr($file, 0, 12) == 'mod_holiday_' && substr($file, dol_strlen($file)-3, 3) == 'php')
@@ -309,7 +307,7 @@ if ($conf->global->MAIN_FEATURES_LEVEL >= 2)
 
 print load_fiche_titre($langs->trans("TemplatePDFHolidays"),'','');
 
-// Defini tableau def des modeles
+// Defined model definition table
 $def = array();
 $sql = "SELECT nom";
 $sql.= " FROM ".MAIN_DB_PREFIX."document_model";
@@ -405,7 +403,7 @@ foreach ($dirmodels as $reldir)
 	                                print "</td>";
 	                            }
 
-	                            // Defaut
+	                            // Default
 	                            print '<td align="center">';
 	                            if ($conf->global->HOLIDAY_ADDON_PDF == $name)
 	                            {

@@ -128,6 +128,7 @@ $arrayfields=array(
 	'p.fk_opp_status'=>array('label'=>$langs->trans("OpportunityStatusShort"), 'checked'=>1, 'enabled'=>($conf->global->PROJECT_USE_OPPORTUNITIES?1:0), 'position'=>104),
 	'p.opp_percent'=>array('label'=>$langs->trans("OpportunityProbabilityShort"), 'checked'=>1, 'enabled'=>($conf->global->PROJECT_USE_OPPORTUNITIES?1:0), 'position'=>105),
 	'p.budget_amount'=>array('label'=>$langs->trans("Budget"), 'checked'=>0, 'position'=>110),
+	'p.bill_time'=>array('label'=>$langs->trans("BillTimeShort"), 'checked'=>0, 'position'=>115),
 	'p.datec'=>array('label'=>$langs->trans("DateCreationShort"), 'checked'=>0, 'position'=>500),
 	'p.tms'=>array('label'=>$langs->trans("DateModificationShort"), 'checked'=>0, 'position'=>500),
 	'p.fk_statut'=>array('label'=>$langs->trans("Status"), 'checked'=>1, 'position'=>1000),
@@ -279,7 +280,7 @@ if (count($listofprojectcontacttype) == 0) $listofprojectcontacttype[0]='0';    
 
 $distinct='DISTINCT';   // We add distinct until we are added a protection to be sure a contact of a project and task is only once.
 $sql = "SELECT ".$distinct." p.rowid as id, p.ref, p.title, p.fk_statut, p.fk_opp_status, p.public, p.fk_user_creat";
-$sql.= ", p.datec as date_creation, p.dateo as date_start, p.datee as date_end, p.opp_amount, p.opp_percent, p.tms as date_update, p.budget_amount";
+$sql.= ", p.datec as date_creation, p.dateo as date_start, p.datee as date_end, p.opp_amount, p.opp_percent, p.tms as date_update, p.budget_amount, p.bill_time";
 $sql.= ", s.nom as name, s.rowid as socid";
 $sql.= ", cls.code as opp_status_code";
 // We'll need these fields in order to filter by categ
@@ -319,12 +320,12 @@ if ($search_smonth > 0)
 {
 	if ($search_syear > 0 && empty($search_sday))
 		$sql.= " AND p.dateo BETWEEN '".$db->idate(dol_get_first_day($search_syear,$search_smonth,false))."' AND '".$db->idate(dol_get_last_day($search_syear,$search_smonth,false))."'";
-	else if ($search_syear > 0 && ! empty($search_sday))
+	elseif ($search_syear > 0 && ! empty($search_sday))
 		$sql.= " AND p.dateo BETWEEN '".$db->idate(dol_mktime(0, 0, 0, $search_smonth, $search_sday, $search_syear))."' AND '".$db->idate(dol_mktime(23, 59, 59, $search_smonth, $search_sday, $search_syear))."'";
 	else
 		$sql.= " AND date_format(p.dateo, '%m') = '".$search_smonth."'";
 }
-else if ($search_syear > 0)
+elseif ($search_syear > 0)
 {
 	$sql.= " AND p.dateo BETWEEN '".$db->idate(dol_get_first_day($search_syear,1,false))."' AND '".$db->idate(dol_get_last_day($search_syear,12,false))."'";
 }
@@ -332,12 +333,12 @@ if ($search_emonth > 0)
 {
 	if ($search_eyear > 0 && empty($search_eday))
 		$sql.= " AND p.datee BETWEEN '".$db->idate(dol_get_first_day($search_eyear,$search_emonth,false))."' AND '".$db->idate(dol_get_last_day($search_eyear,$search_emonth,false))."'";
-	else if ($search_eyear > 0 && ! empty($search_eday))
+	elseif ($search_eyear > 0 && ! empty($search_eday))
 		$sql.= " AND p.datee BETWEEN '".$db->idate(dol_mktime(0, 0, 0, $search_emonth, $search_eday, $search_eyear))."' AND '".$db->idate(dol_mktime(23, 59, 59, $search_emonth, $search_eday, $search_eyear))."'";
 	else
 		$sql.= " AND date_format(p.datee, '%m') = '".$search_emonth."'";
 }
-else if ($search_eyear > 0)
+elseif ($search_eyear > 0)
 {
 	$sql.= " AND p.datee BETWEEN '".$db->idate(dol_get_first_day($search_eyear,1,false))."' AND '".$db->idate(dol_get_last_day($search_eyear,12,false))."'";
 }
@@ -437,6 +438,7 @@ include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_param.tpl.php';
 
 // List of mass actions available
 $arrayofmassactions =  array(
+	'generate_doc'=>$langs->trans("Generate"),
 //    'presend'=>$langs->trans("SendByMail"),
 //    'builddoc'=>$langs->trans("PDFMerge"),
 );
@@ -620,6 +622,12 @@ if (! empty($arrayfields['p.budget_amount']['checked']))
 	print '<input type="text" class="flat" name="search_budget_amount" size="4" value="'.$search_budget_amount.'">';
 	print '</td>';
 }
+if (! empty($arrayfields['p.bill_time']['checked']))
+{
+	print '<td class="liste_titre nowrap" align="right">';
+	print '';
+	print '</td>';
+}
 // Extra fields
 include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_input.tpl.php';
 
@@ -669,6 +677,7 @@ if (! empty($arrayfields['p.fk_opp_status']['checked'])) print_liste_field_titre
 if (! empty($arrayfields['p.opp_amount']['checked']))    print_liste_field_titre($arrayfields['p.opp_amount']['label'],$_SERVER["PHP_SELF"],'p.opp_amount',"",$param,'align="right"',$sortfield,$sortorder);
 if (! empty($arrayfields['p.opp_percent']['checked']))   print_liste_field_titre($arrayfields['p.opp_percent']['label'],$_SERVER["PHP_SELF"],'p.opp_percent',"",$param,'align="right"',$sortfield,$sortorder);
 if (! empty($arrayfields['p.budget_amount']['checked'])) print_liste_field_titre($arrayfields['p.budget_amount']['label'],$_SERVER["PHP_SELF"],'p.budget_amount',"",$param,'align="right"',$sortfield,$sortorder);
+if (! empty($arrayfields['p.bill_time']['checked']))     print_liste_field_titre($arrayfields['p.bill_time']['label'],$_SERVER["PHP_SELF"],'p.bill_time',"",$param,'align="right"',$sortfield,$sortorder);
 // Extra fields
 include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_title.tpl.php';
 // Hook fields
@@ -751,7 +760,7 @@ while ($i < min($num,$limit))
 					print $nbofsalesrepresentative;
 					print '</a>';
 				}
-				else if ($nbofsalesrepresentative > 0)
+				elseif ($nbofsalesrepresentative > 0)
 				{
 					$userstatic=new User($db);
 					$j=0;
@@ -798,7 +807,7 @@ while ($i < min($num,$limit))
 		// Visibility
 		if (! empty($arrayfields['p.public']['checked']))
 		{
-			print '<td align="left">';
+			print '<td class="left">';
 			if ($obj->public) print $langs->trans('SharedProject');
 			else print $langs->trans('PrivateProject');
 			print '</td>';
@@ -846,6 +855,17 @@ while ($i < min($num,$limit))
 			print '</td>';
 			if (! $i) $totalarray['nbfield']++;
 			if (! $i) $totalarray['totalbudgetfield']=$totalarray['nbfield'];
+		}
+		// Bill time
+		if (! empty($arrayfields['p.bill_time']['checked']))
+		{
+			print '<td align="right">';
+			if ($obj->bill_time)
+			{
+				print yn($obj->bill_time);
+			}
+			print '</td>';
+			if (! $i) $totalarray['nbfield']++;
 		}
 		// Extra fields
 		include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_print_fields.tpl.php';
@@ -902,8 +922,8 @@ if (isset($totalarray['totaloppfield']) || isset($totalarray['totalbudgetfield']
 		$i++;
 		if ($i == 1)
 		{
-			if ($num < $limit && empty($offset)) print '<td align="left">'.$langs->trans("Total").'</td>';
-			else print '<td align="left">'.$langs->trans("Totalforthispage").'</td>';
+			if ($num < $limit && empty($offset)) print '<td class="left">'.$langs->trans("Total").'</td>';
+			else print '<td class="left">'.$langs->trans("Totalforthispage").'</td>';
 		}
 		elseif ($totalarray['totaloppfield'] == $i) print '<td align="right">'.price($totalarray['totalopp'], 1, $langs, 1, -1, -1).'</td>';
 		elseif ($totalarray['totalbudgetfield'] == $i) print '<td align="right">'.price($totalarray['totalbudget'], 1, $langs, 1, -1, -1).'</td>';

@@ -109,7 +109,7 @@ class ActionsTicket
      *     @param	Ticket	$object		Object Ticket
      *     @return	int						0
      */
-    public function doActions(&$action = '', Ticket $object=null)
+    public function doActions(&$action = '', Ticket $object = null)
     {
         global $conf, $user, $langs, $mysoc;
 
@@ -1212,7 +1212,7 @@ class ActionsTicket
         $this->viewTicketOriginalMessage($user, $action);
 
         if (is_array($this->dao->cache_msgs_ticket) && count($this->dao->cache_msgs_ticket) > 0) {
-            print_titre($langs->trans('TicketMailExchanges'));
+            print load_fiche_titre($langs->trans('TicketMailExchanges'));
 
             print '<table class="border" style="width:100%;">';
 

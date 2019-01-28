@@ -407,7 +407,7 @@ if ($socid > 0)
 	if($isCustomer) {
 		if($isSupplier) {
 			print '<div class="fichecenter">';
-			print '<div class="fichehalfleft">';
+			print '<div class="fichehalfleft fichehalfleft-lg">';
 			print load_fiche_titre($langs->trans("CustomerDiscounts"), '', '');
 		}
 
@@ -415,7 +415,7 @@ if ($socid > 0)
 		$sql.= " rc.datec as dc, rc.description,";
 		$sql.= " rc.fk_facture_source,";
 		$sql.= " u.login, u.rowid as user_id,";
-		$sql.= " fa.facnumber as ref, fa.type as type";
+		$sql.= " fa.ref as ref, fa.type as type";
 		$sql.= " FROM  ".MAIN_DB_PREFIX."user as u, ".MAIN_DB_PREFIX."societe_remise_except as rc";
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."facture as fa ON rc.fk_facture_source = fa.rowid";
 		$sql.= " WHERE rc.fk_soc = " . $object->id;
@@ -434,9 +434,9 @@ if ($socid > 0)
 			print '<td class="widthdate">'.$langs->trans("Date").'</td>';	// Need 120+ for format with AM/PM
 			print '<td>'.$langs->trans("ReasonDiscount").'</td>';
 			print '<td width="150" class="nowrap">'.$langs->trans("ConsumedBy").'</td>';
-			print '<td width="120" align="right">'.$langs->trans("AmountHT").'</td>';
-			print '<td width="80" align="right">'.$langs->trans("VATRate").'</td>';
-			print '<td width="120" align="right">'.$langs->trans("AmountTTC").'</td>';
+			print '<td width="120" class="right">'.$langs->trans("AmountHT").'</td>';
+			print '<td width="80" class="right">'.$langs->trans("VATRate").'</td>';
+			print '<td width="120" class="right">'.$langs->trans("AmountTTC").'</td>';
 			print '<td width="100" align="center">'.$langs->trans("DiscountOfferedBy").'</td>';
 			print '<td width="50">&nbsp;</td>';
 			print '</tr>';
@@ -487,9 +487,9 @@ if ($socid > 0)
 	    				print '</td>';
 	    			}
 	    			print '<td class="nowrap">'.$langs->trans("NotConsumed").'</td>';
-	    			print '<td align="right">'.price($obj->amount_ht).'</td>';
-	    			print '<td align="right">'.price2num($obj->tva_tx,'MU').'%</td>';
-	    			print '<td align="right">'.price($obj->amount_ttc).'</td>';
+	    			print '<td class="right">'.price($obj->amount_ht).'</td>';
+	    			print '<td class="right">'.price2num($obj->tva_tx,'MU').'%</td>';
+	    			print '<td class="right">'.price($obj->amount_ttc).'</td>';
 	    			print '<td align="center">';
 	    			print '<a href="'.DOL_URL_ROOT.'/user/card.php?id='.$obj->user_id.'">'.img_object($langs->trans("ShowUser"),'user').' '.$obj->login.'</a>';
 	    			print '</td>';
@@ -542,7 +542,7 @@ if ($socid > 0)
 	if($isSupplier) {
 		if($isCustomer) {
 			print '</div>'; // class="fichehalfleft"
-			print '<div class="fichehalfright">';
+			print '<div class="fichehalfright fichehalfright-lg">';
 			print '<div class="ficheaddleft">';
 			print load_fiche_titre($langs->trans("SupplierDiscounts"), '', '');
 		}
@@ -573,9 +573,9 @@ if ($socid > 0)
 			print '<td class="widthdate">'.$langs->trans("Date").'</td>';	// Need 120+ for format with AM/PM
 			print '<td>'.$langs->trans("ReasonDiscount").'</td>';
 			print '<td width="150" class="nowrap">'.$langs->trans("ConsumedBy").'</td>';
-			print '<td width="120" align="right">'.$langs->trans("AmountHT").'</td>';
-			print '<td width="80" align="right">'.$langs->trans("VATRate").'</td>';
-			print '<td width="120" align="right">'.$langs->trans("AmountTTC").'</td>';
+			print '<td width="120" class="right">'.$langs->trans("AmountHT").'</td>';
+			print '<td width="80" class="right">'.$langs->trans("VATRate").'</td>';
+			print '<td width="120" class="right">'.$langs->trans("AmountTTC").'</td>';
 			print '<td width="100" align="center">'.$langs->trans("DiscountOfferedBy").'</td>';
 			print '<td width="50">&nbsp;</td>';
 			print '</tr>';
@@ -626,9 +626,9 @@ if ($socid > 0)
 						print '</td>';
 					}
 					print '<td class="nowrap">'.$langs->trans("NotConsumed").'</td>';
-					print '<td align="right">'.price($obj->amount_ht).'</td>';
-					print '<td align="right">'.price2num($obj->tva_tx,'MU').'%</td>';
-					print '<td align="right">'.price($obj->amount_ttc).'</td>';
+					print '<td class="right">'.price($obj->amount_ht).'</td>';
+					print '<td class="right">'.price2num($obj->tva_tx,'MU').'%</td>';
+					print '<td class="right">'.price($obj->amount_ttc).'</td>';
 					print '<td align="center">';
 					print '<a href="'.DOL_URL_ROOT.'/user/card.php?id='.$obj->user_id.'">'.img_object($langs->trans("ShowUser"),'user').' '.$obj->login.'</a>';
 					print '</td>';
@@ -695,7 +695,7 @@ if ($socid > 0)
 	if($isCustomer) {
 		if($isSupplier) {
 			print '<div class="fichecenter">';
-			print '<div class="fichehalfleft">';
+			print '<div class="fichehalfleft fichehalfleft-lg">';
 			print load_fiche_titre($langs->trans("CustomerDiscounts"), '', '');
 		}
 
@@ -704,8 +704,8 @@ if ($socid > 0)
 		$sql.= " rc.datec as dc, rc.description, rc.fk_facture_line, rc.fk_facture,";
 		$sql.= " rc.fk_facture_source,";
 		$sql.= " u.login, u.rowid as user_id,";
-		$sql.= " f.rowid, f.facnumber,";
-		$sql.= " fa.facnumber as ref, fa.type as type";
+		$sql.= " f.rowid, f.ref,";
+		$sql.= " fa.ref as ref, fa.type as type";
 		$sql.= " FROM ".MAIN_DB_PREFIX."facture as f";
 		$sql.= " , ".MAIN_DB_PREFIX."user as u";
 		$sql.= " , ".MAIN_DB_PREFIX."facturedet as fc";
@@ -723,8 +723,8 @@ if ($socid > 0)
 		$sql2.= " rc.datec as dc, rc.description, rc.fk_facture_line, rc.fk_facture,";
 		$sql2.= " rc.fk_facture_source,";
 		$sql2.= " u.login, u.rowid as user_id,";
-		$sql2.= " f.rowid, f.facnumber,";
-		$sql2.= " fa.facnumber as ref, fa.type as type";
+		$sql2.= " f.rowid, f.ref,";
+		$sql2.= " fa.ref as ref, fa.type as type";
 		$sql2.= " FROM ".MAIN_DB_PREFIX."facture as f";
 		$sql2.= " , ".MAIN_DB_PREFIX."user as u";
 		$sql2.= " , ".MAIN_DB_PREFIX."societe_remise_except as rc";
@@ -746,9 +746,9 @@ if ($socid > 0)
 			print '<td class="widthdate">'.$langs->trans("Date").'</td>';	// Need 120+ for format with AM/PM
 			print '<td>'.$langs->trans("ReasonDiscount").'</td>';
 			print '<td width="150" class="nowrap">'.$langs->trans("ConsumedBy").'</td>';
-			print '<td width="120" align="right">'.$langs->trans("AmountHT").'</td>';
-			print '<td width="80" align="right">'.$langs->trans("VATRate").'</td>';
-			print '<td width="120" align="right">'.$langs->trans("AmountTTC").'</td>';
+			print '<td width="120" class="right">'.$langs->trans("AmountHT").'</td>';
+			print '<td width="80" class="right">'.$langs->trans("VATRate").'</td>';
+			print '<td width="120" class="right">'.$langs->trans("AmountTTC").'</td>';
 			print '<td width="100" align="center">'.$langs->trans("Author").'</td>';
 			print '<td width="50">&nbsp;</td>';
 			print '</tr>';
@@ -819,10 +819,10 @@ if ($socid > 0)
 	    				print $obj->description;
 	    				print '</td>';
 	    			}
-	    			print '<td align="left" class="nowrap"><a href="'.DOL_URL_ROOT.'/compta/facture/card.php?facid='.$obj->rowid.'">'.img_object($langs->trans("ShowBill"),'bill').' '.$obj->facnumber.'</a></td>';
-	    			print '<td align="right">'.price($obj->amount_ht).'</td>';
-	    			print '<td align="right">'.price2num($obj->tva_tx,'MU').'%</td>';
-	    			print '<td align="right">'.price($obj->amount_ttc).'</td>';
+	    			print '<td align="left" class="nowrap"><a href="'.DOL_URL_ROOT.'/compta/facture/card.php?facid='.$obj->rowid.'">'.img_object($langs->trans("ShowBill"),'bill').' '.$obj->ref.'</a></td>';
+	    			print '<td class="right">'.price($obj->amount_ht).'</td>';
+	    			print '<td class="right">'.price2num($obj->tva_tx,'MU').'%</td>';
+	    			print '<td class="right">'.price($obj->amount_ttc).'</td>';
 	    			print '<td align="center">';
 	    			print '<a href="'.DOL_URL_ROOT.'/user/card.php?id='.$obj->user_id.'">'.img_object($langs->trans("ShowUser"),'user').' '.$obj->login.'</a>';
 	    			print '</td>';
@@ -848,7 +848,7 @@ if ($socid > 0)
 	if($isSupplier) {
 		if($isCustomer) {
 			print '</div>'; // class="fichehalfleft"
-			print '<div class="fichehalfright">';
+			print '<div class="fichehalfright fichehalfright-lg">';
 			print '<div class="ficheaddleft">';
 			print load_fiche_titre($langs->trans("SupplierDiscounts"), '', '');
 		}
@@ -858,7 +858,7 @@ if ($socid > 0)
 		$sql.= " rc.datec as dc, rc.description, rc.fk_invoice_supplier_line, rc.fk_invoice_supplier,";
 		$sql.= " rc.fk_invoice_supplier_source,";
 		$sql.= " u.login, u.rowid as user_id,";
-		$sql.= " f.rowid, f.ref as facnumber,";
+		$sql.= " f.rowid, f.ref as ref,";
 		$sql.= " fa.ref, fa.type as type";
 		$sql.= " FROM ".MAIN_DB_PREFIX."facture_fourn as f";
 		$sql.= " , ".MAIN_DB_PREFIX."user as u";
@@ -877,7 +877,7 @@ if ($socid > 0)
 		$sql2.= " rc.datec as dc, rc.description, rc.fk_invoice_supplier_line, rc.fk_invoice_supplier,";
 		$sql2.= " rc.fk_invoice_supplier_source,";
 		$sql2.= " u.login, u.rowid as user_id,";
-		$sql2.= " f.rowid, f.ref as facnumber,";
+		$sql2.= " f.rowid, f.ref as ref,";
 		$sql2.= " fa.ref, fa.type as type";
 		$sql2.= " FROM ".MAIN_DB_PREFIX."facture_fourn as f";
 		$sql2.= " , ".MAIN_DB_PREFIX."user as u";
@@ -900,9 +900,9 @@ if ($socid > 0)
 			print '<td class="widthdate">'.$langs->trans("Date").'</td>';	// Need 120+ for format with AM/PM
 			print '<td>'.$langs->trans("ReasonDiscount").'</td>';
 			print '<td width="150" class="nowrap">'.$langs->trans("ConsumedBy").'</td>';
-			print '<td width="120" align="right">'.$langs->trans("AmountHT").'</td>';
-			print '<td width="80" align="right">'.$langs->trans("VATRate").'</td>';
-			print '<td width="120" align="right">'.$langs->trans("AmountTTC").'</td>';
+			print '<td width="120" class="right">'.$langs->trans("AmountHT").'</td>';
+			print '<td width="80" class="right">'.$langs->trans("VATRate").'</td>';
+			print '<td width="120" class="right">'.$langs->trans("AmountTTC").'</td>';
 			print '<td width="100" align="center">'.$langs->trans("Author").'</td>';
 			print '<td width="50">&nbsp;</td>';
 			print '</tr>';
@@ -973,10 +973,10 @@ if ($socid > 0)
 						print $obj->description;
 						print '</td>';
 					}
-					print '<td align="left" class="nowrap"><a href="'.DOL_URL_ROOT.'/fourn/facture/card.php?facid='.$obj->rowid.'">'.img_object($langs->trans("ShowBill"),'bill').' '.$obj->facnumber.'</a></td>';
-					print '<td align="right">'.price($obj->amount_ht).'</td>';
-					print '<td align="right">'.price2num($obj->tva_tx,'MU').'%</td>';
-					print '<td align="right">'.price($obj->amount_ttc).'</td>';
+					print '<td align="left" class="nowrap"><a href="'.DOL_URL_ROOT.'/fourn/facture/card.php?facid='.$obj->rowid.'">'.img_object($langs->trans("ShowBill"),'bill').' '.$obj->ref.'</a></td>';
+					print '<td class="right">'.price($obj->amount_ht).'</td>';
+					print '<td class="right">'.price2num($obj->tva_tx,'MU').'%</td>';
+					print '<td class="right">'.price($obj->amount_ttc).'</td>';
 					print '<td align="center">';
 					print '<a href="'.DOL_URL_ROOT.'/user/card.php?id='.$obj->user_id.'">'.img_object($langs->trans("ShowUser"),'user').' '.$obj->login.'</a>';
 					print '</td>';

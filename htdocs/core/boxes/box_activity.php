@@ -53,7 +53,7 @@ class box_activity extends ModeleBoxes
      *  @param  DoliDB  $db         Database handler
      *  @param  string  $param      More parameters
      */
-    function __construct($db,$param)
+    function __construct($db, $param)
     {
         global $conf, $user;
 
@@ -74,7 +74,7 @@ class box_activity extends ModeleBoxes
      *  @param  int     $max        Maximum number of records to load
      *  @return void
      */
-    function loadBox($max=5)
+    function loadBox($max = 5)
     {
         global $conf, $user, $langs, $db;
 
@@ -289,7 +289,7 @@ class box_activity extends ModeleBoxes
         		$sql.= " FROM (".MAIN_DB_PREFIX."societe as s,".MAIN_DB_PREFIX."facture as f";
         		if (!$user->rights->societe->client->voir && !$user->societe_id) $sql.= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc";
         		$sql.= ")";
-        		$sql.= " WHERE f.entity IN (".getEntity('facture').')';
+        		$sql.= " WHERE f.entity IN (".getEntity('invoice').')';
         		if (!$user->rights->societe->client->voir && !$user->societe_id) $sql.= " AND s.rowid = sc.fk_soc AND sc.fk_user = " .$user->id;
         		if($user->societe_id) $sql.= " AND s.rowid = ".$user->societe_id;
         		$sql.= " AND f.fk_soc = s.rowid";
@@ -371,7 +371,7 @@ class box_activity extends ModeleBoxes
         	if ($refresh) {
         		$sql = "SELECT f.fk_statut, SUM(f.total_ttc) as Mnttot, COUNT(*) as nb";
         		$sql.= " FROM ".MAIN_DB_PREFIX."societe as s,".MAIN_DB_PREFIX."facture as f";
-        		$sql.= " WHERE f.entity IN (".getEntity('facture').')';
+        		$sql.= " WHERE f.entity IN (".getEntity('invoice').')';
         		$sql.= " AND f.fk_soc = s.rowid";
         		$sql.= " AND f.datef >= '".$db->idate($tmpdate)."' AND f.paye=0";
         		$sql.= " GROUP BY f.fk_statut";
@@ -457,7 +457,7 @@ class box_activity extends ModeleBoxes
 	 *  @param	int		$nooutput	No print, only return string
 	 *	@return	string
 	 */
-    function showBox($head = null, $contents = null, $nooutput=0)
+    function showBox($head = null, $contents = null, $nooutput = 0)
     {
 		return parent::showBox($this->info_box_head, $this->info_box_contents, $nooutput);
 	}

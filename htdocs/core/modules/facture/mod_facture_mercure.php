@@ -135,7 +135,7 @@ class mod_facture_mercure extends ModeleNumRefFactures
      * @param   string		$mode       'next' for next value or 'last' for last value
      * @return  string      			Value if OK, 0 if KO
      */
-    function getNextValue($objsoc, $invoice, $mode='next')
+    function getNextValue($objsoc, $invoice, $mode = 'next')
     {
     	global $db,$conf;
 
@@ -151,8 +151,8 @@ class mod_facture_mercure extends ModeleNumRefFactures
         		$mask=$conf->global->FACTURE_MERCURE_MASK_INVOICE;
         	}
         }
-        else if (is_object($invoice) && $invoice->type == 2) $mask=$conf->global->FACTURE_MERCURE_MASK_CREDIT;
-        else if (is_object($invoice) && $invoice->type == 3) $mask=$conf->global->FACTURE_MERCURE_MASK_DEPOSIT;
+        elseif (is_object($invoice) && $invoice->type == 2) $mask=$conf->global->FACTURE_MERCURE_MASK_CREDIT;
+        elseif (is_object($invoice) && $invoice->type == 3) $mask=$conf->global->FACTURE_MERCURE_MASK_DEPOSIT;
         else $mask=$conf->global->FACTURE_MERCURE_MASK_INVOICE;
         if (! $mask)
         {
@@ -167,7 +167,7 @@ class mod_facture_mercure extends ModeleNumRefFactures
     	// Get entities
     	$entity = getEntity('invoicenumber', 1, $invoice);
 
-    	$numFinal=get_next_value($db,$mask,'facture','facnumber',$where,$objsoc,$invoice->date,$mode,false,null,$entity);
+    	$numFinal=get_next_value($db,$mask,'facture','ref',$where,$objsoc,$invoice->date,$mode,false,null,$entity);
     	if (! preg_match('/([0-9])+/',$numFinal)) $this->error = $numFinal;
 
     	return  $numFinal;
@@ -182,7 +182,7 @@ class mod_facture_mercure extends ModeleNumRefFactures
      * @param   string		$mode       	'next' for next value or 'last' for last value
      * @return  string      				Next free value
      */
-    function getNumRef($objsoc,$objforref,$mode='next')
+    function getNumRef($objsoc, $objforref, $mode = 'next')
     {
         return $this->getNextValue($objsoc,$objforref,$mode);
     }

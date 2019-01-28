@@ -101,7 +101,7 @@ if ($id > 0 || ! empty($ref))
 	$ret = $object->fetch_thirdparty();
 	if ($ret < 0) dol_print_error($db,$object->error);
 }
-else if (! empty($socid) && $socid > 0)
+elseif (! empty($socid) && $socid > 0)
 {
 	$fourn = new Fournisseur($db);
 	$ret=$fourn->fetch($socid);
@@ -170,12 +170,12 @@ if (empty($reshook))
 	}
 
 	// Multicurrency Code
-	else if ($action == 'setmulticurrencycode' && $user->rights->fournisseur->commande->creer) {
+	elseif ($action == 'setmulticurrencycode' && $user->rights->fournisseur->commande->creer) {
 		$result = $object->setMulticurrencyCode(GETPOST('multicurrency_code', 'alpha'));
 	}
 
 	// Multicurrency rate
-	else if ($action == 'setmulticurrencyrate' && $user->rights->fournisseur->commande->creer) {
+	elseif ($action == 'setmulticurrencyrate' && $user->rights->fournisseur->commande->creer) {
 		$result = $object->setMulticurrencyRate(price2num(GETPOST('multicurrency_tx')));
 	}
 
@@ -211,10 +211,10 @@ if (empty($reshook))
 		if (in_array($object->statut, array(1, 2, 3, 4, 5, 6, 7, 9)))
 		{
 			if ($object->statut == 1) $newstatus=0;	// Validated->Draft
-			else if ($object->statut == 2) $newstatus=0;	// Approved->Draft
-			else if ($object->statut == 3) $newstatus=2;	// Ordered->Approved
-			else if ($object->statut == 4) $newstatus=3;
-			else if ($object->statut == 5)
+			elseif ($object->statut == 2) $newstatus=0;	// Approved->Draft
+			elseif ($object->statut == 3) $newstatus=2;	// Ordered->Approved
+			elseif ($object->statut == 4) $newstatus=3;
+			elseif ($object->statut == 5)
 			{
 				//$newstatus=2;    // Ordered
 				// TODO Can we set it to submited ?
@@ -222,9 +222,9 @@ if (empty($reshook))
 				// TODO If there is at least one reception, we can set to Received->Received partially
 				$newstatus=4;  // Received partially
 			}
-			else if ($object->statut == 6) $newstatus=2;	// Canceled->Approved
-			else if ($object->statut == 7) $newstatus=3;	// Canceled->Process running
-			else if ($object->statut == 9) $newstatus=1;	// Refused->Validated
+			elseif ($object->statut == 6) $newstatus=2;	// Canceled->Approved
+			elseif ($object->statut == 7) $newstatus=3;	// Canceled->Process running
+			elseif ($object->statut == 9) $newstatus=1;	// Refused->Validated
 			else $newstatus = 2;
 
 			//print "old status = ".$object->statut.' new status = '.$newstatus;
@@ -404,7 +404,7 @@ if (empty($reshook))
 				    $desc = $productsupplier->desc_supplier;
 				} else $desc = $productsupplier->description;
 
-				if (trim($product_desc) != trim($desc)) $desc = dol_concatdesc($desc, $product_desc);
+				if (trim($product_desc) != trim($desc)) $desc = dol_concatdesc($desc, $product_desc, '', !empty($conf->global->CHANGE_ORDER_CONCAT_DESCRIPTION));
 
 				$type = $productsupplier->type;
 				$price_base_type = ($productsupplier->fourn_price_base_type?$productsupplier->fourn_price_base_type:'HT');
@@ -458,7 +458,7 @@ if (empty($reshook))
 				setEventMessages($langs->trans("ErrorQtyTooLowForThisSupplier"), null, 'errors');
 			}
 		}
-		else if (empty($error)) // $price_ht is already set
+		elseif (empty($error)) // $price_ht is already set
 		{
 			$pu_ht = price2num($price_ht, 'MU');
 			$pu_ttc = price2num(GETPOST('price_ttc'), 'MU');
@@ -921,7 +921,7 @@ if (empty($reshook))
 				setEventMessages($langs->trans("DeliveryStateSaved"), null);
 				$action = '';
 			}
-			else if($result == -3)
+			elseif($result == -3)
 			{
 				setEventMessages($object->error, $object->errors, 'errors');
 			}
@@ -1235,9 +1235,9 @@ if (empty($reshook))
 		//Is sync supplier web services module activated? and everything filled?
 		if (empty($conf->syncsupplierwebservices->enabled)) {
 			setEventMessages($langs->trans("WarningModuleNotActive",$langs->transnoentities("Module2650Name")), null, 'mesgs');
-		} else if (empty($ws_url) || empty($ws_key)) {
+		} elseif (empty($ws_url) || empty($ws_key)) {
 			setEventMessages($langs->trans("ErrorWebServicesFieldsRequired"), null, 'errors');
-		} else if (empty($ws_user) || empty($ws_password) || empty($ws_thirdparty)) {
+		} elseif (empty($ws_user) || empty($ws_password) || empty($ws_thirdparty)) {
 			setEventMessages($langs->trans("ErrorFieldsRequired"),null, 'errors');
 		}
 		else
@@ -1295,7 +1295,7 @@ if (empty($reshook))
 			{
 				setEventMessages($langs->trans("SOAPError")." '".$soapclient_order->error_str."'", null, 'errors');
 			}
-			else if ($result_order["result"]["result_code"] != "OK") //Something went wrong
+			elseif ($result_order["result"]["result_code"] != "OK") //Something went wrong
 			{
 				setEventMessages($langs->trans("SOAPError")." '".$result_order["result"]["result_code"]."' - '".$result_order["result"]["result_label"]."'", null, 'errors');
 			}
@@ -1336,13 +1336,13 @@ if (empty($reshook))
 		}
 
 		// bascule du statut d'un contact
-		else if ($action == 'swapstatut' && $object->id > 0)
+		elseif ($action == 'swapstatut' && $object->id > 0)
 		{
 			$result=$object->swapContactStatus(GETPOST('ligne'));
 		}
 
 		// Efface un contact
-		else if ($action == 'deletecontact' && $object->id > 0)
+		elseif ($action == 'deletecontact' && $object->id > 0)
 		{
 			$result = $object->delete_contact($_GET["lineid"]);
 
@@ -1468,7 +1468,7 @@ if ($action=='create')
 
 	dol_fiche_head('');
 
-	print '<table class="border" width="100%">';
+	print '<table class="border centpercent">';
 
 	// Ref
 	print '<tr><td class="titlefieldcreate">'.$langs->trans('Ref').'</td><td>'.$langs->trans('Draft').'</td></tr>';
@@ -1488,7 +1488,7 @@ if ($action=='create')
 		// reload page to retrieve customer informations
 		if (!empty($conf->global->RELOAD_PAGE_ON_SUPPLIER_CHANGE))
 		{
-			print '<script type="text/javascript">
+			print '<script>
 			$(document).ready(function() {
 				$("#socid").change(function() {
 					var socid = $(this).val();
@@ -1579,7 +1579,7 @@ if ($action=='create')
 	if (! empty($conf->multicurrency->enabled))
 	{
 		print '<tr>';
-		print '<td>'.fieldLabel('Currency','multicurrency_code').'</td>';
+		print '<td>'.$form->editfieldkey('Currency', 'multicurrency_code', '', $object, 0).'</td>';
 		print '<td colspan="3" class="maxwidthonsmartphone">';
 		print $form->selectMultiCurrency($currency_code, 'multicurrency_code');
 		print '</td></tr>';
@@ -1664,7 +1664,7 @@ if ($action=='create')
 		$title = $langs->trans('ProductsAndServices');
 		print load_fiche_titre($title);
 
-		print '<table class="noborder" width="100%">';
+		print '<table class="noborder centpercent">';
 
 		$objectsrc->printOriginLinesList();
 
@@ -1872,7 +1872,7 @@ elseif (! empty($object->id))
 	print '<div class="fichehalfleft">';
 	print '<div class="underbanner clearboth"></div>';
 
-	print '<table class="border" width="100%">';
+	print '<table class="border tableforfield centpercent">';
 
 	// Date
 	if ($object->methode_commande_id > 0)
@@ -1921,10 +1921,10 @@ elseif (! empty($object->id))
 	// Conditions de reglement par defaut
 	$langs->load('bills');
 	print '<tr><td class="nowrap">';
-	print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
+	print '<table class="nobordernopadding centpercent"><tr><td class="nowrap">';
 	print $langs->trans('PaymentConditions');
 	print '<td>';
-	if ($action != 'editconditions') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editconditions&amp;id='.$object->id.'">'.img_edit($langs->trans('SetConditions'),1).'</a></td>';
+	if ($action != 'editconditions') print '<td class="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editconditions&amp;id='.$object->id.'">'.img_edit($langs->trans('SetConditions'),1).'</a></td>';
 	print '</tr></table>';
 	print '</td><td>';
 	if ($action == 'editconditions')
@@ -1941,15 +1941,15 @@ elseif (! empty($object->id))
 	// Mode of payment
 	$langs->load('bills');
 	print '<tr><td class="nowrap">';
-	print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
+	print '<table class="nobordernopadding centpercent"><tr><td class="nowrap">';
 	print $langs->trans('PaymentMode');
 	print '</td>';
-	if ($action != 'editmode') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editmode&amp;id='.$object->id.'">'.img_edit($langs->trans('SetMode'),1).'</a></td>';
+	if ($action != 'editmode') print '<td class="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editmode&amp;id='.$object->id.'">'.img_edit($langs->trans('SetMode'),1).'</a></td>';
 	print '</tr></table>';
 	print '</td><td>';
 	if ($action == 'editmode')
 	{
-		$form->form_modes_reglement($_SERVER['PHP_SELF'].'?id='.$object->id,$object->mode_reglement_id,'mode_reglement_id');
+		$form->form_modes_reglement($_SERVER['PHP_SELF'].'?id='.$object->id,$object->mode_reglement_id,'mode_reglement_id','DBIT', 1, 1);
 	}
 	else
 	{
@@ -1963,11 +1963,11 @@ elseif (! empty($object->id))
 		// Multicurrency code
 		print '<tr>';
 		print '<td>';
-		print '<table class="nobordernopadding" width="100%"><tr><td>';
-		print fieldLabel('Currency','multicurrency_code');
+		print '<table class="nobordernopadding centpercent"><tr><td>';
+		print $form->editfieldkey('Currency', 'multicurrency_code', '', $object, 0);
 		print '</td>';
 		if ($action != 'editmulticurrencycode' && ! empty($object->brouillon))
-			print '<td align="right"><a href="' . $_SERVER["PHP_SELF"] . '?action=editmulticurrencycode&amp;id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetMultiCurrencyCode'), 1) . '</a></td>';
+			print '<td class="right"><a href="' . $_SERVER["PHP_SELF"] . '?action=editmulticurrencycode&amp;id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetMultiCurrencyCode'), 1) . '</a></td>';
 		print '</tr></table>';
 		print '</td><td>';
 		if ($action == 'editmulticurrencycode') {
@@ -1980,11 +1980,11 @@ elseif (! empty($object->id))
 		// Multicurrency rate
 		print '<tr>';
 		print '<td>';
-		print '<table class="nobordernopadding" width="100%"><tr><td>';
-		print fieldLabel('CurrencyRate','multicurrency_tx');
+		print '<table class="nobordernopadding centpercent"><tr><td>';
+		print $form->editfieldkey('CurrencyRate', 'multicurrency_tx', '', $object, 0);
 		print '</td>';
 		if ($action != 'editmulticurrencyrate' && ! empty($object->brouillon) && $object->multicurrency_code && $object->multicurrency_code != $conf->currency)
-			print '<td align="right"><a href="' . $_SERVER["PHP_SELF"] . '?action=editmulticurrencyrate&amp;id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetMultiCurrencyCode'), 1) . '</a></td>';
+			print '<td class="right"><a href="' . $_SERVER["PHP_SELF"] . '?action=editmulticurrencyrate&amp;id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetMultiCurrencyCode'), 1) . '</a></td>';
 		print '</tr></table>';
 		print '</td><td>';
 		if ($action == 'editmulticurrencyrate' || $action == 'actualizemulticurrencyrate') {
@@ -2007,11 +2007,11 @@ elseif (! empty($object->id))
 	if (! empty($conf->global->BANK_ASK_PAYMENT_BANK_DURING_SUPPLIER_ORDER) && ! empty($conf->banque->enabled))
 	{
 		print '<tr><td class="nowrap">';
-		print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
+		print '<table class="nobordernopadding centpercent"><tr><td class="nowrap">';
 		print $langs->trans('BankAccount');
 		print '<td>';
 		if ($action != 'editbankaccount' && $user->rights->fournisseur->commande->creer)
-			print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editbankaccount&amp;id='.$object->id.'">'.img_edit($langs->trans('SetBankAccount'),1).'</a></td>';
+			print '<td class="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editbankaccount&amp;id='.$object->id.'">'.img_edit($langs->trans('SetBankAccount'),1).'</a></td>';
 		print '</tr></table>';
 		print '</td><td>';
 		if ($action == 'editbankaccount') {
@@ -2025,10 +2025,10 @@ elseif (! empty($object->id))
 
 	// Delivery date planed
 	print '<tr><td>';
-	print '<table class="nobordernopadding" width="100%"><tr><td>';
+	print '<table class="nobordernopadding centpercent"><tr><td>';
 	print $langs->trans('DateDeliveryPlanned');
 	print '</td>';
-	if ($action != 'editdate_livraison') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editdate_livraison&amp;id='.$object->id.'">'.img_edit($langs->trans('SetDeliveryDate'),1).'</a></td>';
+	if ($action != 'editdate_livraison') print '<td class="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editdate_livraison&amp;id='.$object->id.'">'.img_edit($langs->trans('SetDeliveryDate'),1).'</a></td>';
 	print '</tr></table>';
 	print '</td><td>';
 	if ($action == 'editdate_livraison')
@@ -2063,9 +2063,9 @@ elseif (! empty($object->id))
 	if (!empty($conf->incoterm->enabled))
 	{
 		print '<tr><td>';
-		print '<table width="100%" class="nobordernopadding"><tr><td>';
+		print '<table class="nobordernopadding centpercent"><tr><td>';
 		print $langs->trans('IncotermLabel');
-		print '<td><td align="right">';
+		print '<td><td class="right">';
 		if ($user->rights->fournisseur->commande->creer) print '<a href="'.DOL_URL_ROOT.'/fourn/commande/card.php?id='.$object->id.'&action=editincoterm">'.img_edit().'</a>';
 		else print '&nbsp;';
 		print '</td></tr></table>';
@@ -2092,22 +2092,22 @@ elseif (! empty($object->id))
 	print '<div class="ficheaddleft">';
 	print '<div class="underbanner clearboth"></div>';
 
-	print '<table class="border centpercent">';
+	print '<table class="border tableforfield centpercent">';
 
 	if (!empty($conf->multicurrency->enabled))
 	{
 		// Multicurrency Amount HT
-		print '<tr><td class="titlefieldmiddle">' . fieldLabel('MulticurrencyAmountHT','multicurrency_total_ht') . '</td>';
+		print '<tr><td class="titlefieldmiddle">' . $form->editfieldkey('MulticurrencyAmountHT', 'multicurrency_total_ht', '', $object, 0) . '</td>';
 		print '<td class="nowrap">' . price($object->multicurrency_total_ht, '', $langs, 0, - 1, - 1, (!empty($object->multicurrency_code) ? $object->multicurrency_code : $conf->currency)) . '</td>';
 		print '</tr>';
 
 		// Multicurrency Amount VAT
-		print '<tr><td>' . fieldLabel('MulticurrencyAmountVAT','multicurrency_total_tva') . '</td>';
+		print '<tr><td>' . $form->editfieldkey('MulticurrencyAmountVAT', 'multicurrency_total_tva', '', $object, 0) . '</td>';
 		print '<td class="nowrap">' . price($object->multicurrency_total_tva, '', $langs, 0, - 1, - 1, (!empty($object->multicurrency_code) ? $object->multicurrency_code : $conf->currency)) . '</td>';
 		print '</tr>';
 
 		// Multicurrency Amount TTC
-		print '<tr><td>' . fieldLabel('MulticurrencyAmountTTC','multicurrency_total_ttc') . '</td>';
+		print '<tr><td>' . $form->editfieldkey('MulticurrencyAmountTTC', 'multicurrency_total_ttc', '', $object, 0) . '</td>';
 		print '<td class="nowrap">' . price($object->multicurrency_total_ttc, '', $langs, 0, - 1, - 1, (!empty($object->multicurrency_code) ? $object->multicurrency_code : $conf->currency)) . '</td>';
 		print '</tr>';
 	}
@@ -2190,7 +2190,7 @@ elseif (! empty($object->id))
 	}
 
 	print '<div class="div-table-responsive-no-min">';
-	print '<table id="tablelines" class="noborder noshadow" width="100%">';
+	print '<table id="tablelines" class="noborder noshadow centpercent">';
 
 	// Add free products/services form
 	global $forceall, $senderissupplier, $dateSelector;
@@ -2275,7 +2275,7 @@ elseif (! empty($object->id))
 					{
 						if (! empty($conf->global->SUPPLIER_ORDER_3_STEPS_TO_BE_APPROVED) && $conf->global->MAIN_FEATURES_LEVEL > 0 && $object->total_ht >= $conf->global->SUPPLIER_ORDER_3_STEPS_TO_BE_APPROVED && ! empty($object->user_approve_id))
 						{
-							print '<a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("FirstApprovalAlreadyDone")).'">'.$langs->trans("ApproveOrder").'</a>';
+							print '<a class="butActionRefused classfortooltip" href="#" title="'.dol_escape_htmltag($langs->trans("FirstApprovalAlreadyDone")).'">'.$langs->trans("ApproveOrder").'</a>';
 						}
 						else
 						{
@@ -2284,7 +2284,7 @@ elseif (! empty($object->id))
 					}
 					else
 					{
-						print '<a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotAllowed")).'">'.$langs->trans("ApproveOrder").'</a>';
+						print '<a class="butActionRefused classfortooltip" href="#" title="'.dol_escape_htmltag($langs->trans("NotAllowed")).'">'.$langs->trans("ApproveOrder").'</a>';
 					}
 				}
 
@@ -2297,7 +2297,7 @@ elseif (! empty($object->id))
 						{
 							if (! empty($object->user_approve_id2))
 							{
-								print '<a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("SecondApprovalAlreadyDone")).'">'.$langs->trans("Approve2Order").'</a>';
+								print '<a class="butActionRefused classfortooltip" href="#" title="'.dol_escape_htmltag($langs->trans("SecondApprovalAlreadyDone")).'">'.$langs->trans("Approve2Order").'</a>';
 							}
 							else
 							{
@@ -2306,7 +2306,7 @@ elseif (! empty($object->id))
 						}
 						else
 						{
-							print '<a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotAllowed")).'">'.$langs->trans("Approve2Order").'</a>';
+							print '<a class="butActionRefused classfortooltip" href="#" title="'.dol_escape_htmltag($langs->trans("NotAllowed")).'">'.$langs->trans("Approve2Order").'</a>';
 						}
 					}
 				}
@@ -2320,7 +2320,7 @@ elseif (! empty($object->id))
 					}
 					else
 					{
-						print '<a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotAllowed")).'">'.$langs->trans("RefuseOrder").'</a>';
+						print '<a class="butActionRefused classfortooltip" href="#" title="'.dol_escape_htmltag($langs->trans("NotAllowed")).'">'.$langs->trans("RefuseOrder").'</a>';
 					}
 				}
 
@@ -2364,13 +2364,14 @@ elseif (! empty($object->id))
 				}
 
 				// Ship
-				if (! empty($conf->stock->enabled) && ! empty($conf->global->STOCK_CALCULATE_ON_SUPPLIER_DISPATCH_ORDER))
+
+				if (! empty($conf->stock->enabled) && (! empty($conf->global->STOCK_CALCULATE_ON_SUPPLIER_DISPATCH_ORDER) || !empty($conf->global->STOCK_CALCULATE_ON_RECEPTION) || !empty($conf->global->STOCK_CALCULATE_ON_RECEPTION_CLOSE)))
 				{
 					if (in_array($object->statut, array(3,4,5))) {
 						if ($conf->fournisseur->enabled && $user->rights->fournisseur->commande->receptionner) {
 							print '<div class="inline-block divButAction"><a class="butAction" href="' . DOL_URL_ROOT . '/fourn/commande/dispatch.php?id=' . $object->id . '">' . $langs->trans('ReceiveProducts') . '</a></div>';
 						} else {
-							print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="' . dol_escape_htmltag($langs->trans("NotAllowed")) . '">' . $langs->trans('ReceiveProducts') . '</a></div>';
+							print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#" title="' . dol_escape_htmltag($langs->trans("NotAllowed")) . '">' . $langs->trans('ReceiveProducts') . '</a></div>';
 						}
 					}
 				}
@@ -2383,7 +2384,7 @@ elseif (! empty($object->id))
 					}
 					else
 					{
-						print '<div class="inline-block divButAction"><a class="butActionRefused" href="#">'.$langs->trans("MakeOrder").'</a></div>';
+						print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#">'.$langs->trans("MakeOrder").'</a></div>';
 					}
 				}
 
@@ -2406,7 +2407,7 @@ elseif (! empty($object->id))
 					{
 						print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=classifybilled">'.$langs->trans("ClassifyBilled").'</a>';
 					}
-					else if (!empty($object->linkedObjectsIds['invoice_supplier']))
+					elseif (!empty($object->linkedObjectsIds['invoice_supplier']))
 					{
 						if ($user->rights->fournisseur->facture->creer)
 						{
@@ -2456,7 +2457,7 @@ elseif (! empty($object->id))
 			print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 			print '<input type="hidden"	name="action" value="commande">';
 			print load_fiche_titre($langs->trans("ToOrder"),'','');
-			print '<table class="noborder" width="100%">';
+			print '<table class="noborder centpercent">';
 			//print '<tr class="liste_titre"><td colspan="2">'.$langs->trans("ToOrder").'</td></tr>';
 			print '<tr><td>'.$langs->trans("OrderDate").'</td><td>';
 			$date_com = dol_mktime(GETPOST('rehour','int'), GETPOST('remin','int'), GETPOST('resec','int'), GETPOST('remonth','int'), GETPOST('reday','int'), GETPOST('reyear','int'));
@@ -2469,7 +2470,7 @@ elseif (! empty($object->id))
 			print '</td></tr>';
 
 			print '<tr><td>'.$langs->trans("Comment").'</td><td><input size="40" type="text" name="comment" value="'.GETPOST('comment').'"></td></tr>';
-			print '<tr><td align="center" colspan="2">';
+			print '<tr><td class="center" colspan="2">';
 			print '<input type="submit" name="makeorder" class="button" value="'.$langs->trans("ToOrder").'">';
 			print ' &nbsp; &nbsp; ';
 			print '<input type="submit" name="cancel" class="button" value="'.$langs->trans("Cancel").'">';
@@ -2513,7 +2514,7 @@ elseif (! empty($object->id))
 				print '<input type="hidden"	name="action" value="livraison">';
 				print load_fiche_titre($langs->trans("Receive"),'','');
 
-				print '<table class="noborder" width="100%">';
+				print '<table class="noborder centpercent">';
 				//print '<tr class="liste_titre"><td colspan="2">'.$langs->trans("Receive").'</td></tr>';
 				print '<tr><td>'.$langs->trans("DeliveryDate").'</td><td>';
 				$datepreselected = dol_now();
@@ -2532,7 +2533,7 @@ elseif (! empty($object->id))
 
 				print '</td></tr>';
 				print '<tr><td>'.$langs->trans("Comment").'</td><td><input size="40" type="text" name="comment"></td></tr>';
-				print '<tr><td align="center" colspan="2"><input type="submit" class="button" value="'.$langs->trans("Receive").'"></td></tr>';
+				print '<tr><td class="center" colspan="2"><input type="submit" class="button" value="'.$langs->trans("Receive").'"></td></tr>';
 				print "</table>\n";
 				print "</form>\n";
 				print "<br>";
@@ -2574,7 +2575,7 @@ elseif (! empty($object->id))
 				setEventMessages($langs->trans("ErrorWebServicesFieldsRequired"), null, 'errors');
 				$mode = "init";
 				$error_occurred = true; //Don't allow to set the user/pass if thirdparty fields are not filled
-			} else if ($mode != "init" && (empty($ws_user) || empty($ws_password))) {
+			} elseif ($mode != "init" && (empty($ws_user) || empty($ws_password))) {
 				setEventMessages($langs->trans("ErrorFieldsRequired"), null, 'errors');
 				$mode = "init";
 			}
@@ -2582,7 +2583,7 @@ elseif (! empty($object->id))
 			if ($mode == "init")
 			{
 				//Table/form header
-				print '<table class="border" width="100%">';
+				print '<table class="border centpercent">';
 				print '<form action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'" method="post">';
 				print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 				print '<input type="hidden" name="action" value="webservice">';
@@ -2603,7 +2604,7 @@ elseif (! empty($object->id))
 					//Remote Password
 					print '<tr><td>'.$langs->trans("Password").'</td><td><input size="'.$textinput_size.'" type="text" name="ws_password"></td></tr>';
 					//Submit button
-					print '<tr><td align="center" colspan="2">';
+					print '<tr><td class="center" colspan="2">';
 					print '<input class="button" type="submit" id="ws_submit" name="ws_submit" value="'.$langs->trans("CreateRemoteOrder").'">';
 					print ' &nbsp; &nbsp; ';
 					//Cancel button
@@ -2673,7 +2674,7 @@ elseif (! empty($object->id))
 							{
 								setEventMessages($langs->trans("SOAPError")." '".$soapclient_order->error_str."'", null, 'errors');
 							}
-							else if ($status_code != "OK") //Something went wrong
+							elseif ($status_code != "OK") //Something went wrong
 							{
 								if ($status_code == "NOT_FOUND")
 								{

@@ -88,7 +88,7 @@ function tax_prepare_head(ChargeSociales $object)
  *  @param  int		$q           	Quarter
  *  @return array       			Array with details of VATs (per third parties), -1 if no accountancy module, -2 if not yet developped, -3 if error
  */
-function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $direction, $m=0, $q=0)
+function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $direction, $m = 0, $q = 0)
 {
     global $conf;
 
@@ -109,7 +109,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
     	$total_tva='total_tva';
     	$paymenttable='paiement';
     	$paymentfacturetable='paiement_facture';
-    	$invoicefieldref='facnumber';
+    	$invoicefieldref='ref';
     }
     if ($direction == 'buy')
     {
@@ -152,7 +152,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
     	$sql.= " ".MAIN_DB_PREFIX."societe as s,";
     	$sql.= " ".MAIN_DB_PREFIX.$invoicedettable." as d" ;
     	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product as p on d.fk_product = p.rowid";
-    	$sql.= " WHERE f.entity = " . $conf->entity;
+    	$sql.= " WHERE f.entity IN (".getEntity($invoicetable).")";
     	$sql.= " AND f.fk_statut in (1,2)"; // Validated or paid (partially or completely)
     	if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) $sql.= " AND f.type IN (0,1,2,5)";
     	else $sql.= " AND f.type IN (0,1,2,3,5)";
@@ -163,7 +163,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
     		$sql.= " AND f.datef >= '".$db->idate(dol_get_first_day($y,$m,false))."'";
     		$sql.= " AND f.datef <= '".$db->idate(dol_get_last_day($y,$m,false))."'";
     	}
-    	else if ($y)
+    	elseif ($y)
     	{
     		$sql.= " AND f.datef >= '".$db->idate(dol_get_first_day($y,1,false))."'";
     		$sql.= " AND f.datef <= '".$db->idate(dol_get_last_day($y,12,false))."'";
@@ -191,7 +191,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
     	$sql.= " ".MAIN_DB_PREFIX."societe as s,";
     	$sql.= " ".MAIN_DB_PREFIX.$invoicedettable." as d";
     	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product as p on d.fk_product = p.rowid";
-    	$sql.= " WHERE f.entity = " . $conf->entity;
+    	$sql.= " WHERE f.entity IN (".getEntity($invoicetable).")";
     	$sql.= " AND f.fk_statut in (1,2)"; // Paid (partially or completely)
     	if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) $sql.= " AND f.type IN (0,1,2,5)";
     	else $sql.= " AND f.type IN (0,1,2,3,5)";
@@ -204,7 +204,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
     		$sql.= " AND pa.datep >= '".$db->idate(dol_get_first_day($y,$m,false))."'";
     		$sql.= " AND pa.datep <= '".$db->idate(dol_get_last_day($y,$m,false))."'";
     	}
-    	else if ($y)
+    	elseif ($y)
     	{
     		$sql.= " AND pa.datep >= '".$db->idate(dol_get_first_day($y,1,false))."'";
     		$sql.= " AND pa.datep <= '".$db->idate(dol_get_last_day($y,12,false))."'";
@@ -300,7 +300,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
     	$sql.= " ".MAIN_DB_PREFIX."societe as s,";
     	$sql.= " ".MAIN_DB_PREFIX.$invoicedettable." as d" ;
     	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product as p on d.fk_product = p.rowid";
-    	$sql.= " WHERE f.entity = " . $conf->entity;
+    	$sql.= " WHERE f.entity IN (".getEntity($invoicetable).")";
     	$sql.= " AND f.fk_statut in (1,2)"; // Validated or paid (partially or completely)
     	if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) $sql.= " AND f.type IN (0,1,2,5)";
     	else $sql.= " AND f.type IN (0,1,2,3,5)";
@@ -311,7 +311,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
     		$sql.= " AND f.datef >= '".$db->idate(dol_get_first_day($y,$m,false))."'";
     		$sql.= " AND f.datef <= '".$db->idate(dol_get_last_day($y,$m,false))."'";
     	}
-    	else if ($y)
+    	elseif ($y)
     	{
     		$sql.= " AND f.datef >= '".$db->idate(dol_get_first_day($y,1,false))."'";
     		$sql.= " AND f.datef <= '".$db->idate(dol_get_last_day($y,12,false))."'";
@@ -339,7 +339,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
     	$sql.= " ".MAIN_DB_PREFIX."societe as s,";
     	$sql.= " ".MAIN_DB_PREFIX.$invoicedettable." as d";
     	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product as p on d.fk_product = p.rowid";
-    	$sql.= " WHERE f.entity = " . $conf->entity;
+    	$sql.= " WHERE f.entity IN (".getEntity($invoicetable).")";
     	$sql.= " AND f.fk_statut in (1,2)"; // Paid (partially or completely)
     	if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) $sql.= " AND f.type IN (0,1,2,5)";
     	else $sql.= " AND f.type IN (0,1,2,3,5)";
@@ -352,7 +352,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
     		$sql.= " AND pa.datep >= '".$db->idate(dol_get_first_day($y,$m,false))."'";
     		$sql.= " AND pa.datep <= '".$db->idate(dol_get_last_day($y,$m,false))."'";
     	}
-    	else if ($y)
+    	elseif ($y)
     	{
     		$sql.= " AND pa.datep >= '".$db->idate(dol_get_first_day($y,1,false))."'";
     		$sql.= " AND pa.datep <= '".$db->idate(dol_get_last_day($y,12,false))."'";
@@ -456,7 +456,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
     		$sql.= " AND p.datep >= '".$db->idate(dol_get_first_day($y,$m,false))."'";
     		$sql.= " AND p.datep <= '".$db->idate(dol_get_last_day($y,$m,false))."'";
     	}
-    	else if ($y)
+    	elseif ($y)
     	{
     		$sql.= " AND p.datep >= '".$db->idate(dol_get_first_day($y,1,false))."'";
     		$sql.= " AND p.datep <= '".$db->idate(dol_get_last_day($y,12,false))."'";
@@ -556,7 +556,7 @@ function tax_by_thirdparty($type, $db, $y, $date_start, $date_end, $modetax, $di
  *  @param  int		$m           	Month
  *  @return array       			Array with details of VATs (per rate), -1 if no accountancy module, -2 if not yet developped, -3 if error
  */
-function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $direction, $m=0)
+function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $direction, $m = 0)
 {
     global $conf;
 
@@ -578,7 +578,7 @@ function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $dire
         $total_tva='total_tva';
         $paymenttable='paiement';
         $paymentfacturetable='paiement_facture';
-        $invoicefieldref='facnumber';
+        $invoicefieldref='ref';
     }
     else
     {
@@ -621,7 +621,7 @@ function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $dire
         $sql.= " ".MAIN_DB_PREFIX."societe as s,";
         $sql.= " ".MAIN_DB_PREFIX.$invoicedettable." as d" ;
         $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product as p on d.fk_product = p.rowid";
-        $sql.= " WHERE f.entity = " . $conf->entity;
+        $sql.= " WHERE f.entity IN (".getEntity($invoicetable).")";
         $sql.= " AND f.fk_statut in (1,2)"; // Validated or paid (partially or completely)
         if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) $sql.= " AND f.type IN (0,1,2,5)";
         else $sql.= " AND f.type IN (0,1,2,3,5)";
@@ -632,7 +632,7 @@ function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $dire
             $sql.= " AND f.datef >= '".$db->idate(dol_get_first_day($y,$m,false))."'";
             $sql.= " AND f.datef <= '".$db->idate(dol_get_last_day($y,$m,false))."'";
         }
-        else if ($y)
+        elseif ($y)
         {
             $sql.= " AND f.datef >= '".$db->idate(dol_get_first_day($y,1,false))."'";
             $sql.= " AND f.datef <= '".$db->idate(dol_get_last_day($y,12,false))."'";
@@ -660,7 +660,7 @@ function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $dire
     	$sql.= " ".MAIN_DB_PREFIX."societe as s,";
     	$sql.= " ".MAIN_DB_PREFIX.$invoicedettable." as d";
     	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product as p on d.fk_product = p.rowid";
-    	$sql.= " WHERE f.entity = " . $conf->entity;
+    	$sql.= " WHERE f.entity IN (".getEntity($invoicetable).")";
     	$sql.= " AND f.fk_statut in (1,2)"; // Paid (partially or completely)
     	if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) $sql.= " AND f.type IN (0,1,2,5)";
     	else $sql.= " AND f.type IN (0,1,2,3,5)";
@@ -673,7 +673,7 @@ function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $dire
     		$sql.= " AND pa.datep >= '".$db->idate(dol_get_first_day($y,$m,false))."'";
     		$sql.= " AND pa.datep <= '".$db->idate(dol_get_last_day($y,$m,false))."'";
     	}
-    	else if ($y)
+    	elseif ($y)
     	{
     		$sql.= " AND pa.datep >= '".$db->idate(dol_get_first_day($y,1,false))."'";
     		$sql.= " AND pa.datep <= '".$db->idate(dol_get_last_day($y,12,false))."'";
@@ -769,7 +769,7 @@ function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $dire
         $sql.= " ".MAIN_DB_PREFIX."societe as s,";
         $sql.= " ".MAIN_DB_PREFIX.$invoicedettable." as d" ;
         $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product as p on d.fk_product = p.rowid";
-        $sql.= " WHERE f.entity = " . $conf->entity;
+        $sql.= " WHERE f.entity IN (".getEntity($invoicetable).")";
         $sql.= " AND f.fk_statut in (1,2)"; // Validated or paid (partially or completely)
         if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) $sql.= " AND f.type IN (0,1,2,5)";
 		else $sql.= " AND f.type IN (0,1,2,3,5)";
@@ -780,7 +780,7 @@ function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $dire
             $sql.= " AND f.datef >= '".$db->idate(dol_get_first_day($y,$m,false))."'";
             $sql.= " AND f.datef <= '".$db->idate(dol_get_last_day($y,$m,false))."'";
         }
-        else if ($y)
+        elseif ($y)
         {
             $sql.= " AND f.datef >= '".$db->idate(dol_get_first_day($y,1,false))."'";
             $sql.= " AND f.datef <= '".$db->idate(dol_get_last_day($y,12,false))."'";
@@ -808,7 +808,7 @@ function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $dire
         $sql.= " ".MAIN_DB_PREFIX."societe as s,";
         $sql.= " ".MAIN_DB_PREFIX.$invoicedettable." as d";
         $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product as p on d.fk_product = p.rowid";
-        $sql.= " WHERE f.entity = " . $conf->entity;
+        $sql.= " WHERE f.entity IN (".getEntity($invoicetable).")";
         $sql.= " AND f.fk_statut in (1,2)"; // Paid (partially or completely)
         if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) $sql.= " AND f.type IN (0,1,2,5)";
 		else $sql.= " AND f.type IN (0,1,2,3,5)";
@@ -821,7 +821,7 @@ function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $dire
             $sql.= " AND pa.datep >= '".$db->idate(dol_get_first_day($y,$m,false))."'";
             $sql.= " AND pa.datep <= '".$db->idate(dol_get_last_day($y,$m,false))."'";
         }
-        else if ($y)
+        elseif ($y)
         {
             $sql.= " AND pa.datep >= '".$db->idate(dol_get_first_day($y,1,false))."'";
             $sql.= " AND pa.datep <= '".$db->idate(dol_get_last_day($y,12,false))."'";
@@ -925,7 +925,7 @@ function tax_by_rate($type, $db, $y, $q, $date_start, $date_end, $modetax, $dire
 			$sql.= " AND p.datep >= '".$db->idate(dol_get_first_day($y,$m,false))."'";
 			$sql.= " AND p.datep <= '".$db->idate(dol_get_last_day($y,$m,false))."'";
 		}
-		else if ($y)
+		elseif ($y)
 		{
 			$sql.= " AND p.datep >= '".$db->idate(dol_get_first_day($y,1,false))."'";
 			$sql.= " AND p.datep <= '".$db->idate(dol_get_last_day($y,12,false))."'";

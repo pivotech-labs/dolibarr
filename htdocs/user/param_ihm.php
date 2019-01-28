@@ -49,11 +49,7 @@ if ($id)
 $socid=0;
 if ($user->societe_id > 0) $socid = $user->societe_id;
 $feature2 = (($socid && $user->rights->user->self->creer)?'':'user');
-if ($user->id == $id)	// A user can always read its own card
-{
-    $feature2='';
-    $canreaduser=1;
-}
+
 $result = restrictedArea($user, 'user', $id, 'user&user', $feature2);
 if ($user->id <> $id && ! $canreaduser) accessforbidden();
 
@@ -148,6 +144,12 @@ if (empty($reshook)) {
 				$tabparam["THEME_ELDY_USE_CHECKED"] = 1;
 			} else {
 				$tabparam["THEME_ELDY_USE_CHECKED"] = 0;
+			}
+
+			if (GETPOST('MAIN_OPTIMIZEFORTEXTBROWSER')) {
+			    $tabparam["MAIN_OPTIMIZEFORTEXTBROWSER"] = 1;
+			} else {
+			    $tabparam["MAIN_OPTIMIZEFORTEXTBROWSER"] = 0;
 			}
 
 			$result = dol_set_user_param($db, $conf, $object, $tabparam);
@@ -387,7 +389,7 @@ else
     print '<div class="tabsAction">';
     if (empty($user->admin) && ! empty($dolibarr_main_demo))
     {
-        print "<a class=\"butActionRefused\" title=\"".$langs->trans("FeatureDisabledInDemo")."\" href=\"#\">".$langs->trans("Modify")."</a>";
+        print "<a class=\"butActionRefused classfortooltip\" title=\"".$langs->trans("FeatureDisabledInDemo")."\" href=\"#\">".$langs->trans("Modify")."</a>";
     }
     else
     {
@@ -397,7 +399,7 @@ else
         }
         else
         {
-            print "<a class=\"butActionRefused\" title=\"".$langs->trans("NotEnoughPermissions")."\" href=\"#\">".$langs->trans("Modify")."</a>";
+            print "<a class=\"butActionRefused classfortooltip\" title=\"".$langs->trans("NotEnoughPermissions")."\" href=\"#\">".$langs->trans("Modify")."</a>";
         }
     }
 

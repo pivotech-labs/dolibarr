@@ -48,7 +48,7 @@ $colorbacklineimpair2='255,255,255';    // line impair
 $colorbacklinepair1='250,250,250';    // line pair
 $colorbacklinepair2='250,250,250';    // line pair
 $colorbacklinepairhover='230,237,244';	// line hover
-$colorbacklinebreak='214,218,220';		// line break
+$colorbacklinebreak='239,231,224';		// line break
 $colorbackbody='255,255,255';
 $colortexttitlenotab='100,60,20';
 $colortexttitle='0,0,0';
@@ -59,19 +59,24 @@ $fontsizesmaller='0.75em';
 
 if (defined('THEME_ONLY_CONSTANT')) return;
 
-session_cache_limiter(false);
+session_cache_limiter('public');
 
 require_once '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 
 // Load user to have $user->conf loaded (not done into main because of NOLOGIN constant defined)
-if (empty($user->id) && ! empty($_SESSION['dol_login'])) $user->fetch('',$_SESSION['dol_login'],'',1);
+// and permission, so we can later calculate number of top menu ($nbtopmenuentries) according to user profile.
+if (empty($user->id) && ! empty($_SESSION['dol_login']))
+{
+	$user->fetch('',$_SESSION['dol_login'],'',1);
+	$user->getrights();
+}
 
 
 // Define css type
 top_httphead('text/css');
 // Important: Following code is to avoid page request by browser and PHP CPU at each Dolibarr page access.
-if (empty($dolibarr_nocache)) header('Cache-Control: max-age=3600, public, must-revalidate');
+if (empty($dolibarr_nocache)) header('Cache-Control: max-age=10800, public, must-revalidate');
 else header('Cache-Control: no-cache');
 
 if (GETPOST('theme','alpha')) $conf->theme=GETPOST('theme','alpha');  // If theme was forced on URL
@@ -451,7 +456,7 @@ select.flat, form.flat select {
 	color: #FFF !important;
 }
 .optiongrey, .opacitymedium {
-	opacity: 0.5;
+	opacity: 0.4;
 }
 .opacityhigh {
 	opacity: 0.2;
@@ -505,10 +510,8 @@ hr { border: 0; border-top: 1px solid #ccc; }
 	margin-left: 5px;
 	margin-right: 5px;
     font-family: <?php print $fontlist ?>;
-	border-color: #c5c5c5;
-	border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.25);
 	display: inline-block;
-	padding: 3px 14px;
+	padding: 4px 14px;
 	text-align: center;
 	cursor: pointer;
 	text-decoration: none !important;
@@ -519,12 +522,14 @@ hr { border: 0; border-top: 1px solid #ccc; }
 	background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
 	background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
 	background-repeat: repeat-x;
-	border-color: #e6e6e6 #e6e6e6 #bfbfbf;
 	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-	border: 1px solid #bbbbbb;
-	border-bottom-color: #a2a2a2;
+	border: 1px solid #aaa;
 	-webkit-border-radius: 2px;
-	border-radius: 2px;
+	border-radius: 1px;
+
+	font-weight: bold;
+	text-transform: uppercase;
+	color: #444;
 }
 .button:focus, .buttonDelete:focus  {
 	-webkit-box-shadow: 0px 0px 5px 1px rgba(0, 0, 60, 0.2), 0px 0px 0px rgba(60,60,60,0.1);
@@ -862,9 +867,7 @@ select.flat.selectlimit {
 .fa-file-text-o, .fa-file-code-o, .fa-file-powerpoint-o, .fa-file-excel-o, .fa-file-word-o, .fa-file-o, .fa-file-image-o, .fa-file-video-o, .fa-file-audio-o, .fa-file-archive-o, .fa-file-pdf-o {
 	color: #055;
 }
-.fa-trash, .fa-crop, .fa-pencil {
-	font-size: 1.4em;
-}
+
 .fa-15 {
 	font-size: 1.5em;
 }
@@ -907,8 +910,9 @@ div.fiche {
     min-width: 150px;
 }
 .thumbstat150 {
-    /* min-width: 170px; */
-    width: 170px;
+    min-width: 168px;
+    max-width: 169px;
+    /* width: 168px; If I use with, there is trouble on size of flex boxes solved with min+max that is a little bit higer than min */
 }
 .thumbstat, .thumbstat150 {
 <?php if ($conf->browser->name == 'ie') { ?>
@@ -1073,9 +1077,12 @@ select.selectarrowonleft option {
     	/* padding: .4em .1em; */
     	/* border-bottom: 1px solid #BBB; */
     	/* max-width: inherit; why this ? */
-     }
-     input[type=text], input[type=password] {
+    }
+    input[type=text], input[type=password] {
 		max-width: 180px;
+	}
+    .vmenu .searchform input {
+		max-width: 138px;	/* length of input text in the quick search box when using a smartphone and without dolidroid */
 	}
 
     .hideonsmartphone { display: none; }
@@ -1146,6 +1153,11 @@ select.selectarrowonleft option {
    	}
 }
 .linkobject { cursor: pointer; }
+
+table.tableforfield tr>td:first-of-type {
+	color: #666;
+}
+
 <?php if (GETPOST('optioncss','aZ09') == 'print') { ?>
 .hideonprint { display: none; }
 <?php } ?>
@@ -1371,6 +1383,23 @@ div.secondcolumn div.box {
 	div.secondcolumn div.box {
 		padding-left: 0px;
 	}
+}
+
+/* Force values on one colum for small screen */
+@media only screen and (max-width: 1599px)
+{
+    div.fichehalfleft-lg {
+    	float: none;
+    	width: auto;
+    }
+    div.fichehalfright-lg {
+    	float: none;
+    	width: auto;
+    }
+
+    .fichehalfright-lg .ficheaddleft{
+    	padding-left:0;
+    }
 }
 
 /* For table into table into card */
@@ -1822,6 +1851,14 @@ foreach($mainmenuusedarray as $val)
 		print "}\n";
 	}
 }
+$j=0;
+while ($j++ < 4)
+{
+	$url=dol_buildpath($path.'/theme/'.$theme.'/img/menus/generic'.$j."_over.png",1);
+	print "div.mainmenu.generic".$j." {\n";
+	print "	background-image: url(".$url.");\n";
+	print "}\n";
+}
 // End of part to add more div class css
 ?>
 
@@ -2023,7 +2060,6 @@ div.login_block_other { padding-top: 3px; text-align: right; }
 }
 .atoplogin, .atoplogin:hover {
 	color: #<?php echo $colortextbackhmenu; ?> !important;
-	font-weight: normal !important;
 }
 .login_block_getinfo {
 	text-align: center;
@@ -2033,7 +2069,6 @@ div.login_block_other { padding-top: 3px; text-align: right; }
 }
 .login_block_getinfo .atoplogin, .login_block_getinfo .atoplogin:hover {
 	color: #333 !important;
-	font-weight: normal !important;
 }
 .alogin, .alogin:hover {
 	font-weight: normal !important;
@@ -2057,7 +2092,6 @@ img.login, img.printer, img.entity {
 	width: 16px;
     height: 16px;
     border-radius: 8px;
-    background-size: contain;
     background-size: contain;
 }
 img.userphoto {			/* size for user photo in lists */
@@ -3075,11 +3109,12 @@ tr.liste_titre, tr.liste_titre_sel, form.liste_titre, form.liste_titre_sel, tabl
 {
 	height: 26px !important;
 }
-div.colorback
+div.colorback	/* for the form "assign user" on time spent view */
 {
-	background: rgb(<?php echo $colorbacktitle1; ?>);
+	background: #f8f8f8;
 	padding: 10px;
 	margin-top: 5px;
+	border: 1px solid #ddd;
 }
 div.liste_titre_bydiv, .liste_titre div.tagtr, tr.liste_titre, tr.liste_titre_sel, form.liste_titre, form.liste_titre_sel, table.dataTable thead tr
 {
@@ -3900,6 +3935,7 @@ tr.visible {
 	display: inline-block;
 	padding-left: 10px;
 	vertical-align: middle;
+	line-height: 28px;
 }
 .websitetools {
 	float: right;
@@ -4685,7 +4721,6 @@ div.dataTables_length select {
 }
 .select2-default {
     color: #999 !important;
-    /*opacity: 0.2;*/
 }
 .select2-choice, .select2-container .select2-choice {
 	border-bottom: solid 1px rgba(0,0,0,.4);
@@ -4826,7 +4861,7 @@ a span.select2-chosen
 	cursor: default;
 }
 .select2-container-disabled .select2-choice .select2-arrow b {
-	opacity: 0.5;
+	opacity: 0.4;
 }
 .select2-container-multi .select2-choices .select2-search-choice {
   margin-bottom: 3px;
@@ -4851,11 +4886,11 @@ a span.select2-chosen
 }
 .select2-container--default .select2-selection--single .select2-selection__placeholder {
 	color: unset;
-	opacity: 0.5;
+	opacity: 0.4;
 }
 span#select2-boxbookmark-container, span#select2-boxcombo-container {
     text-align: <?php echo $left; ?>;
-    opacity: 0.5;
+    opacity: 0.4;
 }
 .select2-container .select2-selection--single .select2-selection__rendered {
 	padding-left: 6px;

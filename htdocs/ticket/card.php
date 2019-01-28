@@ -335,11 +335,12 @@ if (empty($action) || $action == 'view' || $action == 'addlink' || $action == 'd
         if (! empty($conf->projet->enabled))
         {
         	$langs->load("projects");
-        	$morehtmlref.='<br>'.$langs->trans('Project') . ' ';
+        	$morehtmlref.='<br>'.$langs->trans('Project');
         	if ($user->rights->ticket->write)
         	{
         		if ($action != 'classify')
-        			$morehtmlref.='<a href="' . $_SERVER['PHP_SELF'] . '?action=classify&amp;id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a> : ';
+        			$morehtmlref.='<a href="' . $_SERVER['PHP_SELF'] . '?action=classify&amp;id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a>';
+       			$morehtmlref.=' : ';
        			if ($action == 'classify') {
        				//$morehtmlref.=$form->form_project($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->socid, $object->fk_project, 'projectid', 0, 0, 1, 1);
        				$morehtmlref.='<form method="post" action="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'">';
@@ -443,7 +444,7 @@ if (empty($action) || $action == 'view' || $action == 'addlink' || $action == 'd
         // Progression
         print '<tr><td>';
         print '<table class="nobordernopadding" width="100%"><tr><td class="nowrap">';
-        print $langs->trans('Progression') . '</td><td align="left">';
+        print $langs->trans('Progression') . '</td><td class="left">';
         print '</td>';
         if ($action != 'progression' && $object->fk_statut < 8 && !$user->societe_id) {
             print '<td align="right"><a href="' . $url_page_current . '?action=progression&amp;track_id=' . $object->track_id . '">' . img_edit($langs->trans('Modify')) . '</a></td>';
@@ -727,7 +728,7 @@ if (empty($action) || $action == 'view' || $action == 'addlink' || $action == 'd
 		        // Link to create an intervention
 		        // socid is needed otherwise fichinter ask it and forgot origin after form submit :\
 		        if (!$object->fk_soc && $user->rights->ficheinter->creer) {
-		            print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="' . $langs->trans('UnableToCreateInterIfNoSocid') . '">' . $langs->trans('TicketAddIntervention') . '</a></div>';
+		            print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#" title="' . $langs->trans('UnableToCreateInterIfNoSocid') . '">' . $langs->trans('TicketAddIntervention') . '</a></div>';
 		        }
 		        if ($object->fk_soc > 0 && $object->fk_statut < 8 && $user->rights->ficheinter->creer) {
 		            print '<div class="inline-block divButAction"><a class="butAction" href="' . dol_buildpath('/fichinter/card.php', 1) . '?action=create&socid=' . $object->fk_soc . '&origin=ticket_ticket&originid=' . $object->id . '">' . $langs->trans('TicketAddIntervention') . '</a></div>';
